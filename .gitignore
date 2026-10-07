@@ -1,6 +1,8 @@
-# Documentation / Office binaries
+# Documentation / Personal notes & binaries
 docs/*.docx
 docs/Báo cáo tiến độ giữa kì nhóm 15.docx
+docs/KE_HOACH_CONG_VIEC.md
+docs/WORK_PLAN.md
 
 # Node & Hardhat
 node_modules/
