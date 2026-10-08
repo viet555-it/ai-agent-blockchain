@@ -59,9 +59,14 @@ npx hardhat run scripts/deploy.js --network hardhat
    npx hardhat run scripts/deploy.js --network sepolia
    ```
 
-Khi deploy xong, script sẽ **tự động xuất 2 file** sang thư mục `backend/abi/`:
+Khi deploy xong, script sẽ **tự động xuất 2 file** sang thư mục `backend/abi/` và `contracts/exported/`:
 - `AgentToken_abi.json`: File ABI chuẩn JSON.
 - `deployment.json`: Chứa địa chỉ contract vừa deploy và thông tin mạng.
+
+### Địa chỉ Contract chính thức trên Sepolia Testnet:
+- **Contract Address**: [`0xDf7B0c367817f97d756441da6047a1Da91cC6Fff`](https://sepolia.etherscan.io/address/0xDf7B0c367817f97d756441da6047a1Da91cC6Fff#code)
+- **Explorer**: Verified Contract trên Etherscan Sepolia (Tick xanh)
+- **Initial Supply**: 1,000,000 AGNT
 
 ---
 
