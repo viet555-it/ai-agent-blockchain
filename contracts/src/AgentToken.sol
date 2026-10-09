@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
@@ -9,7 +10,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * @dev ERC-20 Token designed for AI Agent interaction and guardrail demonstrations.
  * Includes faucet capabilities and guardrail-friendly limit checks.
  */
-contract AgentToken is ERC20, Ownable {
+contract AgentToken is ERC20Capped, Ownable {
+    // Applied centrally to constructor, owner mint and faucet mint.
+    uint256 public constant MAX_TOTAL_SUPPLY = 10_000_000 * 10 ** 18;
     // Maximum amount allowed per faucet claim (e.g., 100 AGNT)
     uint256 public constant FAUCET_AMOUNT_LIMIT = 100 * 10 ** 18;
 
@@ -31,6 +34,7 @@ contract AgentToken is ERC20, Ownable {
      */
     constructor(address initialOwner, uint256 initialSupply)
         ERC20("Agent Token", "AGNT")
+        ERC20Capped(MAX_TOTAL_SUPPLY)
         Ownable(initialOwner)
     {
         maxTransferLimit = 500 * 10 ** 18; // Default 500 AGNT limit
@@ -81,21 +85,39 @@ contract AgentToken is ERC20, Ownable {
         address sender,
         address recipient,
         uint256 amount
-    ) external view returns (bool isValid, string memory reason) {
+    ) public view returns (bool isValid, string memory reason) {
         if (sender == address(0)) {
             return (false, "Invalid sender address");
         }
         if (recipient == address(0)) {
             return (false, "Invalid recipient address");
         }
-        if (amount == 0) {
-            return (false, "Transfer amount must be greater than zero");
-        }
         if (amount > maxTransferLimit) {
             return (false, "Amount exceeds guardrail maxTransferLimit");
         }
         if (balanceOf(sender) < amount) {
             return (false, "Insufficient balance");
+        }
+        return (true, "Valid");
+    }
+
+    /**
+     * @notice Validate transferFrom, including self-spending allowance.
+     * @dev spender is the caller of transferFrom, not the recipient.
+     */
+    function validateTransferFrom(
+        address sender,
+        address recipient,
+        uint256 amount,
+        address spender
+    ) external view returns (bool isValid, string memory reason) {
+        if (spender == address(0)) {
+            return (false, "Invalid spender address");
+        }
+        (isValid, reason) = validateTransfer(sender, recipient, amount);
+        if (!isValid) return (isValid, reason);
+        if (allowance(sender, spender) < amount) {
+            return (false, "Insufficient allowance for spender");
         }
         return (true, "Valid");
     }

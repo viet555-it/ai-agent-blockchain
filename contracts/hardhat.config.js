@@ -1,5 +1,5 @@
 require("@nomicfoundation/hardhat-toolbox");
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -20,6 +20,7 @@ module.exports = {
   },
   networks: {
     hardhat: {},
+    localhost: { url: process.env.LOCAL_RPC_URL || "http://127.0.0.1:8545" },
     sepolia: {
       url: process.env.SEPOLIA_RPC_URL || "",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],

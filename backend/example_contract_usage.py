@@ -1,80 +1,76 @@
-"""
-Ví dụ tương tác giữa Python Backend / AI Agent và Smart Contract AgentToken
-Sử dụng thư viện: pip install web3
-"""
-
+"""Read tools and exact-call simulation for AgentToken. Amounts are decimal strings."""
 import json
 from pathlib import Path
 from web3 import Web3
+from web3.exceptions import ContractLogicError
 
-# 1. Đường dẫn tới file ABI và thông tin deployment đã được export tự động
+if __package__:
+    from .token_amounts import to_token_units, format_token_units
+else:
+    from token_amounts import to_token_units, format_token_units
+
 BASE_DIR = Path(__file__).resolve().parent
-ABI_PATH = BASE_DIR / "abi" / "AgentToken_abi.json"
-DEPLOYMENT_PATH = BASE_DIR / "abi" / "deployment.json"
+ABI_DIR = BASE_DIR / "abi"
 
-def load_contract_info():
-    if not ABI_PATH.exists() or not DEPLOYMENT_PATH.exists():
-        raise FileNotFoundError(
-            "Chưa tìm thấy file ABI hoặc deployment.json! "
-            "Hãy chạy `npx hardhat run scripts/deploy.js` ở thư mục contracts trước."
-        )
 
-    with open(ABI_PATH, "r", encoding="utf-8") as f:
+def load_contract_info(chain_id: int):
+    deployment_dir = ABI_DIR / str(chain_id)
+    abi_path = deployment_dir / "AgentToken_abi.json"
+    manifest_path = deployment_dir / "deployment.json"
+    if not abi_path.exists() or not manifest_path.exists():
+        raise FileNotFoundError(f"No AgentToken deployment for chain {chain_id}; deploy to that network first")
+    with manifest_path.open(encoding="utf-8") as f:
+        manifest = json.load(f)
+    if str(manifest.get("chainId")) != str(chain_id):
+        raise ValueError("Deployment chainId does not match the RPC chain")
+    with abi_path.open(encoding="utf-8") as f:
         abi = json.load(f)
+    return abi, manifest
 
-    with open(DEPLOYMENT_PATH, "r", encoding="utf-8") as f:
-        deploy_info = json.load(f)
-
-    return abi, deploy_info["contractAddress"]
 
 def get_agent_token_contract(w3: Web3):
-    abi, address = load_contract_info()
-    checksum_address = w3.to_checksum_address(address)
-    return w3.eth.contract(address=checksum_address, abi=abi)
+    abi, manifest = load_contract_info(w3.eth.chain_id)
+    address = w3.to_checksum_address(manifest["contractAddress"])
+    code = w3.eth.get_code(address)
+    if not code:
+        raise ValueError("No contract bytecode at the configured address on this chain")
+    expected_hash = manifest.get("runtimeCodeHash")
+    if expected_hash and w3.keccak(code).hex().removeprefix("0x").lower() != expected_hash.removeprefix("0x").lower():
+        raise ValueError("Contract bytecode does not match the deployment manifest")
+    return w3.eth.contract(address=address, abi=abi)
 
-# ==========================================
-# CÁC HÀM CUNG CẤP CHO AI AGENT TOOLS
-# ==========================================
 
 def tool_check_balance(w3: Web3, wallet_address: str) -> dict:
-    """Read Tool: Kiểm tra số dư token AGNT của một ví."""
     contract = get_agent_token_contract(w3)
     target = w3.to_checksum_address(wallet_address)
-    raw_balance = contract.functions.balanceOf(target).call()
+    raw = contract.functions.balanceOf(target).call()
     decimals = contract.functions.decimals().call()
-    symbol = contract.functions.symbol().call()
-    
-    balance_formatted = raw_balance / (10 ** decimals)
-    return {
-        "address": target,
-        "balance": balance_formatted,
-        "symbol": symbol,
-        "raw_balance": raw_balance
-    }
+    return {"address": target, "balance": format_token_units(raw, decimals),
+            "symbol": contract.functions.symbol().call(), "raw_balance": raw}
 
-def tool_simulate_transfer(w3: Web3, sender: str, recipient: str, amount_token: float) -> dict:
-    """Guardrail Tool: Kiểm tra (Dry-run) xem giao dịch có hợp lệ không trước khi ký gửi."""
+
+def tool_simulate_transfer(w3: Web3, sender: str, recipient: str,
+                           amount_token: str | int, *, spender: str | None = None) -> dict:
+    """eth_call of the actual transfer. Pass spender for every transferFrom, even self-spending.
+
+    A successful simulation only describes the state at the time of eth_call.
+    RPC/network errors propagate; only contract reverts become isValid=False.
+    """
     contract = get_agent_token_contract(w3)
     sender_addr = w3.to_checksum_address(sender)
     recipient_addr = w3.to_checksum_address(recipient)
     decimals = contract.functions.decimals().call()
-    amount_wei = int(amount_token * (10 ** decimals))
-
-    is_valid, reason = contract.functions.validateTransfer(
-        sender_addr,
-        recipient_addr,
-        amount_wei
-    ).call()
-
-    return {
-        "isValid": is_valid,
-        "reason": reason,
-        "sender": sender_addr,
-        "recipient": recipient_addr,
-        "amount": amount_token
-    }
-
-if __name__ == "__main__":
-    print("AgentToken Python Helper Module đã sẵn sàng!")
-    print(f"ABI file: {ABI_PATH}")
-    print(f"Deployment info: {DEPLOYMENT_PATH}")
+    units = to_token_units(amount_token, decimals)
+    caller = sender_addr if spender is None else w3.to_checksum_address(spender)
+    if spender is None:
+        action = contract.functions.transfer(recipient_addr, units)
+    else:
+        action = contract.functions.transferFrom(sender_addr, recipient_addr, units)
+    try:
+        valid = bool(action.call({"from": caller}))
+        reason = "Valid" if valid else "Token operation returned false"
+    except ContractLogicError as exc:
+        valid, reason = False, str(exc)
+    return {"isValid": valid, "reason": reason, "sender": sender_addr,
+            "recipient": recipient_addr, "spender": spender,
+            "amount": format_token_units(units, decimals), "raw_amount": units}

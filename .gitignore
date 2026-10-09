@@ -3,6 +3,7 @@ docs/*.docx
 docs/Báo cáo tiến độ giữa kì nhóm 15.docx
 docs/KE_HOACH_CONG_VIEC.md
 docs/WORK_PLAN.md
+docs/SMART_CONTRACT_REVIEW.md
 
 # Node & Hardhat
 node_modules/
@@ -52,3 +53,6 @@ wheels/
 Thumbs.db
 .vscode/
 .idea/
+backend/abi/31337/
+
+contracts/exported/31337/

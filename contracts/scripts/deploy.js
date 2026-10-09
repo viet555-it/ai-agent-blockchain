@@ -1,86 +1,55 @@
-const { ethers, network } = require("hardhat");
+const { ethers, network, artifacts } = require("hardhat");
 const fs = require("fs");
 const path = require("path");
 
-async function main() {
-  console.log("==================================================");
-  console.log(`Starting deployment on network: ${network.name}`);
-  console.log("==================================================");
-
-  const [deployer] = await ethers.getSigners();
-  console.log(`Deployer address: ${deployer.address}`);
-
-  const balance = await ethers.provider.getBalance(deployer.address);
-  console.log(`Deployer balance: ${ethers.formatEther(balance)} ETH`);
-
-  const INITIAL_SUPPLY = 1_000_000n; // 1,000,000 AGNT
-
-  console.log(`\nDeploying AgentToken contract with initial supply of ${INITIAL_SUPPLY} AGNT...`);
-  const AgentTokenFactory = await ethers.getContractFactory("AgentToken");
-  const agentToken = await AgentTokenFactory.deploy(deployer.address, INITIAL_SUPPLY);
-
-  await agentToken.waitForDeployment();
-  const contractAddress = await agentToken.getAddress();
-
-  console.log(`>>> AgentToken deployed successfully at: ${contractAddress}`);
-
-  // 1. Export ABI and Deployment Info for Python Backend & AI Agent
-  const artifactPath = path.join(
-    __dirname,
-    "../artifacts/src/AgentToken.sol/AgentToken.json"
-  );
-
-  if (fs.existsSync(artifactPath)) {
-    const artifact = JSON.parse(fs.readFileSync(artifactPath, "utf8"));
-    const abi = artifact.abi;
-
-    // Target directories to save artifacts for Python backend
-    const exportDir = path.join(__dirname, "../exported");
-    const backendAbiDir = path.join(__dirname, "../../backend/abi");
-
-    [exportDir, backendAbiDir].forEach((dir) => {
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-    });
-
-    // Write ABI JSON
-    fs.writeFileSync(
-      path.join(exportDir, "AgentToken_abi.json"),
-      JSON.stringify(abi, null, 2)
-    );
-    fs.writeFileSync(
-      path.join(backendAbiDir, "AgentToken_abi.json"),
-      JSON.stringify(abi, null, 2)
-    );
-
-    // Write Deployment Info
-    const deploymentData = {
-      network: network.name,
-      contractAddress: contractAddress,
-      deployer: deployer.address,
-      deployedAt: new Date().toISOString(),
-      initialSupply: INITIAL_SUPPLY.toString(),
-    };
-
-    fs.writeFileSync(
-      path.join(exportDir, "deployment.json"),
-      JSON.stringify(deploymentData, null, 2)
-    );
-    fs.writeFileSync(
-      path.join(backendAbiDir, "deployment.json"),
-      JSON.stringify(deploymentData, null, 2)
-    );
-
-    console.log(`\n[Exported] ABI and deployment info saved to:`);
-    console.log(` - contracts/exported/`);
-    console.log(` - backend/abi/`);
+function exportDeployment(baseDir, abi, deployment) {
+  const chainId = String(deployment.chainId);
+  if (!/^[1-9][0-9]*$/.test(chainId)) throw new Error("Invalid deployment chainId");
+  for (const parent of ["contracts/exported", "backend/abi"]) {
+    const dir = path.join(baseDir, parent, chainId);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, "AgentToken_abi.json"), JSON.stringify(abi, null, 2) + "\n");
+    fs.writeFileSync(path.join(dir, "deployment.json"), JSON.stringify(deployment, null, 2) + "\n");
   }
-
-  console.log("\nDeployment completed successfully!");
 }
 
-main().catch((error) => {
-  console.error("Deployment failed:", error);
+async function main() {
+  const [deployer] = await ethers.getSigners();
+  if (!deployer) throw new Error("No deployment signer configured");
+  const { chainId } = await ethers.provider.getNetwork();
+  const initialSupply = 1_000_000n;
+  const factory = await ethers.getContractFactory("AgentToken");
+  // Resolve the artifact before sending a transaction so export cannot silently skip it.
+  const artifact = await artifacts.readArtifact("AgentToken");
+  const request = await factory.getDeployTransaction(deployer.address, initialSupply);
+  const gas = await ethers.provider.estimateGas({ ...request, from: deployer.address });
+  const fees = await ethers.provider.getFeeData();
+  const gasPrice = fees.maxFeePerGas ?? fees.gasPrice;
+  if (gasPrice === null) throw new Error("Unable to estimate deployment gas price");
+  const gasLimit = (gas * 120n + 99n) / 100n;
+  const required = gasLimit * gasPrice;
+  const balance = await ethers.provider.getBalance(deployer.address);
+  if (balance < required) throw new Error(`Insufficient deployment balance; estimated requirement ${ethers.formatEther(required)} ETH`);
+  console.log(`Deploying on ${network.name} (chain ${chainId}), owner ${deployer.address}`);
+  const token = await factory.deploy(deployer.address, initialSupply, {
+    gasLimit,
+    ...(fees.maxFeePerGas !== null ? { maxFeePerGas: gasPrice, maxPriorityFeePerGas: fees.maxPriorityFeePerGas ?? 0n } : { gasPrice }),
+  });
+  await token.waitForDeployment();
+  const address = await token.getAddress();
+  const code = await ethers.provider.getCode(address);
+  exportDeployment(path.resolve(__dirname, "../.."), artifact.abi, {
+    network: network.name, chainId: chainId.toString(), contractAddress: address,
+    deployer: deployer.address, deployedAt: new Date().toISOString(),
+    initialSupply: initialSupply.toString(), runtimeCodeHash: ethers.keccak256(code),
+    transactionHash: token.deploymentTransaction().hash,
+  });
+  console.log(`Deployed ${address}; artifacts exported under chain ${chainId}`);
+  if (network.name === "hardhat") console.log("This in-process chain ends when the command exits. Use localhost for a persistent backend demo.");
+}
+
+module.exports = { exportDeployment, main };
+if (require.main === module) main().catch((error) => {
+  console.error(error.message);
   process.exitCode = 1;
 });

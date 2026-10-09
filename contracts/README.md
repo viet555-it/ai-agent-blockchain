@@ -1,109 +1,92 @@
 # Smart Contracts (AgentToken)
 
-Thư mục chứa Smart Contract cho đồ án **AI Agent with Blockchain Tools**.
+ERC-20 AGNT, 18 decimals, supply ban đầu 1 triệu token. Phiên bản source mới có trần 10 triệu token, được OpenZeppelin ERC20Capped áp dụng cho constructor, owner mint và faucet. Faucet tối đa 100 AGNT/lần/ví, cooldown cố định 60 giây. Hạn mức chuyển mặc định 500 AGNT/lần gọi; không phải ngân sách theo ngày hoặc cơ chế chống nhiều ví.
 
-## 1. Tổng quan Smart Contract (`AgentToken.sol`)
-Hợp đồng chuẩn **ERC-20** (OpenZeppelin v5) được thiết kế chuyên biệt cho AI Agent tương tác:
-- **Ký hiệu**: `AGNT` (18 decimals), tổng cung ban đầu: 1,000,000 AGNT.
-- **Tính năng cho AI Agent Read Tools**:
-  - `balanceOf(address)`: Truy vấn số dư token của ví.
-  - `name()`, `symbol()`, `totalSupply()`: Truy vấn thông tin token.
-  - `maxTransferLimit()`: Lấy hạn mức chuyển tối đa cho phép.
-  - `validateTransfer(sender, recipient, amount)`: Hàm view hỗ trợ AI Agent / Guardrail **mô phỏng trước giao dịch (dry-run/simulation)** trước khi ký broadcast lên blockchain.
-- **Tính năng cho AI Agent Write Tools**:
-  - `faucet(amount)`: Cho phép ví xin cấp token test miễn phí (tối đa 100 AGNT/lần, cooldown 60 giây). Phục vụ test prompt *"Cấp cho tôi 50 token"*.
-  - `transfer(recipient, amount)`: Chuyển token, tự động kiểm tra Guardrail `maxTransferLimit` (mặc định 500 AGNT/tx).
-- **Tính năng Quản trị & Guardrail**:
-  - `setMaxTransferLimit(newLimit)`: Chủ sở hữu có thể cập nhật hạn mức an toàn.
-  - `mint(to, amount)`: Chủ sở hữu cấp thêm token khi cần.
+## Kiểm thử
 
----
+Trong `contracts/`:
 
-## 2. Hướng dẫn chạy và kiểm thử
-
-### Cài đặt thư viện:
-```bash
+```sh
 npm install
+npm test
+npm run compile
 ```
 
-### Biên dịch contract:
-```bash
-npx hardhat compile
+Từ root dự án, cài requirements trong môi trường Python riêng rồi chạy:
+
+```sh
+python -m venv backend/.venv
+backend/.venv/Scripts/python.exe -m pip install -r backend/requirements.txt
+backend/.venv/Scripts/python.exe -m unittest discover -s backend/tests -v
 ```
 
-### Chạy toàn bộ Unit Tests (18 test cases):
-```bash
-npx hardhat test
+## Deploy local
+
+Chạy một node lâu dài trong terminal thứ nhất:
+
+```sh
+npm run node
 ```
 
-### Thử nghiệm deploy trên mạng cục bộ (Hardhat local network):
-```bash
-npx hardhat run scripts/deploy.js --network hardhat
+Terminal thứ hai, cũng trong `contracts/`:
+
+```sh
+npm run deploy:local
 ```
 
----
+Backend dùng RPC `http://127.0.0.1:8545`. Có thể đặt `LOCAL_RPC_URL` để dùng cổng local khác; artifact chain 31337 được ignore trong Git. `npm run deploy:ephemeral` chỉ dùng thử: blockchain của lệnh đó kết thúc khi script thoát.
 
-## 3. Deploy lên mạng Ethereum Sepolia Testnet
+## Deployment theo chain ID
 
-1. Copy file cấu hình môi trường:
-   ```bash
-   cp .env.example .env
-   ```
-2. Điền thông tin vào file `.env`:
-   - `SEPOLIA_RPC_URL`: Endpoint RPC từ Alchemy hoặc Infura (ví dụ: `https://eth-sepolia.g.alchemy.com/v2/...`)
-   - `PRIVATE_KEY`: Khóa riêng của ví testnet (không có tiền thật, có sẵn chút Sepolia ETH để trả gas).
-   - `ETHERSCAN_API_KEY`: API Key Etherscan (dùng để verify contract).
+Script xuất ABI và manifest vào `contracts/exported/<chainId>/` và `backend/abi/<chainId>/`. Manifest chứa chain ID, địa chỉ và hash runtime bytecode. Deploy local chain 31337 không ghi đè chain Sepolia 11155111. Backend chọn manifest theo chain ID thực tế của RPC, từ chối chain mismatch, địa chỉ không có code và bytecode khác hash đã lưu.
 
-3. Chạy lệnh deploy:
-   ```bash
-   npx hardhat run scripts/deploy.js --network sepolia
-   ```
+Các file ở gốc `backend/abi/` và `contracts/exported/` là bản lưu deployment cũ; backend mới không đọc chúng. Thư mục `11155111/` giữ ABI của **contract cũ** tại `0xDf7B0c367817f97d756441da6047a1Da91cC6Fff`. Bản cũ chưa có supply cap hoặc validateTransferFrom. Không thay ABI source mới vào địa chỉ cũ. Cap và validator mới chỉ có hiệu lực sau khi deploy phiên bản mới.
 
-Khi deploy xong, script sẽ **tự động xuất 2 file** sang thư mục `backend/abi/` và `contracts/exported/`:
-- `AgentToken_abi.json`: File ABI chuẩn JSON.
-- `deployment.json`: Chứa địa chỉ contract vừa deploy và thông tin mạng.
+Để deploy Sepolia, dùng ví testnet mới và giữ key trong `.env` cục bộ, không chép key vào chat, báo cáo hoặc commit:
 
-### Địa chỉ Contract chính thức trên Sepolia Testnet:
-- **Contract Address**: [`0xDf7B0c367817f97d756441da6047a1Da91cC6Fff`](https://sepolia.etherscan.io/address/0xDf7B0c367817f97d756441da6047a1Da91cC6Fff#code)
-- **Explorer**: Verified Contract trên Etherscan Sepolia (Tick xanh)
-- **Initial Supply**: 1,000,000 AGNT
+```sh
+npm run deploy:sepolia
+```
 
----
+Script ước tính gas và phí, cộng biên gas 20%, kiểm tra số dư trước khi gửi. Đây là ước tính tại thời điểm gọi; phí mạng có thể thay đổi. Script không tự verify trên explorer.
 
-## 4. Hướng dẫn dành cho Python Backend / AI Agent
+## Read tools và dry-run
 
-Đồng đội phụ trách Python Backend / AI Agent có thể sử dụng trực tiếp file ABI bằng thư viện `web3.py`:
+`validateTransfer(sender, recipient, amount)` giữ nguyên chữ ký 3 tham số. `validateTransferFrom(sender, recipient, amount, spender)` kiểm tra allowance kể cả khi spender chính là sender. Validator và ERC-20 đều cho phép zero transfer.
+
+Backend mô phỏng **giao dịch thực** qua eth_call với đúng caller, nên hỗ trợ cả deployment cũ và mới. Input lượng token là chuỗi thập phân hoặc int theo đơn vị token, không nhận float. Balance trả về chuỗi chính xác và số nguyên raw_balance. Ví dụ từ root dự án:
 
 ```python
-import json
 from web3 import Web3
+from backend.example_contract_usage import tool_check_balance, tool_simulate_transfer
 
-# 1. Kết nối RPC
-RPC_URL = "https://rpc.sepolia.org" # hoặc Alchemy URL
-w3 = Web3(Web3.HTTPProvider(RPC_URL))
-
-# 2. Đọc ABI và địa chỉ Contract
-with open("backend/abi/AgentToken_abi.json", "r") as f:
-    abi = json.load(f)
-
-with open("backend/abi/deployment.json", "r") as f:
-    deploy_info = json.load(f)
-    contract_address = deploy_info["contractAddress"]
-
-contract = w3.eth.contract(address=contract_address, abi=abi)
-
-# 3. Read Tool Example: Kiểm tra số dư
-def check_token_balance(wallet_address: str) -> float:
-    raw_balance = contract.functions.balanceOf(w3.to_checksum_address(wallet_address)).call()
-    return raw_balance / (10 ** 18)
-
-# 4. Guardrail Dry-Run Example: Giả lập kiểm tra giao dịch trước khi gửi
-def simulate_transfer(sender: str, recipient: str, amount_token: float):
-    amount_wei = int(amount_token * (10 ** 18))
-    is_valid, reason = contract.functions.validateTransfer(
-        w3.to_checksum_address(sender),
-        w3.to_checksum_address(recipient),
-        amount_wei
-    ).call()
-    return is_valid, reason
+w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"))
+print(tool_check_balance(w3, sender))
+print(tool_simulate_transfer(w3, sender, recipient, "1.000000000000000001"))
+print(tool_simulate_transfer(w3, sender, recipient, "1.1", spender=backend_wallet))
 ```
+
+Truyền spender cho mọi transferFrom, kể cả self-spending. Contract revert trả isValid=False; lỗi kết nối RPC được ném lên caller. Dry-run phản ánh trạng thái hiện tại, không bảo đảm trạng thái khi giao dịch được thực thi. Backend không ký hoặc gửi giao dịch trong các helper này.
+
+## Xử lý key đã lộ
+
+Key trong báo cáo cũ cần được thay bằng key của ví mới. Việc thêm tiền tố 0x không khắc phục lộ key. Nếu ví cũ vẫn là owner, có thể chuyển quyền quản trị trên contract cũ trước khi bỏ key cũ:
+
+1. Tạo ví mới trong ví của bạn; xác nhận địa chỉ public và giữ private key riêng.
+2. Đặt NEW_OWNER trong `.env` thành địa chỉ public của ví mới; để PRIVATE_KEY tạm thời là key của owner hiện tại cho bước chuyển quyền.
+3. Chạy `npm run ownership:check`: chỉ kiểm tra chain, owner và mô phỏng, chưa gửi giao dịch.
+4. Sau khi xác nhận địa chỉ đích, đặt `SEND_OWNERSHIP_TRANSFER=true` rồi chạy lại lệnh để gửi giao dịch chuyển quyền. Xóa flag sau khi xong.
+5. Cập nhật PRIVATE_KEY cục bộ sang key mới; xử lý tài sản còn ở ví cũ bằng ví của bạn. Chuyển ownership không chuyển ETH hoặc token balance.
+
+Công cụ chuyển owner tương thích contract cũ và không sửa manifest địa chỉ. Không gửi key mới qua chat.
+
+## Test tích hợp backend trên node local
+
+Sau khi node local chạy và contract đã compile, từ root dự án trong PowerShell:
+
+```powershell
+$env:LOCAL_TEST_RPC = "http://127.0.0.1:8545"
+backend/.venv/Scripts/python.exe -m unittest discover -s backend/tests -v
+```
+
+Test tích hợp tự deploy token riêng và chỉ chấp nhận chain 31337. Khi không đặt LOCAL_TEST_RPC, chỉ test tích hợp đó bị skip; các test backend khác vẫn chạy.
