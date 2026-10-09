@@ -1,0 +1,7 @@
+{
+  "network": "sepolia",
+  "contractAddress": "0xDf7B0c367817f97d756441da6047a1Da91cC6Fff",
+  "deployer": "0xeF9F53B00B069782256fC20697E7cf6a3136F9BC",
+  "deployedAt": "2026-10-08T05:58:36.652Z",
+  "initialSupply": "1000000"
+}
