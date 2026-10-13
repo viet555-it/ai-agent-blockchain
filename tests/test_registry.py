@@ -26,7 +26,7 @@ class DummyReadTool(BaseTool):
     risk_level = RiskLevel.READ
     args_schema = DummyInput
 
-    async def run(self, validated: DummyInput) -> ToolResult:
+    async def run(self, validated: DummyInput, ctx) -> ToolResult:
         return ToolResult.success({"address": validated.address})
 
 
@@ -41,7 +41,7 @@ class DummyWriteTool(BaseTool):
     risk_level = RiskLevel.WRITE
     args_schema = DummyWriteInput
 
-    async def run(self, validated: DummyWriteInput) -> ToolResult:
+    async def run(self, validated: DummyWriteInput, ctx) -> ToolResult:
         return ToolResult.success({"to": validated.to, "value": validated.value})
 
 
@@ -78,7 +78,7 @@ class TestRegistration:
             risk_level = RiskLevel.READ
             args_schema = DummyInput
 
-            async def run(self, validated):
+            async def run(self, validated, ctx):
                 return ToolResult.success(None)
 
         registry = ToolRegistry(enabled_override=["inline_test"])

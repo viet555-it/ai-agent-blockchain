@@ -9,6 +9,8 @@ uniformly.
 from __future__ import annotations
 
 import abc
+import time
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
@@ -47,12 +49,39 @@ class ToolResult(BaseModel):
         return cls(ok=False, error=error, meta=meta if meta else None)
 
 
+@dataclass
+class ToolContext:
+    """Runtime context injected into every tool execution.
+
+    Attributes:
+        blockchain: A ``BlockchainService`` implementation (Web3 or Mock).
+        settings: Application ``Settings`` instance.
+    """
+
+    blockchain: Any  # services.blockchain.BlockchainService
+    settings: Any  # config.settings.Settings
+    _cache: dict[str, tuple[float, Any]] = field(default_factory=dict)
+
+    def cache_get(self, key: str, ttl: float = 60.0) -> Any | None:
+        """Return cached value if still valid, else ``None``."""
+        if key in self._cache:
+            ts, val = self._cache[key]
+            if time.time() - ts < ttl:
+                return val
+            del self._cache[key]
+        return None
+
+    def cache_set(self, key: str, value: Any) -> None:
+        """Store a value in the cache with current timestamp."""
+        self._cache[key] = (time.time(), value)
+
+
 class BaseTool(abc.ABC):
     """Abstract base class for all agent tools.
 
     Subclasses must set class-level attributes ``name``, ``description``,
     ``risk_level``, and ``args_schema`` (a Pydantic v2 ``BaseModel``), then
-    implement ``run()``.
+    implement ``run(validated, ctx)``.
 
     Example::
 
@@ -62,7 +91,7 @@ class BaseTool(abc.ABC):
             risk_level = RiskLevel.READ
             args_schema = GetNativeBalanceInput
 
-            async def run(self, validated: GetNativeBalanceInput) -> ToolResult:
+            async def run(self, validated: GetNativeBalanceInput, ctx: ToolContext) -> ToolResult:
                 ...
     """
 
@@ -72,8 +101,12 @@ class BaseTool(abc.ABC):
     args_schema: type[BaseModel]  # Pydantic v2 model for input validation
 
     @abc.abstractmethod
-    async def run(self, validated: BaseModel) -> ToolResult:
+    async def run(self, validated: BaseModel, ctx: ToolContext) -> ToolResult:
         """Execute the tool with *already-validated* arguments.
+
+        Args:
+            validated: Parsed and validated input from the LLM.
+            ctx: Runtime context with blockchain service, settings, and cache.
 
         Must not raise – return ``ToolResult.failure(...)`` instead.
         """
