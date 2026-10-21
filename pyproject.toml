@@ -52,6 +52,24 @@ markers = [
 [tool.setuptools.packages.find]
 include = ["agent*", "tools*", "services*", "security*", "config*"]
 
+[tool.coverage.run]
+omit = [
+    # LLM adapters need real API keys – tested manually / in integration
+    "agent/llm/gemini.py",
+    "agent/llm/anthropic.py",
+    "agent/llm/openai_adapter.py",
+    # Web3 implementation needs real RPC connection
+    "services/blockchain.py",
+    # Etherscan needs API key
+    "services/etherscan.py",
+    # Service factory wires real dependencies
+    "agent/service.py",
+]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+
 [build-system]
 requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
