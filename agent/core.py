@@ -145,17 +145,11 @@ class AgentLoop:
                 "data": {"id": tc.id, "name": tc.name, "result": {"ok": False, "error": error_msg}},
             }
 
-        # WRITE tools need guardrail (will be implemented in M3)
+        # WRITE tools: log elevated risk, then let tool run its own policy checks
         if tool.risk_level == RiskLevel.WRITE:
-            error_msg = (
-                "WRITE tools require guardrail approval. "
-                "This will be available after guardrail setup."
+            logger.warning(
+                "WRITE tool '%s' requested – policy checks delegated to tool", tc.name
             )
-            self.memory.add_tool_result(tc.id, tc.name, json.dumps({"error": error_msg}))
-            return call_event, {
-                "type": "tool_result",
-                "data": {"id": tc.id, "name": tc.name, "result": {"ok": False, "error": error_msg}},
-            }
 
         # Validate arguments
         try:

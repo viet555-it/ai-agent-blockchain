@@ -15,6 +15,6 @@ enabled:
   - read_contract
 
   # ── WRITE tools (require guardrail + confirmation) ───────
-  - transfer_native
+  - transfer_eth
   - transfer_erc20
   - call_contract
