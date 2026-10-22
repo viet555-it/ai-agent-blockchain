@@ -192,7 +192,6 @@ Baseline (FakeScriptedLLM): **40/40 (100%)** tool accuracy across:
 
 | Doc | Nội dung |
 |-----|---------|
-| [INTEGRATION.md](docs/INTEGRATION.md) | Hướng dẫn tích hợp cho đồng đội |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Kiến trúc chi tiết |
 | [ADDING_A_TOOL.md](docs/ADDING_A_TOOL.md) | Hướng dẫn thêm tool mới |
 | [PLAN.md](docs/PLAN.md) | Kế hoạch phát triển |
@@ -210,13 +209,6 @@ Baseline (FakeScriptedLLM): **40/40 (100%)** tool accuracy across:
 | **TOTAL** | **85%** |
 
 116 tests passing, ruff clean.
-
-## 👥 Team
-
-| Thành viên | Phần phụ trách |
-|------------|----------------|
-| (Tôi) | AI Agent core, Tool calling, Guardrail, Eval |
-| Đồng đội | Smart contract, Backend/Frontend, Deploy |
 
 ## License
 
