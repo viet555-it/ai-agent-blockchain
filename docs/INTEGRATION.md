@@ -136,7 +136,43 @@ MAX_STEPS=10                          # max agent reasoning steps
 | `estimate_gas` | `to`, `value_wei`, `data` | Gas estimate + cost |
 | `read_contract` | `contract_address`, `abi_filename`, `function_name`, `args` | Contract call result |
 
-## 6. Adding New Tools
+## 6. Available WRITE Tools (3)
+
+| Tool | Input | Output |
+|------|-------|--------|
+| `transfer_eth` | `to`, `value_eth` | tx_hash hoặc DRY_RUN preview |
+| `transfer_erc20` | `token_address`, `to`, `amount` | tx_hash hoặc DRY_RUN preview |
+| `call_contract` | `contract_address`, `abi_filename`, `function_name`, `args`, `value_eth` | tx_hash hoặc DRY_RUN preview |
+
+### Guardrail (PolicyEngine)
+
+Mọi WRITE tool phải qua `security/policy.py`:
+- **Deny-by-default**: Allowlist rỗng = CHẶN TẤT CẢ
+- **Address allowlist**: Chỉ gửi đến `config/policy.yaml → allowlist → addresses`
+- **Contract allowlist**: Chỉ gọi contract trong `allowlist → contracts`
+- **Function allowlist**: Chỉ gọi function trong `allowlist → functions`
+- **Per-tx limit**: Mặc định 0.1 ETH
+- **Daily limit**: Mặc định 0.5 ETH
+- **Chain ID**: Chỉ Sepolia (11155111)
+
+### Cập nhật Policy
+Sửa `config/policy.yaml`:
+```yaml
+allowlist:
+  addresses:
+    - "0xRecipient1"
+    - "0xRecipient2"
+  contracts:
+    - "0xDeployedSampleVault"   # ← cập nhật sau khi deploy
+  functions:
+    - "deposit"
+    - "withdraw"
+limits:
+  per_transaction_eth: "0.1"
+  daily_eth: "0.5"
+```
+
+## 7. Adding New Tools
 
 ```python
 # tools/read/my_new_tool.py
@@ -164,7 +200,7 @@ class MyNewTool(BaseTool):
 
 Then add `"my_tool_name"` to `config/tools.yaml` → `enabled` list.
 
-## 7. Running Tests
+## 8. Running Tests
 
 ```bash
 # All tests (no API keys needed)
@@ -177,7 +213,7 @@ Then add `"my_tool_name"` to `config/tools.yaml` → `enabled` list.
 .venv/Scripts/python -m pytest tests/test_tools_read.py -v
 ```
 
-## 8. Demo CLI
+## 9. Demo CLI
 
 ```bash
 .venv/Scripts/python -m scripts.demo_cli
