@@ -1,0 +1,20 @@
+{
+  "content": "{\"inputs\": [{\"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\"}, {\"internalType\": \"uint256\", \"name\": \"value\", \"type\": \"uint256\"}], \"name\": \"transfer\", \"outputs\": [{\"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\"}], \"stateMutability\": \"nonpayable\", \"type\": \"function\"}",
+  "metadata": {
+    "doc_id": "agenttoken-sepolia-abi",
+    "source_path": "backend/abi/11155111/AgentToken_abi.json",
+    "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+    "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+    "title": "AgentToken ABI recorded for Sepolia",
+    "category": "contract_abi",
+    "scope": "deployed_contract",
+    "doc_version": "repo-28a9a0b6a96f",
+    "verification_status": "repository_only",
+    "chain_id": 11155111,
+    "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+    "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+    "chunk_id": "agenttoken-sepolia-abi:transfer(address,uint256):example",
+    "function_signature": "transfer(address,uint256)"
+  },
+  "score": 0.9
+}

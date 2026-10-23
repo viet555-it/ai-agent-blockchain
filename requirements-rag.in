@@ -1,0 +1,6 @@
+# Direct dependencies. requirements-rag.lock.txt pins the tested Windows/Python environment.
+# Install PyTorch from the CPU index before resolving the remaining packages.
+torch>=2.6,<3
+sentence-transformers>=5,<6
+chromadb>=1,<2
+psutil>=7,<8

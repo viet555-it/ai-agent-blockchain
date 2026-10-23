@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "model_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+  "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+  "cache_dir": ".cache/rag/huggingface",
+  "index_dir": "data/rag",
+  "batch_size": 16,
+  "threads": 2,
+  "prefix_style": "compact",
+  "retrieval": {
+    "min_similarity": 0.45,
+    "candidate_pool": 32,
+    "context_max_tokens": 1024,
+    "max_query_chars": 2000,
+    "timeout_seconds": 15.0,
+    "max_concurrency": 1,
+    "max_per_parent": 5,
+    "parent_context": true,
+    "general_categories": [
+      "web3"
+    ]
+  }
+}
