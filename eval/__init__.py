@@ -1,1 +1,1 @@
-# eval package
+"""Reproducible standalone retrieval evaluation."""

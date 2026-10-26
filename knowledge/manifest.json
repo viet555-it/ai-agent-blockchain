@@ -1,0 +1,444 @@
+{
+  "schema_version": 2,
+  "created_at": "2026-10-22",
+  "repository": "https://github.com/viet555-it/ai-agent-blockchain",
+  "base_commit": "b604a995511df7a40358d9e158e0917be72ffc4d",
+  "content_hash_algorithm": "sha256 of UTF-8 source text with CRLF normalized to LF; preserve other whitespace",
+  "deployment_scope": {
+    "chain_id": 11155111,
+    "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+    "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+    "doc_version": "repo-28a9a0b6a96f",
+    "include_general": true
+  },
+  "sources": [
+    {
+      "doc_id": "agenttoken-sepolia-abi",
+      "source_path": "backend/abi/11155111/AgentToken_abi.json",
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "title": "AgentToken ABI recorded for Sepolia",
+      "category": "contract_abi",
+      "source_format": "abi_json",
+      "scope": "deployed_contract",
+      "doc_version": "repo-28a9a0b6a96f",
+      "verification_status": "repository_only",
+      "usage": "ingest",
+      "chain_id": 11155111,
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "source_origin": "git"
+    },
+    {
+      "doc_id": "agenttoken-sepolia-deployment",
+      "source_path": "backend/abi/11155111/deployment.json",
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "content_hash": "sha256:b8fff071248af74cda98b7d69f28d589806d7e83971018dfe0a2bb33e34ad7d5",
+      "title": "AgentToken repository deployment manifest",
+      "category": "deployment",
+      "source_format": "deployment_json",
+      "scope": "deployed_contract",
+      "doc_version": "repo-28a9a0b6a96f",
+      "verification_status": "repository_only",
+      "usage": "ingest",
+      "chain_id": 11155111,
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "source_origin": "git"
+    },
+    {
+      "doc_id": "agenttoken-source",
+      "source_path": "contracts/src/AgentToken.sol",
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+      "title": "AgentToken Solidity source snapshot",
+      "category": "contract_source",
+      "source_format": "solidity_reference",
+      "scope": "source_only",
+      "doc_version": "repo-28a9a0b6a96f",
+      "verification_status": "repository_only",
+      "usage": "reference_only",
+      "source_origin": "git"
+    },
+    {
+      "doc_id": "agenttoken-abi-guide",
+      "source_path": "knowledge/contracts/agenttoken-abi.md",
+      "source_origin": "workspace",
+      "source_commit": null,
+      "content_hash": "sha256:06a0b8961309a206c4cae308276c7071a63fb1fd7c60fdb2a63a552b63bf9a06",
+      "title": "Danh mục ABI AgentToken",
+      "category": "contract_abi",
+      "source_format": "markdown",
+      "scope": "deployed_contract",
+      "doc_version": "repo-28a9a0b6a96f",
+      "verification_status": "repository_only",
+      "usage": "ingest",
+      "authored_revision": "rag-p2-v1",
+      "derived_from": [
+        {
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497"
+        },
+        {
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574"
+        }
+      ],
+      "external_references": [],
+      "chain_id": 11155111,
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497"
+    },
+    {
+      "doc_id": "agenttoken-deployment-guide",
+      "source_path": "knowledge/contracts/deployment.md",
+      "source_origin": "workspace",
+      "source_commit": null,
+      "content_hash": "sha256:c38e7227da434d5e350041e19fa7161893b3bb12995476527d2d34e75641904c",
+      "title": "Deployment AgentToken theo repository",
+      "category": "deployment",
+      "source_format": "markdown",
+      "scope": "deployed_contract",
+      "doc_version": "repo-28a9a0b6a96f",
+      "verification_status": "repository_only",
+      "usage": "ingest",
+      "authored_revision": "rag-p2-v1",
+      "derived_from": [
+        {
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497"
+        },
+        {
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/deployment.json",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:b8fff071248af74cda98b7d69f28d589806d7e83971018dfe0a2bb33e34ad7d5"
+        },
+        {
+          "source_origin": "git",
+          "source_path": "backend/example_contract_usage.py",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:687eb1df67480ae95f36353dc4a32ebee99be551eb91bce80b64d73c0577dd42"
+        }
+      ],
+      "external_references": [],
+      "chain_id": 11155111,
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497"
+    },
+    {
+      "doc_id": "agenttoken-transfers-source",
+      "source_path": "knowledge/contracts/transfers-source.md",
+      "source_origin": "workspace",
+      "source_commit": null,
+      "content_hash": "sha256:c526623be4723b508d4ce88992c6affd7065cb7de090234597ba375b42daf5c6",
+      "title": "Transfer, allowance và validator theo source",
+      "category": "contract_behavior",
+      "source_format": "markdown",
+      "scope": "source_only",
+      "doc_version": "source-28a9a0b6a96f",
+      "verification_status": "source_reviewed",
+      "usage": "ingest",
+      "authored_revision": "rag-p2-v1",
+      "derived_from": [
+        {
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574"
+        },
+        {
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497"
+        },
+        {
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.test.js",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:f70916cad10c310b3764ef279fd382731a2728db2c6f9c15dcc077aca18c6074"
+        },
+        {
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.security.test.js",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:cfb4cbea43487036ff48b545fa6bcf7d6fd4f2085b28cda9bb7ec6b6345be439"
+        },
+        {
+          "source_origin": "git",
+          "source_path": "backend/example_contract_usage.py",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:687eb1df67480ae95f36353dc4a32ebee99be551eb91bce80b64d73c0577dd42"
+        },
+        {
+          "source_origin": "git",
+          "source_path": "contracts/package-lock.json",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:fc4f47acb4ead7388a3002c1f9b35e5a3ab1d8a523ca71b3169127d8f4afbeeb"
+        }
+      ],
+      "external_references": []
+    },
+    {
+      "doc_id": "agenttoken-faucet-admin-source",
+      "source_path": "knowledge/contracts/faucet-and-admin-source.md",
+      "source_origin": "workspace",
+      "source_commit": null,
+      "content_hash": "sha256:2b65e677b7800568c97d5ad6a1b4df5f179e36d739bd83e6e41e34fbe246324a",
+      "title": "Faucet, supply cap và owner theo source",
+      "category": "contract_behavior",
+      "source_format": "markdown",
+      "scope": "source_only",
+      "doc_version": "source-28a9a0b6a96f",
+      "verification_status": "source_reviewed",
+      "usage": "ingest",
+      "authored_revision": "rag-p2-v1",
+      "derived_from": [
+        {
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574"
+        },
+        {
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497"
+        },
+        {
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.test.js",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:f70916cad10c310b3764ef279fd382731a2728db2c6f9c15dcc077aca18c6074"
+        },
+        {
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.security.test.js",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:cfb4cbea43487036ff48b545fa6bcf7d6fd4f2085b28cda9bb7ec6b6345be439"
+        },
+        {
+          "source_origin": "git",
+          "source_path": "contracts/package-lock.json",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:fc4f47acb4ead7388a3002c1f9b35e5a3ab1d8a523ca71b3169127d8f4afbeeb"
+        }
+      ],
+      "external_references": []
+    },
+    {
+      "doc_id": "web3-token-units",
+      "source_path": "knowledge/web3/token-units.md",
+      "source_origin": "workspace",
+      "source_commit": null,
+      "content_hash": "sha256:4db492af4e94156e17fcddd9efcf92f24e9a66821d00614615ea90c8c9c8a246",
+      "title": "Đơn vị token và chuyển đổi chính xác",
+      "category": "web3",
+      "source_format": "markdown",
+      "scope": "general",
+      "doc_version": "rag-p2-v1",
+      "verification_status": "source_reviewed",
+      "usage": "ingest",
+      "authored_revision": "rag-p2-v1",
+      "derived_from": [
+        {
+          "source_origin": "git",
+          "source_path": "backend/token_amounts.py",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:5c90bf54c4b7cdb7de5b949b4ef4ab75abd4cdaff685b086ec2c1561063e42f1"
+        },
+        {
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574"
+        },
+        {
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.test.js",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:f70916cad10c310b3764ef279fd382731a2728db2c6f9c15dcc077aca18c6074"
+        },
+        {
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.security.test.js",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:cfb4cbea43487036ff48b545fa6bcf7d6fd4f2085b28cda9bb7ec6b6345be439"
+        }
+      ],
+      "external_references": [
+        {
+          "url": "https://eips.ethereum.org/EIPS/eip-20",
+          "checked_at": "2026-10-22",
+          "title": "ERC-20 Token Standard"
+        },
+        {
+          "url": "https://ethereum.org/developers/docs/gas/",
+          "checked_at": "2026-10-22",
+          "title": "Ethereum gas and fees"
+        }
+      ]
+    },
+    {
+      "doc_id": "web3-addresses",
+      "source_path": "knowledge/web3/addresses.md",
+      "source_origin": "workspace",
+      "source_commit": null,
+      "content_hash": "sha256:4a2314d4d21506a500586319462b3bce8735601013e4339f52ce5deebd315cca",
+      "title": "Địa chỉ EVM và checksum",
+      "category": "web3",
+      "source_format": "markdown",
+      "scope": "general",
+      "doc_version": "rag-p2-v1",
+      "verification_status": "source_reviewed",
+      "usage": "ingest",
+      "authored_revision": "rag-p2-v1",
+      "derived_from": [
+        {
+          "source_origin": "git",
+          "source_path": "backend/example_contract_usage.py",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:687eb1df67480ae95f36353dc4a32ebee99be551eb91bce80b64d73c0577dd42"
+        },
+        {
+          "source_origin": "workspace",
+          "source_path": "rag/models.py",
+          "source_commit": null,
+          "content_hash": "sha256:567691275c43f777ffd83088c52d7be70ebb458def61127166c1dbe9e6c41223"
+        }
+      ],
+      "external_references": [
+        {
+          "url": "https://eips.ethereum.org/EIPS/eip-55",
+          "checked_at": "2026-10-22",
+          "title": "EIP-55 address checksum"
+        }
+      ]
+    },
+    {
+      "doc_id": "web3-simulation",
+      "source_path": "knowledge/web3/simulation.md",
+      "source_origin": "workspace",
+      "source_commit": null,
+      "content_hash": "sha256:b7bfb7aeeed3fd40583dc889443efcc57315cfef8e11bff119683dce50061344",
+      "title": "Dry-run, caller và gas",
+      "category": "web3",
+      "source_format": "markdown",
+      "scope": "general",
+      "doc_version": "rag-p2-v1",
+      "verification_status": "source_reviewed",
+      "usage": "ingest",
+      "authored_revision": "rag-p2-v1",
+      "derived_from": [
+        {
+          "source_origin": "git",
+          "source_path": "backend/example_contract_usage.py",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:687eb1df67480ae95f36353dc4a32ebee99be551eb91bce80b64d73c0577dd42"
+        }
+      ],
+      "external_references": [
+        {
+          "url": "https://ethereum.org/developers/docs/apis/json-rpc/",
+          "checked_at": "2026-10-22",
+          "title": "Ethereum JSON-RPC API"
+        },
+        {
+          "url": "https://ethereum.org/developers/docs/gas/",
+          "checked_at": "2026-10-22",
+          "title": "Ethereum gas and fees"
+        }
+      ]
+    },
+    {
+      "doc_id": "policy-branch-snapshots",
+      "source_path": "knowledge/policies/branch-snapshots.md",
+      "source_origin": "workspace",
+      "source_commit": null,
+      "content_hash": "sha256:787b85314fa17ef67091511d7d8819c5bdc581bae9e481b7c87c9bf3688ceda3",
+      "title": "Snapshot policy hai branch",
+      "category": "policy",
+      "source_format": "markdown",
+      "scope": "policy_snapshot",
+      "doc_version": "rag-p2-v1",
+      "verification_status": "source_reviewed",
+      "usage": "reference_only",
+      "authored_revision": "rag-p2-v1",
+      "derived_from": [
+        {
+          "source_origin": "git",
+          "source_path": "config/policy.yaml",
+          "source_commit": "470c9c66f8867ead99a925e2569414fddfeee8b2",
+          "content_hash": "sha256:3ce017f2643a7ceb05ede26bd4c94ceccaa45a04afa3e9d039e57aab07db93ba"
+        },
+        {
+          "source_origin": "git",
+          "source_path": "security/policy.py",
+          "source_commit": "470c9c66f8867ead99a925e2569414fddfeee8b2",
+          "content_hash": "sha256:887e0e6384fb0592f472a5ffe0b3be0aa74e46c3b2e6fad1e410f6247c253baf"
+        },
+        {
+          "source_origin": "git",
+          "source_path": "backend/app/services/guardrail.py",
+          "source_commit": "51da5deda3febe1dca04b63cf42bb2ab2a76f9c9",
+          "content_hash": "sha256:e1a28348457bdb277230618608537dcba19a3b00d4f6d1326fa40d735c913f8a"
+        },
+        {
+          "source_origin": "git",
+          "source_path": "backend/app/core/config.py",
+          "source_commit": "51da5deda3febe1dca04b63cf42bb2ab2a76f9c9",
+          "content_hash": "sha256:7992f6f174d92bb14c7cb5b312ad97efcee4b01e0467feb925fd7e73734f0c14"
+        },
+        {
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574"
+        }
+      ],
+      "external_references": [],
+      "policy_version": "agent-470c9c6_backend-51da5de"
+    }
+  ],
+  "excluded_sources": [
+    {
+      "path": "contracts/exported/11155111/",
+      "reason": "Duplicate of canonical backend chain-scoped artifacts"
+    },
+    {
+      "path": "backend/abi/AgentToken_abi.json",
+      "reason": "Legacy unscoped ABI; not selected for this deployment"
+    },
+    {
+      "path": "backend/abi/deployment.json",
+      "reason": "Legacy unscoped manifest; not selected for this deployment"
+    },
+    {
+      "path": "contracts/README.md",
+      "reason": "Deployment paragraph describes a different address/ABI than the chain-scoped artifacts; reference only pending correction"
+    }
+  ],
+  "pending_sources": [
+    {
+      "topic": "Unified runtime guardrail policy",
+      "status": "Deferred to team integration; separate branch snapshot available as reference_only"
+    }
+  ],
+  "notes": [
+    "Deployment scope is repository-declared, not RPC-verified. Never infer execution permission from retrieval.",
+    "Only sources with usage=ingest are eligible for ingestion. Scope filtering remains mandatory after ingestion; source_only must not be relabeled general or deployed_contract.",
+    "Workspace-authored documents have source_commit=null until actually committed; derived_from records evidence commits and hashes, not a fictitious commit containing the new document.",
+    "External references were consulted on checked_at; their remote bytes are not pinned. The authored local document bytes are hash-pinned.",
+    "Do not recursively scan the repository; only explicitly allowlisted files may be ingested."
+  ],
+  "updated_at": "2026-10-22",
+  "corpus_revision": "rag-p2-v1"
+}

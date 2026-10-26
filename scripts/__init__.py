@@ -1,1 +1,1 @@
-# scripts package
+"""Standalone project commands."""

@@ -1,42 +1,62 @@
-# ─── Secrets ───────────────────────────────────────────────
-.env
-.env.*
-!.env.example
+# Documentation / Personal notes & binaries
+docs/*.docx
+docs/Báo cáo tiến độ giữa kì nhóm 15.docx
+docs/KE_HOACH_CONG_VIEC.md
+docs/WORK_PLAN.md
+docs/SMART_CONTRACT_REVIEW.md
 
-# ─── Python ────────────────────────────────────────────────
+# Node & Hardhat
+node_modules/
+contracts/node_modules/
+contracts/artifacts/
+contracts/cache/
+coverage/
+coverage.json
+typechain/
+typechain-types/
+
+# Environment files & Secrets
+.env
+*.env
+!.env.example
+contracts/.env
+
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-*.egg-info/
-dist/
-build/
-*.egg
-.venv/
-venv/
+*.so
+.Python
 env/
-.python-version
-
-# ─── Testing / Coverage ───────────────────────────────────
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 .pytest_cache/
-htmlcov/
-.coverage
-coverage.xml
 
-# ─── IDE ───────────────────────────────────────────────────
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# ─── OS ────────────────────────────────────────────────────
+# IDE & OS
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
+backend/abi/31337/
 
-# ─── Logs & Audit ──────────────────────────────────────────
-logs/
-*.log
-audit_logs/
+contracts/exported/31337/
 
-# ─── Misc ──────────────────────────────────────────────────
-node_modules/
+# Local RAG runtime data and downloaded models
+.cache/rag/
+data/rag/

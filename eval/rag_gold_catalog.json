@@ -1,0 +1,2408 @@
+{
+  "agenttoken-abi-guide:34510ede9691c617099dc24b6b82e29bab46ddb8259001aa66afa73573c19099": {
+    "content": "[deployed_contract; repository_only]\ntotalSupply()\n\n\n- Input: `(không có)`.\n- Output: `uint256 (không đặt tên)`.\n- Mutability: `view`.\n- Mục đích: Getter tổng supply tại state truy vấn; raw token units.\n\n",
+    "metadata": {
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:04ce9fbd16dba62af1577795eeb5a855d1a80ba3cfd6733eeac3c187cd21cb39",
+      "chunk_id": "agenttoken-abi-guide:34510ede9691c617099dc24b6b82e29bab46ddb8259001aa66afa73573c19099",
+      "content_hash": "sha256:06a0b8961309a206c4cae308276c7071a63fb1fd7c60fdb2a63a552b63bf9a06",
+      "context_prefix": "[deployed_contract; repository_only]\ntotalSupply()\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "derived_from": [
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        }
+      ],
+      "doc_id": "agenttoken-abi-guide",
+      "doc_version": "repo-28a9a0b6a96f",
+      "external_references": [],
+      "function_signature": "totalSupply()",
+      "heading_path": "AgentToken — danh mục ABI theo repository > totalSupply()",
+      "measured_length": 76,
+      "parent_id": "sha256:1136e7abef67990862cb1d2a203bf12387a37c850bb769700cd6f53e15e0b3ab",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 19,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/agenttoken-abi.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Danh mục ABI AgentToken",
+      "token_count": 76,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-abi-guide:3c5c68f248ffcaa473fc05593456b4a7203f410b25834f31b3693a8bd119eab1": {
+    "content": "[deployed_contract; repository_only]\nlastFaucetClaim(address)\n\n\n- Input: `address (không đặt tên)`.\n- Output: `uint256 (không đặt tên)`.\n- Mutability: `view`.\n- Mục đích: Getter theo address; tên tham số có thể trống trong ABI của public mapping.\n\n",
+    "metadata": {
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:11e42f8086a31e992c4da4790e334e780f57646acc215bb88327bbb7ba9dd29a",
+      "chunk_id": "agenttoken-abi-guide:3c5c68f248ffcaa473fc05593456b4a7203f410b25834f31b3693a8bd119eab1",
+      "content_hash": "sha256:06a0b8961309a206c4cae308276c7071a63fb1fd7c60fdb2a63a552b63bf9a06",
+      "context_prefix": "[deployed_contract; repository_only]\nlastFaucetClaim(address)\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "derived_from": [
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        }
+      ],
+      "doc_id": "agenttoken-abi-guide",
+      "doc_version": "repo-28a9a0b6a96f",
+      "external_references": [],
+      "function_signature": "lastFaucetClaim(address)",
+      "heading_path": "AgentToken — danh mục ABI theo repository > lastFaucetClaim(address)",
+      "measured_length": 87,
+      "parent_id": "sha256:38673210460e0d55768581cb3d993dbf11c92927828f2700461ee68099afd7e9",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 11,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/agenttoken-abi.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Danh mục ABI AgentToken",
+      "token_count": 87,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-abi-guide:4713a588476b275d08d04673e1b016d4ecb2f0917903fbdd55275a7e3bfc38a9": {
+    "content": "[deployed_contract; repository_only]\nsymbol()\n\n\n- Input: `(không có)`.\n- Output: `string (không đặt tên)`.\n- Mutability: `view`.\n- Mục đích: Getter symbol; ABI không chứa giá trị string thực tế.\n\n",
+    "metadata": {
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:2f3ba53242041acd89bb24a62b44c8e55fb02de1a09a33ff9801bc995a8f5b4f",
+      "chunk_id": "agenttoken-abi-guide:4713a588476b275d08d04673e1b016d4ecb2f0917903fbdd55275a7e3bfc38a9",
+      "content_hash": "sha256:06a0b8961309a206c4cae308276c7071a63fb1fd7c60fdb2a63a552b63bf9a06",
+      "context_prefix": "[deployed_contract; repository_only]\nsymbol()\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "derived_from": [
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        }
+      ],
+      "doc_id": "agenttoken-abi-guide",
+      "doc_version": "repo-28a9a0b6a96f",
+      "external_references": [],
+      "function_signature": "symbol()",
+      "heading_path": "AgentToken — danh mục ABI theo repository > symbol()",
+      "measured_length": 70,
+      "parent_id": "sha256:e29f3e6b6e3d836ba69a204c48c8cbe3c9cf5cae948689b85a4b013e6072bfdc",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 18,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/agenttoken-abi.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Danh mục ABI AgentToken",
+      "token_count": 70,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-abi-guide:532e986fe6cc27c563a3f2e65af6c6b23b1855de0d510b3063bcaa2d913ee17f": {
+    "content": "[deployed_contract; repository_only]\nbalanceOf(address)\n\n\n- Input: `address account`.\n- Output: `uint256 (không đặt tên)`.\n- Mutability: `view`.\n- Mục đích: Tra cứu balance của account; output là raw token units.\n\n",
+    "metadata": {
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:8fb7f1b6d999f3f7f3a380c3046d33c00e9435153cab3fb4f0efbe37ff1cb4e0",
+      "chunk_id": "agenttoken-abi-guide:532e986fe6cc27c563a3f2e65af6c6b23b1855de0d510b3063bcaa2d913ee17f",
+      "content_hash": "sha256:06a0b8961309a206c4cae308276c7071a63fb1fd7c60fdb2a63a552b63bf9a06",
+      "context_prefix": "[deployed_contract; repository_only]\nbalanceOf(address)\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "derived_from": [
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        }
+      ],
+      "doc_id": "agenttoken-abi-guide",
+      "doc_version": "repo-28a9a0b6a96f",
+      "external_references": [],
+      "function_signature": "balanceOf(address)",
+      "heading_path": "AgentToken — danh mục ABI theo repository > balanceOf(address)",
+      "measured_length": 74,
+      "parent_id": "sha256:10132e2b4ec6c8963b6c7ef365ab3090bff55b8b13cee30d4a1779c3bdc28a0c",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 6,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/agenttoken-abi.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Danh mục ABI AgentToken",
+      "token_count": 74,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-abi-guide:5cfc715af0272cbc31cb0b088cf55078dfb4d5f7262a14a2290f9af3a9ae5ba9": {
+    "content": "[deployed_contract; repository_only]\nname()\n\n\n- Input: `(không có)`.\n- Output: `string (không đặt tên)`.\n- Mutability: `view`.\n- Mục đích: Getter tên token; ABI không chứa giá trị string thực tế.\n\n",
+    "metadata": {
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:8b12913717c017c19ca2a77480884a09dd2f9e72a8cadfeb63e2a0c1b2047ad4",
+      "chunk_id": "agenttoken-abi-guide:5cfc715af0272cbc31cb0b088cf55078dfb4d5f7262a14a2290f9af3a9ae5ba9",
+      "content_hash": "sha256:06a0b8961309a206c4cae308276c7071a63fb1fd7c60fdb2a63a552b63bf9a06",
+      "context_prefix": "[deployed_contract; repository_only]\nname()\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "derived_from": [
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        }
+      ],
+      "doc_id": "agenttoken-abi-guide",
+      "doc_version": "repo-28a9a0b6a96f",
+      "external_references": [],
+      "function_signature": "name()",
+      "heading_path": "AgentToken — danh mục ABI theo repository > name()",
+      "measured_length": 72,
+      "parent_id": "sha256:b303b634c8f9838bea427e7d954399f861e90c2f71fd33b6d85b80d1e41a0402",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 14,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/agenttoken-abi.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Danh mục ABI AgentToken",
+      "token_count": 72,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-abi-guide:832a4d072727d1bf66c44dea93f60390ab741041db28822cdcc1301d9896e682": {
+    "content": "[deployed_contract; repository_only]\napprove(address,uint256)\n\n\n- Input: `address spender, uint256 value`.\n- Output: `bool (không đặt tên)`.\n- Mutability: `nonpayable`.\n- Mục đích: Giao diện cấp allowance cho spender; value là raw token units, không phải ETH.\n\n",
+    "metadata": {
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:fe5c0b0b290a451f91ea651b73e6e01374c9c6f7f6950fca301becb746ba41dc",
+      "chunk_id": "agenttoken-abi-guide:832a4d072727d1bf66c44dea93f60390ab741041db28822cdcc1301d9896e682",
+      "content_hash": "sha256:06a0b8961309a206c4cae308276c7071a63fb1fd7c60fdb2a63a552b63bf9a06",
+      "context_prefix": "[deployed_contract; repository_only]\napprove(address,uint256)\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "derived_from": [
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        }
+      ],
+      "doc_id": "agenttoken-abi-guide",
+      "doc_version": "repo-28a9a0b6a96f",
+      "external_references": [],
+      "function_signature": "approve(address,uint256)",
+      "heading_path": "AgentToken — danh mục ABI theo repository > approve(address,uint256)",
+      "measured_length": 92,
+      "parent_id": "sha256:bb7f5da79a3748bcc2a4ed7d9ec387989ffb67af18b16e5fe536c5258c072090",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 5,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/agenttoken-abi.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Danh mục ABI AgentToken",
+      "token_count": 92,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-abi-guide:b59b4933f1686a404e5d3034018c2a2aaa2e5ea355058c0ea4d9083aaedb520d": {
+    "content": "[deployed_contract; repository_only]\ntransfer(address,uint256)\n\n\n- Input: `address to, uint256 value`.\n- Output: `bool (không đặt tên)`.\n- Mutability: `nonpayable`.\n- Mục đích: Giao diện chuyển token từ caller tới to; value là raw token units.\n\n",
+    "metadata": {
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:09c3bd3f79137046b4dbbc58ee7b3c85376aa53476562fb7f6ba57332964ba14",
+      "chunk_id": "agenttoken-abi-guide:b59b4933f1686a404e5d3034018c2a2aaa2e5ea355058c0ea4d9083aaedb520d",
+      "content_hash": "sha256:06a0b8961309a206c4cae308276c7071a63fb1fd7c60fdb2a63a552b63bf9a06",
+      "context_prefix": "[deployed_contract; repository_only]\ntransfer(address,uint256)\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "derived_from": [
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        }
+      ],
+      "doc_id": "agenttoken-abi-guide",
+      "doc_version": "repo-28a9a0b6a96f",
+      "external_references": [],
+      "function_signature": "transfer(address,uint256)",
+      "heading_path": "AgentToken — danh mục ABI theo repository > transfer(address,uint256)",
+      "measured_length": 87,
+      "parent_id": "sha256:b507a49c024da6acbec2696a1542b5fd373da1665e7b505a9b41e3a890679c19",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 20,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/agenttoken-abi.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Danh mục ABI AgentToken",
+      "token_count": 87,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-abi-guide:bdfdda9486bde782a47949927f3b8c712e3fc302e5e31c8b63db9e688dd48458": {
+    "content": "[deployed_contract; repository_only]\ncap()\n\n\n- Input: `(không có)`.\n- Output: `uint256 (không đặt tên)`.\n- Mutability: `view`.\n- Mục đích: Getter cap trong interface; khác totalSupply.\n\n",
+    "metadata": {
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:13b2155249d22bc945bc9487016a015ec6c21f97f9efc0c80784816c0900e8c6",
+      "chunk_id": "agenttoken-abi-guide:bdfdda9486bde782a47949927f3b8c712e3fc302e5e31c8b63db9e688dd48458",
+      "content_hash": "sha256:06a0b8961309a206c4cae308276c7071a63fb1fd7c60fdb2a63a552b63bf9a06",
+      "context_prefix": "[deployed_contract; repository_only]\ncap()\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "derived_from": [
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        }
+      ],
+      "doc_id": "agenttoken-abi-guide",
+      "doc_version": "repo-28a9a0b6a96f",
+      "external_references": [],
+      "function_signature": "cap()",
+      "heading_path": "AgentToken — danh mục ABI theo repository > cap()",
+      "measured_length": 70,
+      "parent_id": "sha256:412e6ea21b7bcfb472a093c247535880a64473ca09e9ebdfd2ecf866788e5726",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 7,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/agenttoken-abi.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Danh mục ABI AgentToken",
+      "token_count": 70,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-abi-guide:c2d80db6f2e4340289fe5150f7ab748ccc6230589c8fa8d643fc1380251a5ae4": {
+    "content": "[deployed_contract; repository_only]\ndecimals()\n\n\n- Input: `(không có)`.\n- Output: `uint8 (không đặt tên)`.\n- Mutability: `view`.\n- Mục đích: Getter số chữ số thập phân; ABI chỉ xác định kiểu uint8, không chứa giá trị trả về.\n\n",
+    "metadata": {
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:79ad9dd3630f05cdbe087807391df84dc8b982e034ac7859e685ca3f95451d4f",
+      "chunk_id": "agenttoken-abi-guide:c2d80db6f2e4340289fe5150f7ab748ccc6230589c8fa8d643fc1380251a5ae4",
+      "content_hash": "sha256:06a0b8961309a206c4cae308276c7071a63fb1fd7c60fdb2a63a552b63bf9a06",
+      "context_prefix": "[deployed_contract; repository_only]\ndecimals()\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "derived_from": [
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        }
+      ],
+      "doc_id": "agenttoken-abi-guide",
+      "doc_version": "repo-28a9a0b6a96f",
+      "external_references": [],
+      "function_signature": "decimals()",
+      "heading_path": "AgentToken — danh mục ABI theo repository > decimals()",
+      "measured_length": 84,
+      "parent_id": "sha256:dc61c981abd5d71f2d7a13e64eafc2b44180e834bcb11d57994004f691dfb42d",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 8,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/agenttoken-abi.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Danh mục ABI AgentToken",
+      "token_count": 84,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-abi-guide:c2ece70c3e7c58e5bee5d294cff6d6b34a4d7632b76d0660d0db32ccb1a5e69d": {
+    "content": "[deployed_contract; repository_only]\ntransferFrom(address,address,uint256)\n\n\n- Input: `address from, address to, uint256 value`.\n- Output: `bool (không đặt tên)`.\n- Mutability: `nonpayable`.\n- Mục đích: Giao diện chuyển token từ from tới to bởi caller/spender; value là raw token units.\n\n",
+    "metadata": {
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:2361c46e48850c8c7ffa11df3728913c2760637d0729cc839f2c594b9b9fa11f",
+      "chunk_id": "agenttoken-abi-guide:c2ece70c3e7c58e5bee5d294cff6d6b34a4d7632b76d0660d0db32ccb1a5e69d",
+      "content_hash": "sha256:06a0b8961309a206c4cae308276c7071a63fb1fd7c60fdb2a63a552b63bf9a06",
+      "context_prefix": "[deployed_contract; repository_only]\ntransferFrom(address,address,uint256)\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "derived_from": [
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        }
+      ],
+      "doc_id": "agenttoken-abi-guide",
+      "doc_version": "repo-28a9a0b6a96f",
+      "external_references": [],
+      "function_signature": "transferFrom(address,address,uint256)",
+      "heading_path": "AgentToken — danh mục ABI theo repository > transferFrom(address,address,uint256)",
+      "measured_length": 99,
+      "parent_id": "sha256:a2b2b7621d675de236335b167cf886faeb56f855fb22999d52fa44a6bed15805",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 21,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/agenttoken-abi.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Danh mục ABI AgentToken",
+      "token_count": 99,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-abi-guide:d31328521b8bb476a08229e77addb67109f50ca642b4635659e34b056e38ce86": {
+    "content": "[deployed_contract; repository_only]\nowner()\n\n\n- Input: `(không có)`.\n- Output: `address (không đặt tên)`.\n- Mutability: `view`.\n- Mục đích: Getter owner; ABI không cho biết ví owner hiện tại.\n\n",
+    "metadata": {
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:d2b5026ccad2e8a64c34e0a4f9091cfa3969bf3ccfab7a50588600582ceee0b1",
+      "chunk_id": "agenttoken-abi-guide:d31328521b8bb476a08229e77addb67109f50ca642b4635659e34b056e38ce86",
+      "content_hash": "sha256:06a0b8961309a206c4cae308276c7071a63fb1fd7c60fdb2a63a552b63bf9a06",
+      "context_prefix": "[deployed_contract; repository_only]\nowner()\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "derived_from": [
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        }
+      ],
+      "doc_id": "agenttoken-abi-guide",
+      "doc_version": "repo-28a9a0b6a96f",
+      "external_references": [],
+      "function_signature": "owner()",
+      "heading_path": "AgentToken — danh mục ABI theo repository > owner()",
+      "measured_length": 71,
+      "parent_id": "sha256:eb96e3f39d952bd2eae0dab23e02accfd4763fec4373a686f7d22a27067319d3",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 15,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/agenttoken-abi.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Danh mục ABI AgentToken",
+      "token_count": 71,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-abi-guide:f3ceb57a6bac3790a78c181b9f502615c07d78d1d57faa0b66c911eeb7aba1fc": {
+    "content": "[deployed_contract; repository_only]\nvalidateTransferFrom(address,address,uint256,address)\n\n\n- Input: `address sender, address recipient, uint256 amount, address spender`.\n- Output: `bool isValid, string reason`.\n- Mutability: `view`.\n- Mục đích: Giao diện kiểm tra thêm spender là caller dự kiến; amount là raw token units.\n\n",
+    "metadata": {
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:3a8c152e2a580b2b6ae0c1af6a9841bb56808ad6a2d467de767791cffdf0c5fd",
+      "chunk_id": "agenttoken-abi-guide:f3ceb57a6bac3790a78c181b9f502615c07d78d1d57faa0b66c911eeb7aba1fc",
+      "content_hash": "sha256:06a0b8961309a206c4cae308276c7071a63fb1fd7c60fdb2a63a552b63bf9a06",
+      "context_prefix": "[deployed_contract; repository_only]\nvalidateTransferFrom(address,address,uint256,address)\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "derived_from": [
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        }
+      ],
+      "doc_id": "agenttoken-abi-guide",
+      "doc_version": "repo-28a9a0b6a96f",
+      "external_references": [],
+      "function_signature": "validateTransferFrom(address,address,uint256,address)",
+      "heading_path": "AgentToken — danh mục ABI theo repository > validateTransferFrom(address,address,uint256,address)",
+      "measured_length": 105,
+      "parent_id": "sha256:5eac85bfbe3cf861bc05ac7118ed10a8890939256601afb11e8e94a6f0c370f9",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 24,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/agenttoken-abi.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Danh mục ABI AgentToken",
+      "token_count": 105,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-faucet-admin-source:09a705efee2d1a5f9c73b79bfa1d81cb80cbe4b0ee6dc91a39ce2faa884ecc37": {
+    "content": "[source_only; source_reviewed]\nConstructor và thông tin token\n\nphải totalSupply đang chạy.\n\n`MAX_TOTAL_SUPPLY()` và `cap()` có output `uint256`, view. Source khai báo cap `10_000_000 * 10 ** 18` raw units. Cap áp dụng cho mint trong constructor, owner mint và faucet. Test gồm constructor trên cap, tại cap và mint vượt cap một raw unit.\n\n",
+    "metadata": {
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_behavior",
+      "chunk_hash": "sha256:9dc5e4a1f26c690669f43be812ba794d404fab68ad08d63227cce30f04bd385e",
+      "chunk_id": "agenttoken-faucet-admin-source:09a705efee2d1a5f9c73b79bfa1d81cb80cbe4b0ee6dc91a39ce2faa884ecc37",
+      "content_hash": "sha256:2b65e677b7800568c97d5ad6a1b4df5f179e36d739bd83e6e41e34fbe246324a",
+      "context_prefix": "[source_only; source_reviewed]\nConstructor và thông tin token\n\n",
+      "derived_from": [
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        },
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:f70916cad10c310b3764ef279fd382731a2728db2c6f9c15dcc077aca18c6074",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.test.js"
+        },
+        {
+          "content_hash": "sha256:cfb4cbea43487036ff48b545fa6bcf7d6fd4f2085b28cda9bb7ec6b6345be439",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.security.test.js"
+        },
+        {
+          "content_hash": "sha256:fc4f47acb4ead7388a3002c1f9b35e5a3ab1d8a523ca71b3169127d8f4afbeeb",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/package-lock.json"
+        }
+      ],
+      "doc_id": "agenttoken-faucet-admin-source",
+      "doc_version": "source-28a9a0b6a96f",
+      "external_references": [],
+      "heading_path": "AgentToken source — faucet, supply cap và owner > Constructor và thông tin token",
+      "measured_length": 108,
+      "parent_id": "sha256:dd7058cdc24876b3837673ed03fc92f6bf4233bab268a47547fddc7cf3610fcf",
+      "part_count": 2,
+      "part_index": 1,
+      "prefix_style": "compact",
+      "scope": "source_only",
+      "section_index": 2,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/faucet-and-admin-source.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Faucet, supply cap và owner theo source",
+      "token_count": 108,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "source_reviewed"
+    }
+  },
+  "agenttoken-faucet-admin-source:12093bdffff449b0e985b9e123e3d3283121d345ae5bb31cdcd966bf8171e752": {
+    "content": "[source_only; source_reviewed]\nowner, transferOwnership và renounceOwnership\n\n\n`owner()` trả address, view. `transferOwnership(address newOwner)` và `renounceOwnership()` không output, nonpayable, thuộc Ownable kế thừa. Chúng thay quyền quản trị, không tự chuyển balance ETH hoặc AGNT. Không xem một kết quả retrieval là yêu cầu hay xác nhận để thực hiện thay owner.\n\nNguồn: source AgentToken và hai file test AgentToken ở ",
+    "metadata": {
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_behavior",
+      "chunk_hash": "sha256:99e9fc6f7711947a7ede27130ac2dba724e0c29cb7c48b9eb2b56a6e78cb575b",
+      "chunk_id": "agenttoken-faucet-admin-source:12093bdffff449b0e985b9e123e3d3283121d345ae5bb31cdcd966bf8171e752",
+      "content_hash": "sha256:2b65e677b7800568c97d5ad6a1b4df5f179e36d739bd83e6e41e34fbe246324a",
+      "context_prefix": "[source_only; source_reviewed]\nowner, transferOwnership và renounceOwnership\n\n",
+      "derived_from": [
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        },
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:f70916cad10c310b3764ef279fd382731a2728db2c6f9c15dcc077aca18c6074",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.test.js"
+        },
+        {
+          "content_hash": "sha256:cfb4cbea43487036ff48b545fa6bcf7d6fd4f2085b28cda9bb7ec6b6345be439",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.security.test.js"
+        },
+        {
+          "content_hash": "sha256:fc4f47acb4ead7388a3002c1f9b35e5a3ab1d8a523ca71b3169127d8f4afbeeb",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/package-lock.json"
+        }
+      ],
+      "doc_id": "agenttoken-faucet-admin-source",
+      "doc_version": "source-28a9a0b6a96f",
+      "external_references": [],
+      "heading_path": "AgentToken source — faucet, supply cap và owner > owner, transferOwnership và renounceOwnership",
+      "measured_length": 128,
+      "parent_id": "sha256:6c58eb5d33a3c51f62de21691ebeb528d896dc2b13b76c16dc54db234adede39",
+      "part_count": 2,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "source_only",
+      "section_index": 5,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/faucet-and-admin-source.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Faucet, supply cap và owner theo source",
+      "token_count": 128,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "source_reviewed"
+    }
+  },
+  "agenttoken-faucet-admin-source:3faabce75b3f25b1f3822f52beb06cbcd98c6137d7619c4ed3e38ce301e9fdd2": {
+    "content": "[source_only; source_reviewed]\nmint(address,uint256)\n\n\nInput `to: address`, `amount: uint256`; không output; nonpayable. Source gắn onlyOwner, chặn to bằng zero với `AgentToken: Cannot mint to zero address`, gọi _mint rồi emit `TokensMinted(address,uint256)`. Amount là raw units và chịu supply cap. Không có điều kiện amount > 0 riêng trong hàm source này; không áp nhầm quy tắc faucet sang owner mint.\n\n",
+    "metadata": {
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_behavior",
+      "chunk_hash": "sha256:2829f9c97bc6d453f6016b04f543644954f06978d0c70b4062f7805e1f076bbb",
+      "chunk_id": "agenttoken-faucet-admin-source:3faabce75b3f25b1f3822f52beb06cbcd98c6137d7619c4ed3e38ce301e9fdd2",
+      "content_hash": "sha256:2b65e677b7800568c97d5ad6a1b4df5f179e36d739bd83e6e41e34fbe246324a",
+      "context_prefix": "[source_only; source_reviewed]\nmint(address,uint256)\n\n",
+      "derived_from": [
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        },
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:f70916cad10c310b3764ef279fd382731a2728db2c6f9c15dcc077aca18c6074",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.test.js"
+        },
+        {
+          "content_hash": "sha256:cfb4cbea43487036ff48b545fa6bcf7d6fd4f2085b28cda9bb7ec6b6345be439",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.security.test.js"
+        },
+        {
+          "content_hash": "sha256:fc4f47acb4ead7388a3002c1f9b35e5a3ab1d8a523ca71b3169127d8f4afbeeb",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/package-lock.json"
+        }
+      ],
+      "doc_id": "agenttoken-faucet-admin-source",
+      "doc_version": "source-28a9a0b6a96f",
+      "external_references": [],
+      "function_signature": "mint(address,uint256)",
+      "heading_path": "AgentToken source — faucet, supply cap và owner > mint(address,uint256)",
+      "measured_length": 128,
+      "parent_id": "sha256:fb1f8d0a60fec591f94488858318b99af7856b3921798d51e559858f154bd421",
+      "part_count": 2,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "source_only",
+      "section_index": 3,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/faucet-and-admin-source.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Faucet, supply cap và owner theo source",
+      "token_count": 128,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "source_reviewed"
+    }
+  },
+  "agenttoken-faucet-admin-source:5540c64d4463ecfeaa5b9fbcb6a3f0ae34025907e064b2a0ed0087d1ffa8227b": {
+    "content": "[source_only; source_reviewed]\nfaucet(uint256)\n\nSource yêu cầu `block.timestamp >= lastFaucetClaim[msg.sender] + faucetCooldown`. `faucetCooldown` khởi tạo bằng 60 giây, không có setter public trong ABI snapshot. Last claim được lưu theo caller; không phải giới hạn dùng chung cho mọi ví. Lần gọi đầu có last claim mặc định 0 và vẫn đi qua công thức này.\n\n",
+    "metadata": {
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_behavior",
+      "chunk_hash": "sha256:d0f9b828905f59328ca9c00e7f096e80ff34d91c692c7e4960f67901baf53bf7",
+      "chunk_id": "agenttoken-faucet-admin-source:5540c64d4463ecfeaa5b9fbcb6a3f0ae34025907e064b2a0ed0087d1ffa8227b",
+      "content_hash": "sha256:2b65e677b7800568c97d5ad6a1b4df5f179e36d739bd83e6e41e34fbe246324a",
+      "context_prefix": "[source_only; source_reviewed]\nfaucet(uint256)\n\n",
+      "derived_from": [
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        },
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:f70916cad10c310b3764ef279fd382731a2728db2c6f9c15dcc077aca18c6074",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.test.js"
+        },
+        {
+          "content_hash": "sha256:cfb4cbea43487036ff48b545fa6bcf7d6fd4f2085b28cda9bb7ec6b6345be439",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.security.test.js"
+        },
+        {
+          "content_hash": "sha256:fc4f47acb4ead7388a3002c1f9b35e5a3ab1d8a523ca71b3169127d8f4afbeeb",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/package-lock.json"
+        }
+      ],
+      "doc_id": "agenttoken-faucet-admin-source",
+      "doc_version": "source-28a9a0b6a96f",
+      "external_references": [],
+      "function_signature": "faucet(uint256)",
+      "heading_path": "AgentToken source — faucet, supply cap và owner > faucet(uint256)",
+      "measured_length": 114,
+      "parent_id": "sha256:74265a4c0f8b8a4f9d66c96fc0257d32fecd30046e468d35fdf7d6a311dd722b",
+      "part_count": 5,
+      "part_index": 2,
+      "prefix_style": "compact",
+      "scope": "source_only",
+      "section_index": 1,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/faucet-and-admin-source.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Faucet, supply cap và owner theo source",
+      "token_count": 114,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "source_reviewed"
+    }
+  },
+  "agenttoken-faucet-admin-source:566fd6f112e0d7f644d17b03b0d08875476ea4a3774f53f79fd92a9c15887101": {
+    "content": "[source_only; source_reviewed]\nsetMaxTransferLimit(uint256)\n\n\nInput `newLimit: uint256`; không output; nonpayable. Source gắn onlyOwner, yêu cầu newLimit > 0 (`AgentToken: Limit must be greater than 0`), cập nhật maxTransferLimit và emit `MaxTransferLimitUpdated(uint256,uint256)`. Đơn vị newLimit là raw token units.\n\n",
+    "metadata": {
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_behavior",
+      "chunk_hash": "sha256:75f643eba732d88824614d8ae88f2ce50a9df749977a506bcc9fa18ba4b7ebf9",
+      "chunk_id": "agenttoken-faucet-admin-source:566fd6f112e0d7f644d17b03b0d08875476ea4a3774f53f79fd92a9c15887101",
+      "content_hash": "sha256:2b65e677b7800568c97d5ad6a1b4df5f179e36d739bd83e6e41e34fbe246324a",
+      "context_prefix": "[source_only; source_reviewed]\nsetMaxTransferLimit(uint256)\n\n",
+      "derived_from": [
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        },
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:f70916cad10c310b3764ef279fd382731a2728db2c6f9c15dcc077aca18c6074",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.test.js"
+        },
+        {
+          "content_hash": "sha256:cfb4cbea43487036ff48b545fa6bcf7d6fd4f2085b28cda9bb7ec6b6345be439",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.security.test.js"
+        },
+        {
+          "content_hash": "sha256:fc4f47acb4ead7388a3002c1f9b35e5a3ab1d8a523ca71b3169127d8f4afbeeb",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/package-lock.json"
+        }
+      ],
+      "doc_id": "agenttoken-faucet-admin-source",
+      "doc_version": "source-28a9a0b6a96f",
+      "external_references": [],
+      "function_signature": "setMaxTransferLimit(uint256)",
+      "heading_path": "AgentToken source — faucet, supply cap và owner > setMaxTransferLimit(uint256)",
+      "measured_length": 112,
+      "parent_id": "sha256:b7e26d519d71e7273677ee9f4f22de48fede146c8fd5526d40cbc2ad090902af",
+      "part_count": 2,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "source_only",
+      "section_index": 4,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/faucet-and-admin-source.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Faucet, supply cap và owner theo source",
+      "token_count": 112,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "source_reviewed"
+    }
+  },
+  "agenttoken-faucet-admin-source:58841fb6dcd0b1db416d7b57009723827b8654aa25c60846acc4eda976b15b98": {
+    "content": "[source_only; source_reviewed]\nfaucet(uint256)\n\n\nInput `amount: uint256` là raw token units; không có output; `nonpayable`. Faucet mint token cho `msg.sender`, không có tham số recipient. Không cần quyền owner trong source này. Amount phải lớn hơn 0 và không quá `FAUCET_AMOUNT_LIMIT`, được khai báo là `100 * 10 ** 18` raw units.\n\n",
+    "metadata": {
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_behavior",
+      "chunk_hash": "sha256:f5e9b291f3614f88f21af3516c8c0ebf467a7de3411bcacf826a03a98e80dc06",
+      "chunk_id": "agenttoken-faucet-admin-source:58841fb6dcd0b1db416d7b57009723827b8654aa25c60846acc4eda976b15b98",
+      "content_hash": "sha256:2b65e677b7800568c97d5ad6a1b4df5f179e36d739bd83e6e41e34fbe246324a",
+      "context_prefix": "[source_only; source_reviewed]\nfaucet(uint256)\n\n",
+      "derived_from": [
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        },
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:f70916cad10c310b3764ef279fd382731a2728db2c6f9c15dcc077aca18c6074",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.test.js"
+        },
+        {
+          "content_hash": "sha256:cfb4cbea43487036ff48b545fa6bcf7d6fd4f2085b28cda9bb7ec6b6345be439",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.security.test.js"
+        },
+        {
+          "content_hash": "sha256:fc4f47acb4ead7388a3002c1f9b35e5a3ab1d8a523ca71b3169127d8f4afbeeb",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/package-lock.json"
+        }
+      ],
+      "doc_id": "agenttoken-faucet-admin-source",
+      "doc_version": "source-28a9a0b6a96f",
+      "external_references": [],
+      "function_signature": "faucet(uint256)",
+      "heading_path": "AgentToken source — faucet, supply cap và owner > faucet(uint256)",
+      "measured_length": 111,
+      "parent_id": "sha256:74265a4c0f8b8a4f9d66c96fc0257d32fecd30046e468d35fdf7d6a311dd722b",
+      "part_count": 5,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "source_only",
+      "section_index": 1,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/faucet-and-admin-source.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Faucet, supply cap và owner theo source",
+      "token_count": 111,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "source_reviewed"
+    }
+  },
+  "agenttoken-sepolia-abi:11eece40cabb1d21c10e9ac6c6a30ad12f208ad5ac0e832102681f0da3e41672": {
+    "content": "[deployed_contract; repository_only]\nfunction lastFaucetClaim(address)\n\n\"function\"\n}",
+    "metadata": {
+      "abi_entry_type": "function",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:e898d74fb2f56944ba5086a10fafdd5a4c2dc86e83e300b75ada2d0bfd401700",
+      "chunk_id": "agenttoken-sepolia-abi:11eece40cabb1d21c10e9ac6c6a30ad12f208ad5ac0e832102681f0da3e41672",
+      "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "context_prefix": "[deployed_contract; repository_only]\nfunction lastFaucetClaim(address)\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "doc_id": "agenttoken-sepolia-abi",
+      "doc_version": "repo-28a9a0b6a96f",
+      "function_signature": "lastFaucetClaim(address)",
+      "heading_path": "function lastFaucetClaim(address)",
+      "measured_length": 32,
+      "parent_id": "sha256:b6373b00f159f50c0c8ef309a4a69fdb60a246d3d033cc30210b8fb6de9f81e9",
+      "part_count": 2,
+      "part_index": 1,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 26,
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "source_format": "abi_json",
+      "source_origin": "git",
+      "source_path": "backend/abi/11155111/AgentToken_abi.json",
+      "splitter_version": "rag-semantic-v2",
+      "title": "AgentToken ABI recorded for Sepolia",
+      "token_count": 32,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-sepolia-abi:17e1fca26e43241bef15352a55ef7916a828bce9f902d34c7f9b166f7aca3694": {
+    "content": "[deployed_contract; repository_only]\nfunction lastFaucetClaim(address)\n\n{\n  \"inputs\": [\n    {\n      \"internalType\": \"address\",\n      \"name\": \"\",\n      \"type\": \"address\"\n    }\n  ],\n  \"name\": \"lastFaucetClaim\",\n  \"outputs\": [\n    {\n      \"internalType\": \"uint256\",\n      \"name\": \"\",\n      \"type\": \"uint256\"\n    }\n  ],\n  \"stateMutability\": \"view\",\n  \"type\": ",
+    "metadata": {
+      "abi_entry_type": "function",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:37eedaf7f7d572477eb6f706e6cb91535ea19f4072d62042476d30d1978b8d04",
+      "chunk_id": "agenttoken-sepolia-abi:17e1fca26e43241bef15352a55ef7916a828bce9f902d34c7f9b166f7aca3694",
+      "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "context_prefix": "[deployed_contract; repository_only]\nfunction lastFaucetClaim(address)\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "doc_id": "agenttoken-sepolia-abi",
+      "doc_version": "repo-28a9a0b6a96f",
+      "function_signature": "lastFaucetClaim(address)",
+      "heading_path": "function lastFaucetClaim(address)",
+      "measured_length": 127,
+      "parent_id": "sha256:b6373b00f159f50c0c8ef309a4a69fdb60a246d3d033cc30210b8fb6de9f81e9",
+      "part_count": 2,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 26,
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "source_format": "abi_json",
+      "source_origin": "git",
+      "source_path": "backend/abi/11155111/AgentToken_abi.json",
+      "splitter_version": "rag-semantic-v2",
+      "title": "AgentToken ABI recorded for Sepolia",
+      "token_count": 127,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-sepolia-abi:1e4f136dd2059f790707d84d78e7fb956d9d975a069112ba3b6468b903b2bc61": {
+    "content": "[deployed_contract; repository_only]\nfunction name()\n\n{\n  \"inputs\": [],\n  \"name\": \"name\",\n  \"outputs\": [\n    {\n      \"internalType\": \"string\",\n      \"name\": \"\",\n      \"type\": \"string\"\n    }\n  ],\n  \"stateMutability\": \"view\",\n  \"type\": \"function\"\n}",
+    "metadata": {
+      "abi_entry_type": "function",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:2598e2b83361e044841cff73ad47221205ef8cb6ce787027d04a1c392c029103",
+      "chunk_id": "agenttoken-sepolia-abi:1e4f136dd2059f790707d84d78e7fb956d9d975a069112ba3b6468b903b2bc61",
+      "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "context_prefix": "[deployed_contract; repository_only]\nfunction name()\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "doc_id": "agenttoken-sepolia-abi",
+      "doc_version": "repo-28a9a0b6a96f",
+      "function_signature": "name()",
+      "heading_path": "function name()",
+      "measured_length": 89,
+      "parent_id": "sha256:125f26885d83c4fecdc9a0b0600110fffc954af6f7a633b7c2acd3c953c3e28d",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 29,
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "source_format": "abi_json",
+      "source_origin": "git",
+      "source_path": "backend/abi/11155111/AgentToken_abi.json",
+      "splitter_version": "rag-semantic-v2",
+      "title": "AgentToken ABI recorded for Sepolia",
+      "token_count": 89,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-sepolia-abi:24a0d2a93914d6f4d53a065d380e105b53516cc8ff89071dc1a1f32942e1266b": {
+    "content": "[deployed_contract; repository_only]\nfunction transfer(address,uint256)\n\n\"type\": \"bool\"\n    }\n  ],\n  \"stateMutability\": \"nonpayable\",\n  \"type\": \"function\"\n}",
+    "metadata": {
+      "abi_entry_type": "function",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:21ea80d28de831c121d5041b02595c916f704aa35eac21ac371185c8a47b9c41",
+      "chunk_id": "agenttoken-sepolia-abi:24a0d2a93914d6f4d53a065d380e105b53516cc8ff89071dc1a1f32942e1266b",
+      "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "context_prefix": "[deployed_contract; repository_only]\nfunction transfer(address,uint256)\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "doc_id": "agenttoken-sepolia-abi",
+      "doc_version": "repo-28a9a0b6a96f",
+      "function_signature": "transfer(address,uint256)",
+      "heading_path": "function transfer(address,uint256)",
+      "measured_length": 57,
+      "parent_id": "sha256:c186b80c6db13f07051d7d89477a509ca14e56c66d0ff3ad31fa7c18c956ab25",
+      "part_count": 2,
+      "part_index": 1,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 35,
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "source_format": "abi_json",
+      "source_origin": "git",
+      "source_path": "backend/abi/11155111/AgentToken_abi.json",
+      "splitter_version": "rag-semantic-v2",
+      "title": "AgentToken ABI recorded for Sepolia",
+      "token_count": 57,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-sepolia-abi:34f186f1eb1a4072c77ddba0047d18b4f62acd3942251e0fddfdf9ec6dbf8830": {
+    "content": "[deployed_contract; repository_only]\nfunction transferFrom(address,address,uint256)\n\n{\n  \"inputs\": [\n    {\n      \"internalType\": \"address\",\n      \"name\": \"from\",\n      \"type\": \"address\"\n    },\n    {\n      \"internalType\": \"address\",\n      \"name\": \"to\",\n      \"type\": \"address\"\n    },\n    {\n      \"internalType\": \"uint256\",\n      \"name\": \"value\",\n      \"type\": \"uint256\"\n    }\n  ],\n  ",
+    "metadata": {
+      "abi_entry_type": "function",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:5a5d87e3ec33b8b5da0cea7b86cc81f7b73600c18dae1cc1fd3b65e0aa65554b",
+      "chunk_id": "agenttoken-sepolia-abi:34f186f1eb1a4072c77ddba0047d18b4f62acd3942251e0fddfdf9ec6dbf8830",
+      "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "context_prefix": "[deployed_contract; repository_only]\nfunction transferFrom(address,address,uint256)\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "doc_id": "agenttoken-sepolia-abi",
+      "doc_version": "repo-28a9a0b6a96f",
+      "function_signature": "transferFrom(address,address,uint256)",
+      "heading_path": "function transferFrom(address,address,uint256)",
+      "measured_length": 127,
+      "parent_id": "sha256:f84bad983d05c41a68456e41e2cd4c7db66985a0af048205c5cafa7b64c49150",
+      "part_count": 2,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 36,
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "source_format": "abi_json",
+      "source_origin": "git",
+      "source_path": "backend/abi/11155111/AgentToken_abi.json",
+      "splitter_version": "rag-semantic-v2",
+      "title": "AgentToken ABI recorded for Sepolia",
+      "token_count": 127,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-sepolia-abi:398bf0149e3897dfa632945913af858e14887d20101683fb1cba36e7dd63b1e1": {
+    "content": "[deployed_contract; repository_only]\nfunction approve(address,uint256)\n\n{\n  \"inputs\": [\n    {\n      \"internalType\": \"address\",\n      \"name\": \"spender\",\n      \"type\": \"address\"\n    },\n    {\n      \"internalType\": \"uint256\",\n      \"name\": \"value\",\n      \"type\": \"uint256\"\n    }\n  ],\n  \"name\": \"approve\",\n  \"outputs\": [\n    {\n      \"internalType\": \"bool\",\n      \"name\": \"\",\n      ",
+    "metadata": {
+      "abi_entry_type": "function",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:18505be96552de6ef08faf16a60fa010a350bc88bce9454cc10a7608a012bace",
+      "chunk_id": "agenttoken-sepolia-abi:398bf0149e3897dfa632945913af858e14887d20101683fb1cba36e7dd63b1e1",
+      "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "context_prefix": "[deployed_contract; repository_only]\nfunction approve(address,uint256)\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "doc_id": "agenttoken-sepolia-abi",
+      "doc_version": "repo-28a9a0b6a96f",
+      "function_signature": "approve(address,uint256)",
+      "heading_path": "function approve(address,uint256)",
+      "measured_length": 128,
+      "parent_id": "sha256:80cf9dffb7adee2568b3567c8520a0e8cb18f1497b72d5498fef46f7b45e85b5",
+      "part_count": 2,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 20,
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "source_format": "abi_json",
+      "source_origin": "git",
+      "source_path": "backend/abi/11155111/AgentToken_abi.json",
+      "splitter_version": "rag-semantic-v2",
+      "title": "AgentToken ABI recorded for Sepolia",
+      "token_count": 128,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-sepolia-abi:412068afa243200aad72522317e8fc6ef125e7fb3bb25c8f8cca87b90f23b3fd": {
+    "content": "[deployed_contract; repository_only]\nfunction balanceOf(address)\n\n{\n  \"inputs\": [\n    {\n      \"internalType\": \"address\",\n      \"name\": \"account\",\n      \"type\": \"address\"\n    }\n  ],\n  \"name\": \"balanceOf\",\n  \"outputs\": [\n    {\n      \"internalType\": \"uint256\",\n      \"name\": \"\",\n      \"type\": \"uint256\"\n    }\n  ],\n  \"stateMutability\": \"view\",\n  \"type\": \"function\"\n}",
+    "metadata": {
+      "abi_entry_type": "function",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:fa8964200ae086fbf1dfe592ae89ead5315fb681ede80a4da1483de5efc4b2ca",
+      "chunk_id": "agenttoken-sepolia-abi:412068afa243200aad72522317e8fc6ef125e7fb3bb25c8f8cca87b90f23b3fd",
+      "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "context_prefix": "[deployed_contract; repository_only]\nfunction balanceOf(address)\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "doc_id": "agenttoken-sepolia-abi",
+      "doc_version": "repo-28a9a0b6a96f",
+      "function_signature": "balanceOf(address)",
+      "heading_path": "function balanceOf(address)",
+      "measured_length": 124,
+      "parent_id": "sha256:bc2083377c0a86313f6237aa71b5689c2346102e5622cae5eac68f4bd4dbe9a5",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 21,
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "source_format": "abi_json",
+      "source_origin": "git",
+      "source_path": "backend/abi/11155111/AgentToken_abi.json",
+      "splitter_version": "rag-semantic-v2",
+      "title": "AgentToken ABI recorded for Sepolia",
+      "token_count": 124,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-sepolia-abi:5a2334fe24cb849aac5dc3418e5ca8a8922e35e438933a0668bfb1931dc12064": {
+    "content": "[deployed_contract; repository_only]\nfunction cap()\n\n{\n  \"inputs\": [],\n  \"name\": \"cap\",\n  \"outputs\": [\n    {\n      \"internalType\": \"uint256\",\n      \"name\": \"\",\n      \"type\": \"uint256\"\n    }\n  ],\n  \"stateMutability\": \"view\",\n  \"type\": \"function\"\n}",
+    "metadata": {
+      "abi_entry_type": "function",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:3508405e005fabeb5e7d65257e325ef1e6bbb6314f275e1b952c9720dedc1fec",
+      "chunk_id": "agenttoken-sepolia-abi:5a2334fe24cb849aac5dc3418e5ca8a8922e35e438933a0668bfb1931dc12064",
+      "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "context_prefix": "[deployed_contract; repository_only]\nfunction cap()\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "doc_id": "agenttoken-sepolia-abi",
+      "doc_version": "repo-28a9a0b6a96f",
+      "function_signature": "cap()",
+      "heading_path": "function cap()",
+      "measured_length": 93,
+      "parent_id": "sha256:2e2ff331361994c27dab3469f41f8de31937c82add89fd95c281a7b7eb9305b1",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 22,
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "source_format": "abi_json",
+      "source_origin": "git",
+      "source_path": "backend/abi/11155111/AgentToken_abi.json",
+      "splitter_version": "rag-semantic-v2",
+      "title": "AgentToken ABI recorded for Sepolia",
+      "token_count": 93,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-sepolia-abi:6ab9140034825c9e7cb3648c8c899a188f8726073992b617433b64395e9b87eb": {
+    "content": "[deployed_contract; repository_only]\nfunction totalSupply()\n\n{\n  \"inputs\": [],\n  \"name\": \"totalSupply\",\n  \"outputs\": [\n    {\n      \"internalType\": \"uint256\",\n      \"name\": \"\",\n      \"type\": \"uint256\"\n    }\n  ],\n  \"stateMutability\": \"view\",\n  \"type\": \"function\"\n}",
+    "metadata": {
+      "abi_entry_type": "function",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:644267a8aeb2f701499f7ce102a6eb42054c76672f66e486e7648d2a3bfa4470",
+      "chunk_id": "agenttoken-sepolia-abi:6ab9140034825c9e7cb3648c8c899a188f8726073992b617433b64395e9b87eb",
+      "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "context_prefix": "[deployed_contract; repository_only]\nfunction totalSupply()\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "doc_id": "agenttoken-sepolia-abi",
+      "doc_version": "repo-28a9a0b6a96f",
+      "function_signature": "totalSupply()",
+      "heading_path": "function totalSupply()",
+      "measured_length": 100,
+      "parent_id": "sha256:5fc7aa6b3c207f1e219b41d4522e868aa62f868d87998cb7f4ed2daafa4bb9ae",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 34,
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "source_format": "abi_json",
+      "source_origin": "git",
+      "source_path": "backend/abi/11155111/AgentToken_abi.json",
+      "splitter_version": "rag-semantic-v2",
+      "title": "AgentToken ABI recorded for Sepolia",
+      "token_count": 100,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-sepolia-abi:6d9b843135228b7d4b8a92e593db31e7fdf59cb81839ad0ca4b3d623191d0894": {
+    "content": "[deployed_contract; repository_only]\nfunction validateTransferFrom(address,address,uint256,address)\n\n\"uint256\"\n    },\n    {\n      \"internalType\": \"address\",\n      \"name\": \"spender\",\n      \"type\": \"address\"\n    }\n  ],\n  \"name\": \"validateTransferFrom\",\n  \"outputs\": [\n    {\n      \"internalType\": \"bool\",\n      \"name\": \"isValid\",\n      \"type\": \"bool\"\n    },\n    {\n      \"internalType\": ",
+    "metadata": {
+      "abi_entry_type": "function",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:fc0514fd930f5c9129d22dcb6ba9a9fd37d3ae043c56e6a6406cbe04ed66dec9",
+      "chunk_id": "agenttoken-sepolia-abi:6d9b843135228b7d4b8a92e593db31e7fdf59cb81839ad0ca4b3d623191d0894",
+      "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "context_prefix": "[deployed_contract; repository_only]\nfunction validateTransferFrom(address,address,uint256,address)\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "doc_id": "agenttoken-sepolia-abi",
+      "doc_version": "repo-28a9a0b6a96f",
+      "function_signature": "validateTransferFrom(address,address,uint256,address)",
+      "heading_path": "function validateTransferFrom(address,address,uint256,address)",
+      "measured_length": 127,
+      "parent_id": "sha256:df85592b8fe12f96b4521ed0be661499a5ce5bd03bb59f9fb77a63058ae232c8",
+      "part_count": 3,
+      "part_index": 1,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 39,
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "source_format": "abi_json",
+      "source_origin": "git",
+      "source_path": "backend/abi/11155111/AgentToken_abi.json",
+      "splitter_version": "rag-semantic-v2",
+      "title": "AgentToken ABI recorded for Sepolia",
+      "token_count": 127,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-sepolia-abi:8a808b1a60e444913b37a703f08f1368d411e24d0275739110975a0b6d7ebc5a": {
+    "content": "[deployed_contract; repository_only]\nfunction owner()\n\n{\n  \"inputs\": [],\n  \"name\": \"owner\",\n  \"outputs\": [\n    {\n      \"internalType\": \"address\",\n      \"name\": \"\",\n      \"type\": \"address\"\n    }\n  ],\n  \"stateMutability\": \"view\",\n  \"type\": \"function\"\n}",
+    "metadata": {
+      "abi_entry_type": "function",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:79488428e4dc969fc492f5fd5826c2db719af44eada2329cccc886104ea4f34a",
+      "chunk_id": "agenttoken-sepolia-abi:8a808b1a60e444913b37a703f08f1368d411e24d0275739110975a0b6d7ebc5a",
+      "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "context_prefix": "[deployed_contract; repository_only]\nfunction owner()\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "doc_id": "agenttoken-sepolia-abi",
+      "doc_version": "repo-28a9a0b6a96f",
+      "function_signature": "owner()",
+      "heading_path": "function owner()",
+      "measured_length": 92,
+      "parent_id": "sha256:4e0b3e13bf1110669fcf30437b4d54221fddc71e48c73c8c4828e76d6ea21546",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 30,
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "source_format": "abi_json",
+      "source_origin": "git",
+      "source_path": "backend/abi/11155111/AgentToken_abi.json",
+      "splitter_version": "rag-semantic-v2",
+      "title": "AgentToken ABI recorded for Sepolia",
+      "token_count": 92,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-sepolia-abi:90afe78fbbcdc13e3413cb6c0278503e5b7a23adb93907cf8ec2457050d28adc": {
+    "content": "[deployed_contract; repository_only]\nfunction approve(address,uint256)\n\n\"type\": \"bool\"\n    }\n  ],\n  \"stateMutability\": \"nonpayable\",\n  \"type\": \"function\"\n}",
+    "metadata": {
+      "abi_entry_type": "function",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:9376c26cf5d6f42735b78a8d32a58932137dcd39aaa1cd698132d00c6690efc8",
+      "chunk_id": "agenttoken-sepolia-abi:90afe78fbbcdc13e3413cb6c0278503e5b7a23adb93907cf8ec2457050d28adc",
+      "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "context_prefix": "[deployed_contract; repository_only]\nfunction approve(address,uint256)\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "doc_id": "agenttoken-sepolia-abi",
+      "doc_version": "repo-28a9a0b6a96f",
+      "function_signature": "approve(address,uint256)",
+      "heading_path": "function approve(address,uint256)",
+      "measured_length": 58,
+      "parent_id": "sha256:80cf9dffb7adee2568b3567c8520a0e8cb18f1497b72d5498fef46f7b45e85b5",
+      "part_count": 2,
+      "part_index": 1,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 20,
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "source_format": "abi_json",
+      "source_origin": "git",
+      "source_path": "backend/abi/11155111/AgentToken_abi.json",
+      "splitter_version": "rag-semantic-v2",
+      "title": "AgentToken ABI recorded for Sepolia",
+      "token_count": 58,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-sepolia-abi:99ba6ee0d6200e1025631b905434534a58a4a2e395e0fb6e912c6c04c4d3099a": {
+    "content": "[deployed_contract; repository_only]\nfunction transferFrom(address,address,uint256)\n\n\"name\": \"transferFrom\",\n  \"outputs\": [\n    {\n      \"internalType\": \"bool\",\n      \"name\": \"\",\n      \"type\": \"bool\"\n    }\n  ],\n  \"stateMutability\": \"nonpayable\",\n  \"type\": \"function\"\n}",
+    "metadata": {
+      "abi_entry_type": "function",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:2b2e961f3745b0f8e84a9c5741f2347d77fdad9f426f1b493952d3112645487a",
+      "chunk_id": "agenttoken-sepolia-abi:99ba6ee0d6200e1025631b905434534a58a4a2e395e0fb6e912c6c04c4d3099a",
+      "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "context_prefix": "[deployed_contract; repository_only]\nfunction transferFrom(address,address,uint256)\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "doc_id": "agenttoken-sepolia-abi",
+      "doc_version": "repo-28a9a0b6a96f",
+      "function_signature": "transferFrom(address,address,uint256)",
+      "heading_path": "function transferFrom(address,address,uint256)",
+      "measured_length": 92,
+      "parent_id": "sha256:f84bad983d05c41a68456e41e2cd4c7db66985a0af048205c5cafa7b64c49150",
+      "part_count": 2,
+      "part_index": 1,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 36,
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "source_format": "abi_json",
+      "source_origin": "git",
+      "source_path": "backend/abi/11155111/AgentToken_abi.json",
+      "splitter_version": "rag-semantic-v2",
+      "title": "AgentToken ABI recorded for Sepolia",
+      "token_count": 92,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-sepolia-abi:a448b6fbd1f68a9d4186dd31fec0cd2625e6e3cef6b4596f4d83a7d5268356ef": {
+    "content": "[deployed_contract; repository_only]\nfunction decimals()\n\n{\n  \"inputs\": [],\n  \"name\": \"decimals\",\n  \"outputs\": [\n    {\n      \"internalType\": \"uint8\",\n      \"name\": \"\",\n      \"type\": \"uint8\"\n    }\n  ],\n  \"stateMutability\": \"view\",\n  \"type\": \"function\"\n}",
+    "metadata": {
+      "abi_entry_type": "function",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:cf5d451b31861fa1423c3d4da8810883705f5927957779bd2e3470c30528c396",
+      "chunk_id": "agenttoken-sepolia-abi:a448b6fbd1f68a9d4186dd31fec0cd2625e6e3cef6b4596f4d83a7d5268356ef",
+      "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "context_prefix": "[deployed_contract; repository_only]\nfunction decimals()\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "doc_id": "agenttoken-sepolia-abi",
+      "doc_version": "repo-28a9a0b6a96f",
+      "function_signature": "decimals()",
+      "heading_path": "function decimals()",
+      "measured_length": 95,
+      "parent_id": "sha256:2162395cb66baf1a27f665a3738d3ee0527f98d209a42f741fbcfcfe68cd835f",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 23,
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "source_format": "abi_json",
+      "source_origin": "git",
+      "source_path": "backend/abi/11155111/AgentToken_abi.json",
+      "splitter_version": "rag-semantic-v2",
+      "title": "AgentToken ABI recorded for Sepolia",
+      "token_count": 95,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-sepolia-abi:a6eb6068e03c343f7ab6205485c277cca9247eac34afde871e20bb425daf0116": {
+    "content": "[deployed_contract; repository_only]\nfunction validateTransferFrom(address,address,uint256,address)\n\n\"string\",\n      \"name\": \"reason\",\n      \"type\": \"string\"\n    }\n  ],\n  \"stateMutability\": \"view\",\n  \"type\": \"function\"\n}",
+    "metadata": {
+      "abi_entry_type": "function",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:f920214e9f53db6d81a6a371d816025b386a30e692c65dbc1e6acd9ae3c14a20",
+      "chunk_id": "agenttoken-sepolia-abi:a6eb6068e03c343f7ab6205485c277cca9247eac34afde871e20bb425daf0116",
+      "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "context_prefix": "[deployed_contract; repository_only]\nfunction validateTransferFrom(address,address,uint256,address)\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "doc_id": "agenttoken-sepolia-abi",
+      "doc_version": "repo-28a9a0b6a96f",
+      "function_signature": "validateTransferFrom(address,address,uint256,address)",
+      "heading_path": "function validateTransferFrom(address,address,uint256,address)",
+      "measured_length": 76,
+      "parent_id": "sha256:df85592b8fe12f96b4521ed0be661499a5ce5bd03bb59f9fb77a63058ae232c8",
+      "part_count": 3,
+      "part_index": 2,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 39,
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "source_format": "abi_json",
+      "source_origin": "git",
+      "source_path": "backend/abi/11155111/AgentToken_abi.json",
+      "splitter_version": "rag-semantic-v2",
+      "title": "AgentToken ABI recorded for Sepolia",
+      "token_count": 76,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-sepolia-abi:dc55c336d32345763747a7502ffef45eca6051eeefb572f59ad3c84b27e467ad": {
+    "content": "[deployed_contract; repository_only]\nfunction symbol()\n\n{\n  \"inputs\": [],\n  \"name\": \"symbol\",\n  \"outputs\": [\n    {\n      \"internalType\": \"string\",\n      \"name\": \"\",\n      \"type\": \"string\"\n    }\n  ],\n  \"stateMutability\": \"view\",\n  \"type\": \"function\"\n}",
+    "metadata": {
+      "abi_entry_type": "function",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:f1f546387f078dc53a23138b981cc666671692185e83fdf9875ecf1ed468aae7",
+      "chunk_id": "agenttoken-sepolia-abi:dc55c336d32345763747a7502ffef45eca6051eeefb572f59ad3c84b27e467ad",
+      "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "context_prefix": "[deployed_contract; repository_only]\nfunction symbol()\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "doc_id": "agenttoken-sepolia-abi",
+      "doc_version": "repo-28a9a0b6a96f",
+      "function_signature": "symbol()",
+      "heading_path": "function symbol()",
+      "measured_length": 89,
+      "parent_id": "sha256:0586381eaf9395f0eb16014e813674a0be9733bee98e912e27fc9214934dd13e",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 33,
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "source_format": "abi_json",
+      "source_origin": "git",
+      "source_path": "backend/abi/11155111/AgentToken_abi.json",
+      "splitter_version": "rag-semantic-v2",
+      "title": "AgentToken ABI recorded for Sepolia",
+      "token_count": 89,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-sepolia-abi:df09fc2a46835ff9ebf14374d2cac4f1eb9e6fbfdd819f9eddd19b81aeef2e6d": {
+    "content": "[deployed_contract; repository_only]\nfunction validateTransferFrom(address,address,uint256,address)\n\n{\n  \"inputs\": [\n    {\n      \"internalType\": \"address\",\n      \"name\": \"sender\",\n      \"type\": \"address\"\n    },\n    {\n      \"internalType\": \"address\",\n      \"name\": \"recipient\",\n      \"type\": \"address\"\n    },\n    {\n      \"internalType\": \"uint256\",\n      \"name\": \"amount\",\n      \"type\": ",
+    "metadata": {
+      "abi_entry_type": "function",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:431d41233d56c7e3fa2e382ea1302c5ae35a27ad0cb9e3a05fdeeee7828e9644",
+      "chunk_id": "agenttoken-sepolia-abi:df09fc2a46835ff9ebf14374d2cac4f1eb9e6fbfdd819f9eddd19b81aeef2e6d",
+      "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "context_prefix": "[deployed_contract; repository_only]\nfunction validateTransferFrom(address,address,uint256,address)\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "doc_id": "agenttoken-sepolia-abi",
+      "doc_version": "repo-28a9a0b6a96f",
+      "function_signature": "validateTransferFrom(address,address,uint256,address)",
+      "heading_path": "function validateTransferFrom(address,address,uint256,address)",
+      "measured_length": 127,
+      "parent_id": "sha256:df85592b8fe12f96b4521ed0be661499a5ce5bd03bb59f9fb77a63058ae232c8",
+      "part_count": 3,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 39,
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "source_format": "abi_json",
+      "source_origin": "git",
+      "source_path": "backend/abi/11155111/AgentToken_abi.json",
+      "splitter_version": "rag-semantic-v2",
+      "title": "AgentToken ABI recorded for Sepolia",
+      "token_count": 127,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-sepolia-abi:f14ddb38086aa1323096a59b7fd28c7fb0d76790c3f38d76e4adecf877cb3414": {
+    "content": "[deployed_contract; repository_only]\nfunction transfer(address,uint256)\n\n{\n  \"inputs\": [\n    {\n      \"internalType\": \"address\",\n      \"name\": \"to\",\n      \"type\": \"address\"\n    },\n    {\n      \"internalType\": \"uint256\",\n      \"name\": \"value\",\n      \"type\": \"uint256\"\n    }\n  ],\n  \"name\": \"transfer\",\n  \"outputs\": [\n    {\n      \"internalType\": \"bool\",\n      \"name\": \"\",\n      ",
+    "metadata": {
+      "abi_entry_type": "function",
+      "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_abi",
+      "chain_id": 11155111,
+      "chunk_hash": "sha256:0ef51dbe7cde85ed4343dca49b10848dfc73349ad5e2c20f51e75aaccdbe8753",
+      "chunk_id": "agenttoken-sepolia-abi:f14ddb38086aa1323096a59b7fd28c7fb0d76790c3f38d76e4adecf877cb3414",
+      "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+      "context_prefix": "[deployed_contract; repository_only]\nfunction transfer(address,uint256)\n\n",
+      "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+      "doc_id": "agenttoken-sepolia-abi",
+      "doc_version": "repo-28a9a0b6a96f",
+      "function_signature": "transfer(address,uint256)",
+      "heading_path": "function transfer(address,uint256)",
+      "measured_length": 125,
+      "parent_id": "sha256:c186b80c6db13f07051d7d89477a509ca14e56c66d0ff3ad31fa7c18c956ab25",
+      "part_count": 2,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "deployed_contract",
+      "section_index": 35,
+      "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+      "source_format": "abi_json",
+      "source_origin": "git",
+      "source_path": "backend/abi/11155111/AgentToken_abi.json",
+      "splitter_version": "rag-semantic-v2",
+      "title": "AgentToken ABI recorded for Sepolia",
+      "token_count": 125,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "repository_only"
+    }
+  },
+  "agenttoken-transfers-source:1baec5b55943f7bc9f3bf2f42c496a37370c4458764ab14498d5c236f1a0a43c": {
+    "content": "[source_only; source_reviewed]\ntransferFrom(address,address,uint256)\n\nThiếu allowance có thể revert `ERC20InsufficientAllowance`; thiếu balance có thể revert `ERC20InsufficientBalance`. Test xác nhận self-spending vẫn cần allowance: nếu caller cũng chính là `from`, gọi transferFrom không được tự miễn kiểm tra allowance. Có thể dùng transfer cho chuyển trực tiếp từ caller theo luồng phù hợp.\n\n",
+    "metadata": {
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_behavior",
+      "chunk_hash": "sha256:e15cba589b1d21201adb1e6ea3abd7329a92f19f5878b10a97d6773af98e0cc9",
+      "chunk_id": "agenttoken-transfers-source:1baec5b55943f7bc9f3bf2f42c496a37370c4458764ab14498d5c236f1a0a43c",
+      "content_hash": "sha256:c526623be4723b508d4ce88992c6affd7065cb7de090234597ba375b42daf5c6",
+      "context_prefix": "[source_only; source_reviewed]\ntransferFrom(address,address,uint256)\n\n",
+      "derived_from": [
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        },
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:f70916cad10c310b3764ef279fd382731a2728db2c6f9c15dcc077aca18c6074",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.test.js"
+        },
+        {
+          "content_hash": "sha256:cfb4cbea43487036ff48b545fa6bcf7d6fd4f2085b28cda9bb7ec6b6345be439",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.security.test.js"
+        },
+        {
+          "content_hash": "sha256:687eb1df67480ae95f36353dc4a32ebee99be551eb91bce80b64d73c0577dd42",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/example_contract_usage.py"
+        },
+        {
+          "content_hash": "sha256:fc4f47acb4ead7388a3002c1f9b35e5a3ab1d8a523ca71b3169127d8f4afbeeb",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/package-lock.json"
+        }
+      ],
+      "doc_id": "agenttoken-transfers-source",
+      "doc_version": "source-28a9a0b6a96f",
+      "external_references": [],
+      "function_signature": "transferFrom(address,address,uint256)",
+      "heading_path": "AgentToken source — transfer, allowance và validator > transferFrom(address,address,uint256)",
+      "measured_length": 109,
+      "parent_id": "sha256:fc6d021f81fbc0d904fc96a922231644aae2f7a25634c7f31345472d9bf56624",
+      "part_count": 3,
+      "part_index": 1,
+      "prefix_style": "compact",
+      "scope": "source_only",
+      "section_index": 3,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/transfers-source.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Transfer, allowance và validator theo source",
+      "token_count": 109,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "source_reviewed"
+    }
+  },
+  "agenttoken-transfers-source:92ee3840673e387e15b97e893a5f06fb7502e492eed91fa84349074361448343": {
+    "content": "[source_only; source_reviewed]\napprove(address,uint256) và allowance(address,address)\n\nTests source có trường hợp unlimited allowance (`uint256` tối đa) không giảm sau transferFrom. Không khẳng định mọi ERC-20 khác có cùng chi tiết implementation. Việc cấp allowance không bỏ giới hạn transfer của AgentToken.\n\n",
+    "metadata": {
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_behavior",
+      "chunk_hash": "sha256:5d682455fc4f0bf9efc524ca3daf4e507a8b80929d692caf1eeae201a927e91d",
+      "chunk_id": "agenttoken-transfers-source:92ee3840673e387e15b97e893a5f06fb7502e492eed91fa84349074361448343",
+      "content_hash": "sha256:c526623be4723b508d4ce88992c6affd7065cb7de090234597ba375b42daf5c6",
+      "context_prefix": "[source_only; source_reviewed]\napprove(address,uint256) và allowance(address,address)\n\n",
+      "derived_from": [
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        },
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:f70916cad10c310b3764ef279fd382731a2728db2c6f9c15dcc077aca18c6074",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.test.js"
+        },
+        {
+          "content_hash": "sha256:cfb4cbea43487036ff48b545fa6bcf7d6fd4f2085b28cda9bb7ec6b6345be439",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.security.test.js"
+        },
+        {
+          "content_hash": "sha256:687eb1df67480ae95f36353dc4a32ebee99be551eb91bce80b64d73c0577dd42",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/example_contract_usage.py"
+        },
+        {
+          "content_hash": "sha256:fc4f47acb4ead7388a3002c1f9b35e5a3ab1d8a523ca71b3169127d8f4afbeeb",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/package-lock.json"
+        }
+      ],
+      "doc_id": "agenttoken-transfers-source",
+      "doc_version": "source-28a9a0b6a96f",
+      "external_references": [],
+      "function_signatures_json": "[\"approve(address,uint256)\", \"allowance(address,address)\"]",
+      "heading_path": "AgentToken source — transfer, allowance và validator > approve(address,uint256) và allowance(address,address)",
+      "measured_length": 86,
+      "parent_id": "sha256:f30d85462a1ecbff012bd90fa0e332eb77ec64883d4bc6593edb25b4183e1e99",
+      "part_count": 2,
+      "part_index": 1,
+      "prefix_style": "compact",
+      "scope": "source_only",
+      "section_index": 2,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/transfers-source.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Transfer, allowance và validator theo source",
+      "token_count": 86,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "source_reviewed"
+    }
+  },
+  "agenttoken-transfers-source:dd816efc4f18897d28ac35fda2826ffa70dfee4a0c5c9f0d68f3b279377cd7a9": {
+    "content": "[source_only; source_reviewed]\ntransfer(address,uint256)\n\nSource kiểm tra `value <= maxTransferLimit` trước khi gọi ERC-20 kế thừa. Vượt hạn mức revert với `AgentToken: Transfer exceeds max limit`. Thiếu balance có thể revert `ERC20InsufficientBalance`. Recipient zero bị implementation ERC-20 từ chối. Zero transfer với sender/recipient hợp lệ được test cho phép.\n\n",
+    "metadata": {
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "contract_behavior",
+      "chunk_hash": "sha256:2b9f5319ac5c9847003ea67ca76c352058c3b37c0c71d2502c462277a7eab6e0",
+      "chunk_id": "agenttoken-transfers-source:dd816efc4f18897d28ac35fda2826ffa70dfee4a0c5c9f0d68f3b279377cd7a9",
+      "content_hash": "sha256:c526623be4723b508d4ce88992c6affd7065cb7de090234597ba375b42daf5c6",
+      "context_prefix": "[source_only; source_reviewed]\ntransfer(address,uint256)\n\n",
+      "derived_from": [
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        },
+        {
+          "content_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/abi/11155111/AgentToken_abi.json"
+        },
+        {
+          "content_hash": "sha256:f70916cad10c310b3764ef279fd382731a2728db2c6f9c15dcc077aca18c6074",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.test.js"
+        },
+        {
+          "content_hash": "sha256:cfb4cbea43487036ff48b545fa6bcf7d6fd4f2085b28cda9bb7ec6b6345be439",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.security.test.js"
+        },
+        {
+          "content_hash": "sha256:687eb1df67480ae95f36353dc4a32ebee99be551eb91bce80b64d73c0577dd42",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/example_contract_usage.py"
+        },
+        {
+          "content_hash": "sha256:fc4f47acb4ead7388a3002c1f9b35e5a3ab1d8a523ca71b3169127d8f4afbeeb",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/package-lock.json"
+        }
+      ],
+      "doc_id": "agenttoken-transfers-source",
+      "doc_version": "source-28a9a0b6a96f",
+      "external_references": [],
+      "function_signature": "transfer(address,uint256)",
+      "heading_path": "AgentToken source — transfer, allowance và validator > transfer(address,uint256)",
+      "measured_length": 107,
+      "parent_id": "sha256:8b43ad267901c01f72239625bebde341f031ad9cf5181cdc2165e3ab99aac25e",
+      "part_count": 3,
+      "part_index": 1,
+      "prefix_style": "compact",
+      "scope": "source_only",
+      "section_index": 1,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/contracts/transfers-source.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Transfer, allowance và validator theo source",
+      "token_count": 107,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "source_reviewed"
+    }
+  },
+  "web3-addresses:74b5178ea57a0b357d796b98ae9b287959996b595882f0996f71b5d92667bdd0": {
+    "content": "[general; source_reviewed]\nĐịnh dạng và checksum\n\n\nĐịa chỉ EVM có 20 byte, biểu diễn bằng `0x` và 40 ký tự hex. EIP-55 dùng Keccak-256 của chuỗi hex viết thường để quyết định chữ hoa/thường. Không dùng SHA3-256 thay Keccak-256. Checksum giúp phát hiện lỗi gõ, không chứng minh địa chỉ thuộc đúng người hoặc đúng mạng. [Nguồn EIP-55](https://eips.ethereum.org/EIPS/eip-55).\n\n",
+    "metadata": {
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "web3",
+      "chunk_hash": "sha256:34380598a85d387c75c69324880586722cc44516c1847fdf854d4ff95bb22024",
+      "chunk_id": "web3-addresses:74b5178ea57a0b357d796b98ae9b287959996b595882f0996f71b5d92667bdd0",
+      "content_hash": "sha256:4a2314d4d21506a500586319462b3bce8735601013e4339f52ce5deebd315cca",
+      "context_prefix": "[general; source_reviewed]\nĐịnh dạng và checksum\n\n",
+      "derived_from": [
+        {
+          "content_hash": "sha256:687eb1df67480ae95f36353dc4a32ebee99be551eb91bce80b64d73c0577dd42",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/example_contract_usage.py"
+        },
+        {
+          "content_hash": "sha256:567691275c43f777ffd83088c52d7be70ebb458def61127166c1dbe9e6c41223",
+          "source_commit": null,
+          "source_origin": "workspace",
+          "source_path": "rag/models.py"
+        }
+      ],
+      "doc_id": "web3-addresses",
+      "doc_version": "rag-p2-v1",
+      "external_references": [
+        {
+          "checked_at": "2026-10-22",
+          "title": "EIP-55 address checksum",
+          "url": "https://eips.ethereum.org/EIPS/eip-55"
+        }
+      ],
+      "heading_path": "Địa chỉ EVM và checksum > Định dạng và checksum",
+      "measured_length": 122,
+      "parent_id": "sha256:ee2f04828d261b46c3859ad17270fc92017921008b61e3d1f900374819abf121",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "general",
+      "section_index": 1,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/web3/addresses.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Địa chỉ EVM và checksum",
+      "token_count": 122,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "source_reviewed"
+    }
+  },
+  "web3-simulation:0df73c829270e52abc57a132732faec98572e3f25a616b034c72edc3dac9e290": {
+    "content": "[general; source_reviewed]\nMô phỏng giao dịch token trong dự án\n\nHelper dùng `.call`, không ký hoặc broadcast transaction. ContractLogicError trở thành `isValid=False`; lỗi RPC/kết nối không bị đổi thành kết luận contract từ chối. Kết quả true chỉ phản ánh state ở lúc call; balance/allowance/limit có thể đổi trước khi transaction được thực thi.\n\n",
+    "metadata": {
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "web3",
+      "chunk_hash": "sha256:416e1b1ee6b6a2e0637ea347cbcaad659f97ab90b26c247e191bcf6b0d7fb3b3",
+      "chunk_id": "web3-simulation:0df73c829270e52abc57a132732faec98572e3f25a616b034c72edc3dac9e290",
+      "content_hash": "sha256:b7bfb7aeeed3fd40583dc889443efcc57315cfef8e11bff119683dce50061344",
+      "context_prefix": "[general; source_reviewed]\nMô phỏng giao dịch token trong dự án\n\n",
+      "derived_from": [
+        {
+          "content_hash": "sha256:687eb1df67480ae95f36353dc4a32ebee99be551eb91bce80b64d73c0577dd42",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/example_contract_usage.py"
+        }
+      ],
+      "doc_id": "web3-simulation",
+      "doc_version": "rag-p2-v1",
+      "external_references": [
+        {
+          "checked_at": "2026-10-22",
+          "title": "Ethereum JSON-RPC API",
+          "url": "https://ethereum.org/developers/docs/apis/json-rpc/"
+        },
+        {
+          "checked_at": "2026-10-22",
+          "title": "Ethereum gas and fees",
+          "url": "https://ethereum.org/developers/docs/gas/"
+        }
+      ],
+      "heading_path": "Dry-run, caller và gas > Mô phỏng giao dịch token trong dự án",
+      "measured_length": 94,
+      "parent_id": "sha256:e675e9ebf5d0b7ab24199063db55eaf350457a9ae4862d7eff71d4d056ab9776",
+      "part_count": 3,
+      "part_index": 2,
+      "prefix_style": "compact",
+      "scope": "general",
+      "section_index": 1,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/web3/simulation.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Dry-run, caller và gas",
+      "token_count": 94,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "source_reviewed"
+    }
+  },
+  "web3-simulation:72c7f3ce866fbe51971aaedbc767e31c1961b61982520633aef042438479cfe5": {
+    "content": "[general; source_reviewed]\nMô phỏng giao dịch token trong dự án\n\nNếu không truyền spender, helper mô phỏng `transfer(recipient,units)` với from bằng sender. Nếu truyền spender, helper mô phỏng `transferFrom(sender,recipient,units)` với from bằng spender, kể cả khi spender chính là sender. Đổi caller có thể đổi kết quả allowance và quyền truy cập.\n\n",
+    "metadata": {
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "web3",
+      "chunk_hash": "sha256:e27cc0f4b1d58352a1cd471f51459534ad903b41e54fe9ca36158c2fb57b8e6d",
+      "chunk_id": "web3-simulation:72c7f3ce866fbe51971aaedbc767e31c1961b61982520633aef042438479cfe5",
+      "content_hash": "sha256:b7bfb7aeeed3fd40583dc889443efcc57315cfef8e11bff119683dce50061344",
+      "context_prefix": "[general; source_reviewed]\nMô phỏng giao dịch token trong dự án\n\n",
+      "derived_from": [
+        {
+          "content_hash": "sha256:687eb1df67480ae95f36353dc4a32ebee99be551eb91bce80b64d73c0577dd42",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/example_contract_usage.py"
+        }
+      ],
+      "doc_id": "web3-simulation",
+      "doc_version": "rag-p2-v1",
+      "external_references": [
+        {
+          "checked_at": "2026-10-22",
+          "title": "Ethereum JSON-RPC API",
+          "url": "https://ethereum.org/developers/docs/apis/json-rpc/"
+        },
+        {
+          "checked_at": "2026-10-22",
+          "title": "Ethereum gas and fees",
+          "url": "https://ethereum.org/developers/docs/gas/"
+        }
+      ],
+      "heading_path": "Dry-run, caller và gas > Mô phỏng giao dịch token trong dự án",
+      "measured_length": 98,
+      "parent_id": "sha256:e675e9ebf5d0b7ab24199063db55eaf350457a9ae4862d7eff71d4d056ab9776",
+      "part_count": 3,
+      "part_index": 1,
+      "prefix_style": "compact",
+      "scope": "general",
+      "section_index": 1,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/web3/simulation.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Dry-run, caller và gas",
+      "token_count": 98,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "source_reviewed"
+    }
+  },
+  "web3-simulation:7a8b4b21d3f1987d4c53c1ebb1692f05a977d8699afbc95b5e6c9ecc0e0e5442": {
+    "content": "[general; source_reviewed]\nGas limit khác phí gas\n\n\nGas limit là số đơn vị gas cho phép, không phải số ETH trả. Với EIP-1559, maxFeePerGas là trần giá gas; phí thực tế dựa trên gasUsed và effectiveGasPrice trong receipt. Ước lượng chi phí và số dư phải dùng dữ liệu mới, không dùng con số cố định từ corpus. [Nguồn Ethereum gas](https://ethereum.org/en/developers/docs/gas/).\n\n",
+    "metadata": {
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "web3",
+      "chunk_hash": "sha256:c63fede10d97e92a2d4ea9848dd76573a8981de4e1f34ac04b8d4db9f71a32c0",
+      "chunk_id": "web3-simulation:7a8b4b21d3f1987d4c53c1ebb1692f05a977d8699afbc95b5e6c9ecc0e0e5442",
+      "content_hash": "sha256:b7bfb7aeeed3fd40583dc889443efcc57315cfef8e11bff119683dce50061344",
+      "context_prefix": "[general; source_reviewed]\nGas limit khác phí gas\n\n",
+      "derived_from": [
+        {
+          "content_hash": "sha256:687eb1df67480ae95f36353dc4a32ebee99be551eb91bce80b64d73c0577dd42",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/example_contract_usage.py"
+        }
+      ],
+      "doc_id": "web3-simulation",
+      "doc_version": "rag-p2-v1",
+      "external_references": [
+        {
+          "checked_at": "2026-10-22",
+          "title": "Ethereum JSON-RPC API",
+          "url": "https://ethereum.org/developers/docs/apis/json-rpc/"
+        },
+        {
+          "checked_at": "2026-10-22",
+          "title": "Ethereum gas and fees",
+          "url": "https://ethereum.org/developers/docs/gas/"
+        }
+      ],
+      "heading_path": "Dry-run, caller và gas > Gas limit khác phí gas",
+      "measured_length": 120,
+      "parent_id": "sha256:f6854e549a598de9cf04b7007a1e10b56e4061b9afb9332c3cf18eed5830b18f",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "general",
+      "section_index": 3,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/web3/simulation.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Dry-run, caller và gas",
+      "token_count": 120,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "source_reviewed"
+    }
+  },
+  "web3-token-units:9e7183752d6eb2708ec29eaad1edf45061a172eeb25d4b5fcfb6b2a0a404f7bd": {
+    "content": "[general; source_reviewed]\nQuy tắc input trong helper của dự án\n\n\n`backend/token_amounts.py` tại commit `28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8` nhận `str` thập phân không âm hoặc `int` theo đơn vị token hiển thị. Nó từ chối float, bool, số âm, exponent notation, khoảng trắng và phần thập phân dài hơn decimals. Decimals phải là int trong ",
+    "metadata": {
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "web3",
+      "chunk_hash": "sha256:ec4cfb3dabc09f0e424fe930e9a8f6ce27d0f563555d81d35ccb8a7268811fbe",
+      "chunk_id": "web3-token-units:9e7183752d6eb2708ec29eaad1edf45061a172eeb25d4b5fcfb6b2a0a404f7bd",
+      "content_hash": "sha256:4db492af4e94156e17fcddd9efcf92f24e9a66821d00614615ea90c8c9c8a246",
+      "context_prefix": "[general; source_reviewed]\nQuy tắc input trong helper của dự án\n\n",
+      "derived_from": [
+        {
+          "content_hash": "sha256:5c90bf54c4b7cdb7de5b949b4ef4ab75abd4cdaff685b086ec2c1561063e42f1",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/token_amounts.py"
+        },
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        },
+        {
+          "content_hash": "sha256:f70916cad10c310b3764ef279fd382731a2728db2c6f9c15dcc077aca18c6074",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.test.js"
+        },
+        {
+          "content_hash": "sha256:cfb4cbea43487036ff48b545fa6bcf7d6fd4f2085b28cda9bb7ec6b6345be439",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.security.test.js"
+        }
+      ],
+      "doc_id": "web3-token-units",
+      "doc_version": "rag-p2-v1",
+      "external_references": [
+        {
+          "checked_at": "2026-10-22",
+          "title": "ERC-20 Token Standard",
+          "url": "https://eips.ethereum.org/EIPS/eip-20"
+        },
+        {
+          "checked_at": "2026-10-22",
+          "title": "Ethereum gas and fees",
+          "url": "https://ethereum.org/developers/docs/gas/"
+        }
+      ],
+      "heading_path": "Đơn vị token và chuyển đổi chính xác > Quy tắc input trong helper của dự án",
+      "measured_length": 124,
+      "parent_id": "sha256:68c6239e546090ca0a0d0e006238069f3a8829e055a67ab434d9950dcbd9566e",
+      "part_count": 3,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "general",
+      "section_index": 2,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/web3/token-units.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Đơn vị token và chuyển đổi chính xác",
+      "token_count": 124,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "source_reviewed"
+    }
+  },
+  "web3-token-units:ad2cf6d0adb3b698302f1048401750565897ef185ab21606b55d5037c5c61d66": {
+    "content": "[general; source_reviewed]\nNative coin và token không cùng đơn vị\n\n\nETH dùng wei: 1 ETH = 10^18 wei; gwei = 10^9 wei. `value` trong transaction là native coin, còn amount trong calldata transfer token là raw token units. Dù một token cũng dùng 18 decimals, AGNT không trở thành ETH. Tài liệu gas/wei tham khảo [Ethereum gas](https://ethereum.org/en/developers/docs/gas/); ví dụ token ở trên ",
+    "metadata": {
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "web3",
+      "chunk_hash": "sha256:7525de33534f82f6402c0f714c4333081763e512acc3f62cce2ada859b254648",
+      "chunk_id": "web3-token-units:ad2cf6d0adb3b698302f1048401750565897ef185ab21606b55d5037c5c61d66",
+      "content_hash": "sha256:4db492af4e94156e17fcddd9efcf92f24e9a66821d00614615ea90c8c9c8a246",
+      "context_prefix": "[general; source_reviewed]\nNative coin và token không cùng đơn vị\n\n",
+      "derived_from": [
+        {
+          "content_hash": "sha256:5c90bf54c4b7cdb7de5b949b4ef4ab75abd4cdaff685b086ec2c1561063e42f1",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/token_amounts.py"
+        },
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        },
+        {
+          "content_hash": "sha256:f70916cad10c310b3764ef279fd382731a2728db2c6f9c15dcc077aca18c6074",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.test.js"
+        },
+        {
+          "content_hash": "sha256:cfb4cbea43487036ff48b545fa6bcf7d6fd4f2085b28cda9bb7ec6b6345be439",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.security.test.js"
+        }
+      ],
+      "doc_id": "web3-token-units",
+      "doc_version": "rag-p2-v1",
+      "external_references": [
+        {
+          "checked_at": "2026-10-22",
+          "title": "ERC-20 Token Standard",
+          "url": "https://eips.ethereum.org/EIPS/eip-20"
+        },
+        {
+          "checked_at": "2026-10-22",
+          "title": "Ethereum gas and fees",
+          "url": "https://ethereum.org/developers/docs/gas/"
+        }
+      ],
+      "heading_path": "Đơn vị token và chuyển đổi chính xác > Native coin và token không cùng đơn vị",
+      "measured_length": 128,
+      "parent_id": "sha256:d5ff3eb5e9c48229286cdbf2f4c284440c68d5f200cba1e2c50c34560060fb74",
+      "part_count": 2,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "general",
+      "section_index": 4,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/web3/token-units.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Đơn vị token và chuyển đổi chính xác",
+      "token_count": 128,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "source_reviewed"
+    }
+  },
+  "web3-token-units:dde6294df0ff940394d84245b1001979e9ce5ac39bb1abc8db702382d9fcbf61": {
+    "content": "[general; source_reviewed]\nQuy tắc input trong helper của dự án\n\n0..255; raw amount phải không vượt `2**256 - 1`.\n\nHelper này không đọc RPC và không tự biết token nào đang được dùng. Ví dụ `to_token_units(\"5\", 18)` cho `5000000000000000000`; `to_token_units(\"1.000000000000000001\", 18)` cho `1000000000000000001`; `to_token_units(\"1.5\", 6)` cho `1500000`. ",
+    "metadata": {
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "web3",
+      "chunk_hash": "sha256:4201bc1ccd00607e58f52194555c3ba10327e69b4051caa6ecc066af128e1168",
+      "chunk_id": "web3-token-units:dde6294df0ff940394d84245b1001979e9ce5ac39bb1abc8db702382d9fcbf61",
+      "content_hash": "sha256:4db492af4e94156e17fcddd9efcf92f24e9a66821d00614615ea90c8c9c8a246",
+      "context_prefix": "[general; source_reviewed]\nQuy tắc input trong helper của dự án\n\n",
+      "derived_from": [
+        {
+          "content_hash": "sha256:5c90bf54c4b7cdb7de5b949b4ef4ab75abd4cdaff685b086ec2c1561063e42f1",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/token_amounts.py"
+        },
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        },
+        {
+          "content_hash": "sha256:f70916cad10c310b3764ef279fd382731a2728db2c6f9c15dcc077aca18c6074",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.test.js"
+        },
+        {
+          "content_hash": "sha256:cfb4cbea43487036ff48b545fa6bcf7d6fd4f2085b28cda9bb7ec6b6345be439",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.security.test.js"
+        }
+      ],
+      "doc_id": "web3-token-units",
+      "doc_version": "rag-p2-v1",
+      "external_references": [
+        {
+          "checked_at": "2026-10-22",
+          "title": "ERC-20 Token Standard",
+          "url": "https://eips.ethereum.org/EIPS/eip-20"
+        },
+        {
+          "checked_at": "2026-10-22",
+          "title": "Ethereum gas and fees",
+          "url": "https://ethereum.org/developers/docs/gas/"
+        }
+      ],
+      "heading_path": "Đơn vị token và chuyển đổi chính xác > Quy tắc input trong helper của dự án",
+      "measured_length": 126,
+      "parent_id": "sha256:68c6239e546090ca0a0d0e006238069f3a8829e055a67ab434d9950dcbd9566e",
+      "part_count": 3,
+      "part_index": 1,
+      "prefix_style": "compact",
+      "scope": "general",
+      "section_index": 2,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/web3/token-units.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Đơn vị token và chuyển đổi chính xác",
+      "token_count": 126,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "source_reviewed"
+    }
+  },
+  "web3-token-units:f5f6c23af8c522a2f6904817f889c9b18528299a31a144f5993af5baceb4dec4": {
+    "content": "[general; source_reviewed]\nZero amount và điều kiện nghiệp vụ\n\n\nChuyển đổi lượng zero thành raw zero là hợp lệ về định dạng. Hàm contract cụ thể quyết định có chấp nhận zero hay không. Không suy ra mọi hàm nhận uint256 đều cho phép hoặc đều từ chối zero; kiểm tra tài liệu đúng scope và mô phỏng hành động cụ thể.\n\n",
+    "metadata": {
+      "authored_revision": "rag-p2-v1",
+      "budget_limit": 128,
+      "budget_unit": "tokens",
+      "category": "web3",
+      "chunk_hash": "sha256:be3dd53913ac6ca4c29ca5305f500e447512b130d2972d7f26f5d3719b2a8112",
+      "chunk_id": "web3-token-units:f5f6c23af8c522a2f6904817f889c9b18528299a31a144f5993af5baceb4dec4",
+      "content_hash": "sha256:4db492af4e94156e17fcddd9efcf92f24e9a66821d00614615ea90c8c9c8a246",
+      "context_prefix": "[general; source_reviewed]\nZero amount và điều kiện nghiệp vụ\n\n",
+      "derived_from": [
+        {
+          "content_hash": "sha256:5c90bf54c4b7cdb7de5b949b4ef4ab75abd4cdaff685b086ec2c1561063e42f1",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "backend/token_amounts.py"
+        },
+        {
+          "content_hash": "sha256:781a2ce15a9807a41fe972610c8aa41eb9a165407bb92067e35f5a0648f7f574",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/src/AgentToken.sol"
+        },
+        {
+          "content_hash": "sha256:f70916cad10c310b3764ef279fd382731a2728db2c6f9c15dcc077aca18c6074",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.test.js"
+        },
+        {
+          "content_hash": "sha256:cfb4cbea43487036ff48b545fa6bcf7d6fd4f2085b28cda9bb7ec6b6345be439",
+          "source_commit": "28a9a0b6a96f6cbd59cb2ceea264c4d4d562f1d8",
+          "source_origin": "git",
+          "source_path": "contracts/test/AgentToken.security.test.js"
+        }
+      ],
+      "doc_id": "web3-token-units",
+      "doc_version": "rag-p2-v1",
+      "external_references": [
+        {
+          "checked_at": "2026-10-22",
+          "title": "ERC-20 Token Standard",
+          "url": "https://eips.ethereum.org/EIPS/eip-20"
+        },
+        {
+          "checked_at": "2026-10-22",
+          "title": "Ethereum gas and fees",
+          "url": "https://ethereum.org/developers/docs/gas/"
+        }
+      ],
+      "heading_path": "Đơn vị token và chuyển đổi chính xác > Zero amount và điều kiện nghiệp vụ",
+      "measured_length": 78,
+      "parent_id": "sha256:8f6185695a2507909c97c3e7775e688ed3a3565af860233e21e8cc199ffbd9da",
+      "part_count": 1,
+      "part_index": 0,
+      "prefix_style": "compact",
+      "scope": "general",
+      "section_index": 3,
+      "source_commit": null,
+      "source_format": "markdown",
+      "source_origin": "workspace",
+      "source_path": "knowledge/web3/token-units.md",
+      "splitter_version": "rag-semantic-v2",
+      "title": "Đơn vị token và chuyển đổi chính xác",
+      "token_count": 78,
+      "tokenizer_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2@e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+      "usage": "ingest",
+      "verification_status": "source_reviewed"
+    }
+  }
+}

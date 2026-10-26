@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Agent with Blockchain Tools | Web3 Security & Guardrail Engine</title>
+  <meta name="description" content="AI Agent dashboard for autonomous blockchain actions, smart contract interaction, dry-run simulations, and human-in-the-loop guardrail approval.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="brand-group">
+      <div class="brand-icon" id="app-brand-icon"></div>
+      <div>
+        <h1 class="brand-title">AI AGENT // BLOCKCHAIN</h1>
+      </div>
+      <span class="brand-tag">GUARDRAIL ENGINE v1.0</span>
+    </div>
+
+    <div class="header-status-group">
+      <div class="status-chip" id="network-chip">
+        <span class="pulse-dot" id="network-pulse"></span>
+        <span id="header-network-name">Connecting...</span>
+      </div>
+      <div class="status-chip" id="rpc-chip">
+        <span id="rpc-latency-text">RPC: -- ms</span>
+      </div>
+      <div class="status-chip" id="wallet-chip">
+        <span id="header-wallet-address">0x...</span>
+        <button class="icon-button" id="btn-copy-header-wallet" title="Copy Address"></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 3-Column Dashboard Container -->
+  <main class="app-container">
+    
+    <!-- Column 1: Blockchain & Security Panel -->
+    <aside class="glass-panel" id="panel-blockchain">
+      <div class="panel-header">
+        <h2 class="panel-title" id="title-blockchain-panel">
+          <span class="panel-icon" id="icon-blockchain-panel"></span>
+          NETWORK &amp; ASSETS
+        </h2>
+        <button class="icon-button" id="btn-refresh-assets" title="Refresh blockchain info"></button>
+      </div>
+
+      <div class="panel-body">
+        <!-- Native Balance Card -->
+        <div class="info-card">
+          <div class="info-label">Native Balance</div>
+          <div class="info-value-row">
+            <div>
+              <span class="info-main-val" id="val-native-balance">0.0000</span>
+              <span class="info-unit" id="val-native-symbol">ETH</span>
+            </div>
+            <span class="panel-badge" id="badge-chain-id">Chain --</span>
+          </div>
+        </div>
+
+        <!-- AGNT Token Balance Card -->
+        <div class="info-card">
+          <div class="info-label">AgentToken (AGNT) Balance</div>
+          <div class="info-value-row">
+            <div>
+              <span class="info-main-val" id="val-token-balance" style="color: var(--primary);">0.00</span>
+              <span class="info-unit">AGNT</span>
+            </div>
+            <span class="panel-badge" style="color: var(--primary); border-color: rgba(245,158,11,0.3);">ERC-20</span>
+          </div>
+        </div>
+
+        <!-- Smart Contract Card -->
+        <div class="info-card">
+          <div class="info-label">Smart Contract (Sepolia)</div>
+          <div class="info-mono" id="val-contract-address">0x...</div>
+          <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem;">
+            <a href="#" target="_blank" rel="noopener noreferrer" class="prompt-chip" id="link-contract-explorer" style="text-decoration: none; font-size: 0.72rem; padding: 0.2rem 0.5rem;">
+              <span>View Etherscan</span>
+              <span id="icon-external-contract"></span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Gas Price Card -->
+        <div class="info-card">
+          <div class="info-label">Gas Tracker (EIP-1559)</div>
+          <div class="info-value-row">
+            <span class="info-main-val" id="val-gas-price">--</span>
+            <span class="info-unit">Gwei</span>
+          </div>
+          <div class="info-mono" id="val-base-fee" style="font-size: 0.75rem;">Base fee: -- Gwei</div>
+        </div>
+
+        <!-- Guardrail Engine Policies Card -->
+        <div class="info-card" style="border-color: rgba(245, 158, 11, 0.3);">
+          <div class="info-label" style="color: var(--primary); display: flex; align-items: center; gap: 0.3rem;">
+            <span id="icon-guardrail-badge"></span>
+            Guardrail Policies Active
+          </div>
+          <div class="policy-card safe">
+            <div class="policy-title">Max Tx Limit: <span id="policy-max-limit" style="font-family: var(--font-mono);">500 AGNT</span></div>
+            <div class="policy-desc">Transfers exceeding 500 AGNT are automatically rejected by smart contract guardrails.</div>
+          </div>
+          <div class="policy-card">
+            <div class="policy-title">Recipient Whitelist: <span style="color: var(--primary);">Enforced</span></div>
+            <div class="policy-desc">Only pre-approved destination addresses are allowed for fund transfers.</div>
+          </div>
+          <div class="policy-card safe">
+            <div class="policy-title">Human-in-the-Loop: <span style="color: var(--success);">Required</span></div>
+            <div class="policy-desc">All state-modifying write operations strictly require explicit approval.</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Column 2: Main Chat Workspace -->
+    <section class="glass-panel chat-workspace" id="panel-chat">
+      <div class="panel-header">
+        <h2 class="panel-title" id="title-chat-panel">
+          <span class="panel-icon" id="icon-chat-panel"></span>
+          AI AGENT CONVERSATION
+        </h2>
+        <span class="panel-badge" style="color: var(--success);" id="agent-mode-badge">AUTONOMOUS AGENT ACTIVE</span>
+      </div>
+
+      <!-- Chat History -->
+      <div class="chat-history" id="chat-history">
+        <!-- Messages will be injected by JavaScript -->
+      </div>
+
+      <!-- Quick Prompt Suggestions -->
+      <div class="prompt-chips" id="prompt-chips">
+        <button class="prompt-chip" data-prompt="Check the balance of this wallet.">
+          Check wallet balance
+        </button>
+        <button class="prompt-chip" data-prompt="Read the token contract information.">
+          Read token contract info
+        </button>
+        <button class="prompt-chip" data-prompt="Check current gas prices.">
+          Check gas prices
+        </button>
+        <button class="prompt-chip" data-prompt="Simulate a transfer of 50 AGNT to 0x70997970C51812dc3A010C7d01b50e0d17dc79C8">
+          Simulate 50 AGNT transfer
+        </button>
+        <button class="prompt-chip" data-prompt="Transfer 25 AGNT to 0x70997970C51812dc3A010C7d01b50e0d17dc79C8">
+          Prepare 25 AGNT transfer
+        </button>
+      </div>
+
+      <!-- Message Composer -->
+      <form class="chat-composer" id="chat-form">
+        <div class="composer-input-wrapper">
+          <input 
+            type="text" 
+            id="chat-input" 
+            class="composer-input" 
+            placeholder="Instruct the AI Agent (e.g. 'Check balance', 'Transfer 50 AGNT to 0x...')"
+            autocomplete="off"
+            required
+          />
+        </div>
+        <button type="submit" class="btn-send" id="btn-send-message">
+          <span>SEND</span>
+          <span id="icon-send-btn"></span>
+        </button>
+      </form>
+    </section>
+
+    <!-- Column 3: Agent Activity & Tool Execution Timeline -->
+    <aside class="glass-panel" id="panel-activity">
+      <div class="panel-header">
+        <h2 class="panel-title" id="title-activity-panel">
+          <span class="panel-icon" id="icon-activity-panel"></span>
+          AGENT WORKFLOW TIMELINE
+        </h2>
+        <span class="panel-badge" id="timeline-step-count">0 / 9 Steps</span>
+      </div>
+
+      <div class="panel-body" id="timeline-container">
+        <!-- Empty state placeholder -->
+        <div id="timeline-empty-state" style="text-align: center; color: var(--text-dim); padding: 3rem 1rem;">
+          <div style="margin-bottom: 0.75rem;" id="icon-empty-timeline"></div>
+          <div style="font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">No Active Execution</div>
+          <div style="font-size: 0.8rem; margin-top: 0.25rem;">Send a natural-language prompt to observe the 9-stage workflow in real-time.</div>
+        </div>
+
+        <div class="timeline-list" id="timeline-list" style="display: none;">
+          <!-- Timeline steps dynamically rendered here -->
+        </div>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- Dedicated Transaction Review and Approval Modal -->
+  <div class="modal-backdrop" id="approval-modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <span id="icon-modal-shield"></span>
+          TRANSACTION APPROVAL REQUIRED
+        </h3>
+        <span class="panel-badge" style="background: rgba(245, 158, 11, 0.2); color: var(--primary);">HUMAN-IN-THE-LOOP</span>
+      </div>
+
+      <div class="modal-body">
+        <p style="font-size: 0.88rem; color: var(--text-muted);">
+          The AI Agent has formulated a write operation that will modify blockchain state. Review the parameters and policy validation results below before signing.
+        </p>
+
+        <div class="review-grid">
+          <div class="review-item">
+            <span class="review-label">Operation / Tool</span>
+            <span class="review-val" id="modal-op-name">erc20_transfer</span>
+          </div>
+          <div class="review-item">
+            <span class="review-label">Target Network</span>
+            <span class="review-val" id="modal-network">Sepolia Testnet (11155111)</span>
+          </div>
+          <div class="review-item full-width">
+            <span class="review-label">Recipient Address</span>
+            <span class="review-val mono" id="modal-recipient">0x...</span>
+          </div>
+          <div class="review-item">
+            <span class="review-label">Transfer Amount</span>
+            <span class="review-val" id="modal-amount" style="color: var(--primary);">50 AGNT</span>
+          </div>
+          <div class="review-item">
+            <span class="review-label">Estimated Gas</span>
+            <span class="review-val" id="modal-gas">~65,000 Units</span>
+          </div>
+        </div>
+
+        <!-- Guardrail Check Status Banner -->
+        <div class="guardrail-check-banner" id="modal-guardrail-banner">
+          <span id="icon-modal-check"></span>
+          <div>
+            <div style="font-weight: 600; font-size: 0.85rem;" id="modal-guardrail-title">Guardrail Policy Checks Passed</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);" id="modal-guardrail-details">
+              Recipient is verified on Whitelist. Amount is below 500 AGNT guardrail limit.
+            </div>
+          </div>
+        </div>
+
+        <!-- Simulation Result Card -->
+        <div class="info-card" id="modal-sim-card" style="padding: 0.75rem;">
+          <div class="info-label">Pre-Flight Simulation (eth_call)</div>
+          <div class="info-mono" id="modal-sim-result" style="color: var(--success); font-weight: 600;">
+            Status: Valid (No revert detected)
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-reject" id="btn-modal-reject">
+          REJECT TRANSACTION
+        </button>
+        <button type="button" class="btn-approve" id="btn-modal-approve">
+          <span>CONFIRM &amp; EXECUTE</span>
+          <span id="icon-modal-approve"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
