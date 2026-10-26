@@ -62,7 +62,7 @@ DEFAULT_NETWORKS: Dict[int, ChainConfig] = {
         block_explorer_url="https://sepolia.etherscan.io",
         is_testnet=True,
         default_contracts={
-            "AgentToken": "0xDf7B0c367817f97d756441da6047a1Da91cC6Fff",
+            "AgentToken": "0xa453B71a492558C17efA82E294739e4eFef3C220",
         },
     ),
 }
