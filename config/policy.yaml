@@ -1,0 +1,33 @@
+# Policy: Sepolia testnet ONLY
+chain_id: 11155111
+
+# ── Allowlist (deny-by-default: empty list = BLOCK ALL) ────
+# Add addresses/contracts/functions here to permit WRITE operations.
+# If a list is empty, ALL requests for that category are DENIED.
+allowlist:
+  # Wallet addresses allowed as recipients for transfers
+  addresses:
+    # Demo/test addresses – replace with your own testnet addresses
+    - "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD68"  # Demo recipient 1
+    - "0x267be1C1D684F78cb4F6a176C4911b741E4Ffdc0"  # Demo recipient 2
+
+  # Contract addresses allowed for call_contract / transfer_erc20
+  contracts:
+    # SampleVault placeholder – update when teammate deploys
+    - "0x0000000000000000000000000000000000000000"  # TODO: replace with deployed SampleVault
+
+  # Function names allowed for call_contract (must match ABI exactly)
+  functions:
+    - "deposit"
+    - "withdraw"
+    - "transfer"
+    - "approve"
+
+# ── Transaction limits ─────────────────────────────────────
+limits:
+  per_transaction_eth: "0.1"   # Max ETH per single transaction
+  daily_eth: "0.5"             # Max ETH total per 24-hour window
+
+# ── Simulation settings ───────────────────────────────────
+require_simulation: true       # Must simulate (eth_call) before confirm
+block_on_revert: true          # Block tx if simulation reverts
