@@ -1,0 +1,1480 @@
+{
+  "schema_version": 1,
+  "split": "dev",
+  "lock_hash": "sha256:9aa8ce8a22fda6f2fe5ac92e689d3e4f20ebfd0eabcaafbd363ee502a1a5d1c6",
+  "dataset_hash": "sha256:f599424654e492d89331fd2f46772aa9fd1ba17dca642c7b7b4948926034d3c3",
+  "config_hash": "sha256:3e879312762ee90984356cc4da1cb137d7d40b77389516606831162c7eacefe6",
+  "index_fingerprint": "sha256:fac5405f38d38b19252b95d5b91021dc509a8d9357aaf82e6145afa5a2152e8f",
+  "model": {
+    "provider": "sentence-transformers",
+    "model_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+    "dimension": 384,
+    "max_tokens": 128,
+    "normalize_embeddings": true,
+    "device": "cpu",
+    "dtype": "float32",
+    "prompt": ""
+  },
+  "options": {
+    "min_similarity": 0.45,
+    "candidate_pool": 32,
+    "context_max_tokens": 1024,
+    "max_query_chars": 2000,
+    "timeout_seconds": 15.0,
+    "max_concurrency": 1,
+    "max_per_parent": 5,
+    "parent_context": true,
+    "general_categories": [
+      "web3"
+    ]
+  },
+  "summary": {
+    "total": 20,
+    "answerable": 14,
+    "recall_at_5": 0.9285714285714286,
+    "doc_hit_at_5": 1.0,
+    "no_match_correct": 6,
+    "no_match_total": 6,
+    "scope_leak_chunks": 0,
+    "scope_leak_cases": 0,
+    "errors": 0
+  },
+  "categories": {
+    "abi": {
+      "total": 6,
+      "answerable": 6,
+      "recall_at_5": 1.0,
+      "doc_hit_at_5": 1.0,
+      "no_match_correct": 0,
+      "no_match_total": 0,
+      "scope_leak_chunks": 0,
+      "scope_leak_cases": 0,
+      "errors": 0
+    },
+    "outside": {
+      "total": 3,
+      "answerable": 0,
+      "recall_at_5": null,
+      "doc_hit_at_5": null,
+      "no_match_correct": 3,
+      "no_match_total": 3,
+      "scope_leak_chunks": 0,
+      "scope_leak_cases": 0,
+      "errors": 0
+    },
+    "scope": {
+      "total": 3,
+      "answerable": 0,
+      "recall_at_5": null,
+      "doc_hit_at_5": null,
+      "no_match_correct": 3,
+      "no_match_total": 3,
+      "scope_leak_chunks": 0,
+      "scope_leak_cases": 0,
+      "errors": 0
+    },
+    "source": {
+      "total": 4,
+      "answerable": 4,
+      "recall_at_5": 1.0,
+      "doc_hit_at_5": 1.0,
+      "no_match_correct": 0,
+      "no_match_total": 0,
+      "scope_leak_chunks": 0,
+      "scope_leak_cases": 0,
+      "errors": 0
+    },
+    "web3": {
+      "total": 4,
+      "answerable": 4,
+      "recall_at_5": 0.75,
+      "doc_hit_at_5": 1.0,
+      "no_match_correct": 0,
+      "no_match_total": 0,
+      "scope_leak_chunks": 0,
+      "scope_leak_cases": 0,
+      "errors": 0
+    }
+  },
+  "startup_ms": 17187.87510000402,
+  "first_query_ms": 55.187599995406345,
+  "warm": {
+    "count": 100,
+    "p50_ms": 27.448800014099106,
+    "p95_ms": 56.777099991450086
+  },
+  "warm_samples": [
+    {
+      "case_id": "dev-01",
+      "category": "abi",
+      "latency_ms": 31.863900017924607
+    },
+    {
+      "case_id": "dev-02",
+      "category": "abi",
+      "latency_ms": 24.264899984700605
+    },
+    {
+      "case_id": "dev-03",
+      "category": "abi",
+      "latency_ms": 25.05709999240935
+    },
+    {
+      "case_id": "dev-04",
+      "category": "abi",
+      "latency_ms": 20.816000003833324
+    },
+    {
+      "case_id": "dev-05",
+      "category": "abi",
+      "latency_ms": 23.39740001480095
+    },
+    {
+      "case_id": "dev-06",
+      "category": "abi",
+      "latency_ms": 26.90160000929609
+    },
+    {
+      "case_id": "dev-13",
+      "category": "web3",
+      "latency_ms": 27.025600022170693
+    },
+    {
+      "case_id": "dev-14",
+      "category": "web3",
+      "latency_ms": 34.32320000138134
+    },
+    {
+      "case_id": "dev-15",
+      "category": "web3",
+      "latency_ms": 31.16539999609813
+    },
+    {
+      "case_id": "dev-16",
+      "category": "web3",
+      "latency_ms": 31.225999991875142
+    },
+    {
+      "case_id": "dev-21",
+      "category": "source",
+      "latency_ms": 34.283700020750985
+    },
+    {
+      "case_id": "dev-22",
+      "category": "source",
+      "latency_ms": 46.329000004334375
+    },
+    {
+      "case_id": "dev-23",
+      "category": "source",
+      "latency_ms": 42.297600011806935
+    },
+    {
+      "case_id": "dev-24",
+      "category": "source",
+      "latency_ms": 42.86549999960698
+    },
+    {
+      "case_id": "dev-29",
+      "category": "scope",
+      "latency_ms": 3.2407999970018864
+    },
+    {
+      "case_id": "dev-30",
+      "category": "scope",
+      "latency_ms": 4.004700022051111
+    },
+    {
+      "case_id": "dev-31",
+      "category": "scope",
+      "latency_ms": 3.284600010374561
+    },
+    {
+      "case_id": "dev-35",
+      "category": "outside",
+      "latency_ms": 36.14840001682751
+    },
+    {
+      "case_id": "dev-36",
+      "category": "outside",
+      "latency_ms": 43.01739999209531
+    },
+    {
+      "case_id": "dev-37",
+      "category": "outside",
+      "latency_ms": 3.9407000003848225
+    },
+    {
+      "case_id": "dev-01",
+      "category": "abi",
+      "latency_ms": 36.531199992168695
+    },
+    {
+      "case_id": "dev-02",
+      "category": "abi",
+      "latency_ms": 56.777099991450086
+    },
+    {
+      "case_id": "dev-03",
+      "category": "abi",
+      "latency_ms": 42.622000008122995
+    },
+    {
+      "case_id": "dev-04",
+      "category": "abi",
+      "latency_ms": 42.89219999918714
+    },
+    {
+      "case_id": "dev-05",
+      "category": "abi",
+      "latency_ms": 45.444499992299825
+    },
+    {
+      "case_id": "dev-06",
+      "category": "abi",
+      "latency_ms": 44.84480002429336
+    },
+    {
+      "case_id": "dev-13",
+      "category": "web3",
+      "latency_ms": 67.78559999656864
+    },
+    {
+      "case_id": "dev-14",
+      "category": "web3",
+      "latency_ms": 47.668399987742305
+    },
+    {
+      "case_id": "dev-15",
+      "category": "web3",
+      "latency_ms": 33.240499993553385
+    },
+    {
+      "case_id": "dev-16",
+      "category": "web3",
+      "latency_ms": 23.60329998191446
+    },
+    {
+      "case_id": "dev-21",
+      "category": "source",
+      "latency_ms": 31.160399987129495
+    },
+    {
+      "case_id": "dev-22",
+      "category": "source",
+      "latency_ms": 30.069900007219985
+    },
+    {
+      "case_id": "dev-23",
+      "category": "source",
+      "latency_ms": 31.63350000977516
+    },
+    {
+      "case_id": "dev-24",
+      "category": "source",
+      "latency_ms": 27.7848000114318
+    },
+    {
+      "case_id": "dev-29",
+      "category": "scope",
+      "latency_ms": 2.4474999809172004
+    },
+    {
+      "case_id": "dev-30",
+      "category": "scope",
+      "latency_ms": 2.24910001270473
+    },
+    {
+      "case_id": "dev-31",
+      "category": "scope",
+      "latency_ms": 1.9799000001512468
+    },
+    {
+      "case_id": "dev-35",
+      "category": "outside",
+      "latency_ms": 22.995700011961162
+    },
+    {
+      "case_id": "dev-36",
+      "category": "outside",
+      "latency_ms": 25.199600000632927
+    },
+    {
+      "case_id": "dev-37",
+      "category": "outside",
+      "latency_ms": 2.715899987379089
+    },
+    {
+      "case_id": "dev-01",
+      "category": "abi",
+      "latency_ms": 24.624699988635257
+    },
+    {
+      "case_id": "dev-02",
+      "category": "abi",
+      "latency_ms": 21.836699976120144
+    },
+    {
+      "case_id": "dev-03",
+      "category": "abi",
+      "latency_ms": 21.912199998041615
+    },
+    {
+      "case_id": "dev-04",
+      "category": "abi",
+      "latency_ms": 21.794800006318837
+    },
+    {
+      "case_id": "dev-05",
+      "category": "abi",
+      "latency_ms": 27.054999984102324
+    },
+    {
+      "case_id": "dev-06",
+      "category": "abi",
+      "latency_ms": 28.76669997931458
+    },
+    {
+      "case_id": "dev-13",
+      "category": "web3",
+      "latency_ms": 32.29480001027696
+    },
+    {
+      "case_id": "dev-14",
+      "category": "web3",
+      "latency_ms": 36.11159999854863
+    },
+    {
+      "case_id": "dev-15",
+      "category": "web3",
+      "latency_ms": 73.57059998321347
+    },
+    {
+      "case_id": "dev-16",
+      "category": "web3",
+      "latency_ms": 47.662400000263005
+    },
+    {
+      "case_id": "dev-21",
+      "category": "source",
+      "latency_ms": 57.34290002146736
+    },
+    {
+      "case_id": "dev-22",
+      "category": "source",
+      "latency_ms": 61.97710000560619
+    },
+    {
+      "case_id": "dev-23",
+      "category": "source",
+      "latency_ms": 68.05549998534843
+    },
+    {
+      "case_id": "dev-24",
+      "category": "source",
+      "latency_ms": 47.653699992224574
+    },
+    {
+      "case_id": "dev-29",
+      "category": "scope",
+      "latency_ms": 2.9291000100784004
+    },
+    {
+      "case_id": "dev-30",
+      "category": "scope",
+      "latency_ms": 3.584599995519966
+    },
+    {
+      "case_id": "dev-31",
+      "category": "scope",
+      "latency_ms": 2.5347000046167523
+    },
+    {
+      "case_id": "dev-35",
+      "category": "outside",
+      "latency_ms": 28.756799991242588
+    },
+    {
+      "case_id": "dev-36",
+      "category": "outside",
+      "latency_ms": 30.26149998186156
+    },
+    {
+      "case_id": "dev-37",
+      "category": "outside",
+      "latency_ms": 3.386800002772361
+    },
+    {
+      "case_id": "dev-01",
+      "category": "abi",
+      "latency_ms": 23.70250000967644
+    },
+    {
+      "case_id": "dev-02",
+      "category": "abi",
+      "latency_ms": 26.653700013412163
+    },
+    {
+      "case_id": "dev-03",
+      "category": "abi",
+      "latency_ms": 23.740299977362156
+    },
+    {
+      "case_id": "dev-04",
+      "category": "abi",
+      "latency_ms": 21.543099981499836
+    },
+    {
+      "case_id": "dev-05",
+      "category": "abi",
+      "latency_ms": 23.546200012788177
+    },
+    {
+      "case_id": "dev-06",
+      "category": "abi",
+      "latency_ms": 25.204200006555766
+    },
+    {
+      "case_id": "dev-13",
+      "category": "web3",
+      "latency_ms": 30.204800015781075
+    },
+    {
+      "case_id": "dev-14",
+      "category": "web3",
+      "latency_ms": 35.105800023302436
+    },
+    {
+      "case_id": "dev-15",
+      "category": "web3",
+      "latency_ms": 34.902900020824745
+    },
+    {
+      "case_id": "dev-16",
+      "category": "web3",
+      "latency_ms": 28.63660000730306
+    },
+    {
+      "case_id": "dev-21",
+      "category": "source",
+      "latency_ms": 34.162200026912615
+    },
+    {
+      "case_id": "dev-22",
+      "category": "source",
+      "latency_ms": 37.07369999028742
+    },
+    {
+      "case_id": "dev-23",
+      "category": "source",
+      "latency_ms": 31.671300006564707
+    },
+    {
+      "case_id": "dev-24",
+      "category": "source",
+      "latency_ms": 32.0046000124421
+    },
+    {
+      "case_id": "dev-29",
+      "category": "scope",
+      "latency_ms": 2.72320001386106
+    },
+    {
+      "case_id": "dev-30",
+      "category": "scope",
+      "latency_ms": 2.456299989717081
+    },
+    {
+      "case_id": "dev-31",
+      "category": "scope",
+      "latency_ms": 2.6363999932073057
+    },
+    {
+      "case_id": "dev-35",
+      "category": "outside",
+      "latency_ms": 26.30600001430139
+    },
+    {
+      "case_id": "dev-36",
+      "category": "outside",
+      "latency_ms": 27.448800014099106
+    },
+    {
+      "case_id": "dev-37",
+      "category": "outside",
+      "latency_ms": 2.4695000029169023
+    },
+    {
+      "case_id": "dev-01",
+      "category": "abi",
+      "latency_ms": 23.778699978720397
+    },
+    {
+      "case_id": "dev-02",
+      "category": "abi",
+      "latency_ms": 19.858899991959333
+    },
+    {
+      "case_id": "dev-03",
+      "category": "abi",
+      "latency_ms": 18.92149998457171
+    },
+    {
+      "case_id": "dev-04",
+      "category": "abi",
+      "latency_ms": 17.695999995339662
+    },
+    {
+      "case_id": "dev-05",
+      "category": "abi",
+      "latency_ms": 21.591900003841147
+    },
+    {
+      "case_id": "dev-06",
+      "category": "abi",
+      "latency_ms": 25.48640000168234
+    },
+    {
+      "case_id": "dev-13",
+      "category": "web3",
+      "latency_ms": 26.0658000188414
+    },
+    {
+      "case_id": "dev-14",
+      "category": "web3",
+      "latency_ms": 30.568200018024072
+    },
+    {
+      "case_id": "dev-15",
+      "category": "web3",
+      "latency_ms": 28.88700002222322
+    },
+    {
+      "case_id": "dev-16",
+      "category": "web3",
+      "latency_ms": 27.63359999516979
+    },
+    {
+      "case_id": "dev-21",
+      "category": "source",
+      "latency_ms": 35.24709999328479
+    },
+    {
+      "case_id": "dev-22",
+      "category": "source",
+      "latency_ms": 35.25349998380989
+    },
+    {
+      "case_id": "dev-23",
+      "category": "source",
+      "latency_ms": 36.92049998790026
+    },
+    {
+      "case_id": "dev-24",
+      "category": "source",
+      "latency_ms": 35.53639998426661
+    },
+    {
+      "case_id": "dev-29",
+      "category": "scope",
+      "latency_ms": 4.25820000236854
+    },
+    {
+      "case_id": "dev-30",
+      "category": "scope",
+      "latency_ms": 2.6280999882146716
+    },
+    {
+      "case_id": "dev-31",
+      "category": "scope",
+      "latency_ms": 2.9520999814849347
+    },
+    {
+      "case_id": "dev-35",
+      "category": "outside",
+      "latency_ms": 27.18740000273101
+    },
+    {
+      "case_id": "dev-36",
+      "category": "outside",
+      "latency_ms": 33.10610001790337
+    },
+    {
+      "case_id": "dev-37",
+      "category": "outside",
+      "latency_ms": 3.341500007081777
+    }
+  ],
+  "machine": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "processor": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel",
+    "logical_cpus": 12,
+    "python": "3.12.10",
+    "threads": 2
+  },
+  "gates": {
+    "recall_at_5": true,
+    "no_scope_leaks": true,
+    "no_errors": true,
+    "no_match": true,
+    "warm_p95": true
+  },
+  "passed": true,
+  "rows": [
+    {
+      "id": "dev-01",
+      "category": "abi",
+      "query": "Hàm transfer(address,uint256) nhận tham số và trả gì?",
+      "mode": "deployment",
+      "scope": {
+        "chain_id": 11155111,
+        "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+        "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+        "doc_version": "repo-28a9a0b6a96f",
+        "include_general": true
+      },
+      "expect_empty": false,
+      "gold_chunk_ids": [
+        "agenttoken-abi-guide:b59b4933f1686a404e5d3034018c2a2aaa2e5ea355058c0ea4d9083aaedb520d",
+        "agenttoken-sepolia-abi:24a0d2a93914d6f4d53a065d380e105b53516cc8ff89071dc1a1f32942e1266b",
+        "agenttoken-sepolia-abi:f14ddb38086aa1323096a59b7fd28c7fb0d76790c3f38d76e4adecf877cb3414"
+      ],
+      "recall_at_5": 1.0,
+      "doc_hit_at_5": true,
+      "no_match_correct": null,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [
+        {
+          "chunk_id": "agenttoken-abi-guide:b59b4933f1686a404e5d3034018c2a2aaa2e5ea355058c0ea4d9083aaedb520d",
+          "doc_id": "agenttoken-abi-guide",
+          "scope": "deployed_contract",
+          "score": 0.6203728540708071,
+          "selection_reason": "exact_signature"
+        },
+        {
+          "chunk_id": "agenttoken-sepolia-abi:f14ddb38086aa1323096a59b7fd28c7fb0d76790c3f38d76e4adecf877cb3414",
+          "doc_id": "agenttoken-sepolia-abi",
+          "scope": "deployed_contract",
+          "score": 0.5672126393019286,
+          "selection_reason": "exact_signature"
+        },
+        {
+          "chunk_id": "agenttoken-sepolia-abi:24a0d2a93914d6f4d53a065d380e105b53516cc8ff89071dc1a1f32942e1266b",
+          "doc_id": "agenttoken-sepolia-abi",
+          "scope": "deployed_contract",
+          "score": 0.4556909442459882,
+          "selection_reason": "exact_signature"
+        }
+      ],
+      "latency_ms": 55.187599995406345
+    },
+    {
+      "id": "dev-02",
+      "category": "abi",
+      "query": "transferFrom(address,address,uint256)",
+      "mode": "deployment",
+      "scope": {
+        "chain_id": 11155111,
+        "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+        "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+        "doc_version": "repo-28a9a0b6a96f",
+        "include_general": true
+      },
+      "expect_empty": false,
+      "gold_chunk_ids": [
+        "agenttoken-abi-guide:c2ece70c3e7c58e5bee5d294cff6d6b34a4d7632b76d0660d0db32ccb1a5e69d",
+        "agenttoken-sepolia-abi:34f186f1eb1a4072c77ddba0047d18b4f62acd3942251e0fddfdf9ec6dbf8830",
+        "agenttoken-sepolia-abi:99ba6ee0d6200e1025631b905434534a58a4a2e395e0fb6e912c6c04c4d3099a"
+      ],
+      "recall_at_5": 1.0,
+      "doc_hit_at_5": true,
+      "no_match_correct": null,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [
+        {
+          "chunk_id": "agenttoken-sepolia-abi:34f186f1eb1a4072c77ddba0047d18b4f62acd3942251e0fddfdf9ec6dbf8830",
+          "doc_id": "agenttoken-sepolia-abi",
+          "scope": "deployed_contract",
+          "score": 0.6990837897592337,
+          "selection_reason": "exact_signature"
+        },
+        {
+          "chunk_id": "agenttoken-sepolia-abi:99ba6ee0d6200e1025631b905434534a58a4a2e395e0fb6e912c6c04c4d3099a",
+          "doc_id": "agenttoken-sepolia-abi",
+          "scope": "deployed_contract",
+          "score": 0.6658705885306999,
+          "selection_reason": "exact_signature"
+        },
+        {
+          "chunk_id": "agenttoken-abi-guide:c2ece70c3e7c58e5bee5d294cff6d6b34a4d7632b76d0660d0db32ccb1a5e69d",
+          "doc_id": "agenttoken-abi-guide",
+          "scope": "deployed_contract",
+          "score": 0.6979856510636504,
+          "selection_reason": "exact_signature"
+        }
+      ],
+      "latency_ms": 24.89669999340549
+    },
+    {
+      "id": "dev-03",
+      "category": "abi",
+      "query": "balanceOf(address)",
+      "mode": "deployment",
+      "scope": {
+        "chain_id": 11155111,
+        "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+        "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+        "doc_version": "repo-28a9a0b6a96f",
+        "include_general": true
+      },
+      "expect_empty": false,
+      "gold_chunk_ids": [
+        "agenttoken-abi-guide:532e986fe6cc27c563a3f2e65af6c6b23b1855de0d510b3063bcaa2d913ee17f",
+        "agenttoken-sepolia-abi:412068afa243200aad72522317e8fc6ef125e7fb3bb25c8f8cca87b90f23b3fd"
+      ],
+      "recall_at_5": 1.0,
+      "doc_hit_at_5": true,
+      "no_match_correct": null,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [
+        {
+          "chunk_id": "agenttoken-sepolia-abi:412068afa243200aad72522317e8fc6ef125e7fb3bb25c8f8cca87b90f23b3fd",
+          "doc_id": "agenttoken-sepolia-abi",
+          "scope": "deployed_contract",
+          "score": 0.5660790645193743,
+          "selection_reason": "exact_signature"
+        },
+        {
+          "chunk_id": "agenttoken-abi-guide:532e986fe6cc27c563a3f2e65af6c6b23b1855de0d510b3063bcaa2d913ee17f",
+          "doc_id": "agenttoken-abi-guide",
+          "scope": "deployed_contract",
+          "score": 0.562994023412612,
+          "selection_reason": "exact_signature"
+        }
+      ],
+      "latency_ms": 25.131899979896843
+    },
+    {
+      "id": "dev-04",
+      "category": "abi",
+      "query": "decimals()",
+      "mode": "deployment",
+      "scope": {
+        "chain_id": 11155111,
+        "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+        "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+        "doc_version": "repo-28a9a0b6a96f",
+        "include_general": true
+      },
+      "expect_empty": false,
+      "gold_chunk_ids": [
+        "agenttoken-abi-guide:c2d80db6f2e4340289fe5150f7ab748ccc6230589c8fa8d643fc1380251a5ae4",
+        "agenttoken-sepolia-abi:a448b6fbd1f68a9d4186dd31fec0cd2625e6e3cef6b4596f4d83a7d5268356ef"
+      ],
+      "recall_at_5": 1.0,
+      "doc_hit_at_5": true,
+      "no_match_correct": null,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [
+        {
+          "chunk_id": "agenttoken-abi-guide:c2d80db6f2e4340289fe5150f7ab748ccc6230589c8fa8d643fc1380251a5ae4",
+          "doc_id": "agenttoken-abi-guide",
+          "scope": "deployed_contract",
+          "score": 0.5528957440120668,
+          "selection_reason": "exact_signature"
+        },
+        {
+          "chunk_id": "agenttoken-sepolia-abi:a448b6fbd1f68a9d4186dd31fec0cd2625e6e3cef6b4596f4d83a7d5268356ef",
+          "doc_id": "agenttoken-sepolia-abi",
+          "scope": "deployed_contract",
+          "score": 0.4919616717141537,
+          "selection_reason": "exact_signature"
+        }
+      ],
+      "latency_ms": 23.946000001160428
+    },
+    {
+      "id": "dev-05",
+      "category": "abi",
+      "query": "What does approve(address,uint256) return?",
+      "mode": "deployment",
+      "scope": {
+        "chain_id": 11155111,
+        "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+        "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+        "doc_version": "repo-28a9a0b6a96f",
+        "include_general": true
+      },
+      "expect_empty": false,
+      "gold_chunk_ids": [
+        "agenttoken-abi-guide:832a4d072727d1bf66c44dea93f60390ab741041db28822cdcc1301d9896e682",
+        "agenttoken-sepolia-abi:398bf0149e3897dfa632945913af858e14887d20101683fb1cba36e7dd63b1e1",
+        "agenttoken-sepolia-abi:90afe78fbbcdc13e3413cb6c0278503e5b7a23adb93907cf8ec2457050d28adc"
+      ],
+      "recall_at_5": 1.0,
+      "doc_hit_at_5": true,
+      "no_match_correct": null,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [
+        {
+          "chunk_id": "agenttoken-sepolia-abi:398bf0149e3897dfa632945913af858e14887d20101683fb1cba36e7dd63b1e1",
+          "doc_id": "agenttoken-sepolia-abi",
+          "scope": "deployed_contract",
+          "score": 0.6446617244475139,
+          "selection_reason": "exact_signature"
+        },
+        {
+          "chunk_id": "agenttoken-sepolia-abi:90afe78fbbcdc13e3413cb6c0278503e5b7a23adb93907cf8ec2457050d28adc",
+          "doc_id": "agenttoken-sepolia-abi",
+          "scope": "deployed_contract",
+          "score": 0.5487617720048374,
+          "selection_reason": "exact_signature"
+        },
+        {
+          "chunk_id": "agenttoken-abi-guide:832a4d072727d1bf66c44dea93f60390ab741041db28822cdcc1301d9896e682",
+          "doc_id": "agenttoken-abi-guide",
+          "scope": "deployed_contract",
+          "score": 0.6170944591604347,
+          "selection_reason": "exact_signature"
+        }
+      ],
+      "latency_ms": 29.98010002193041
+    },
+    {
+      "id": "dev-06",
+      "category": "abi",
+      "query": "validateTransferFrom(address,address,uint256,address)",
+      "mode": "deployment",
+      "scope": {
+        "chain_id": 11155111,
+        "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+        "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+        "doc_version": "repo-28a9a0b6a96f",
+        "include_general": true
+      },
+      "expect_empty": false,
+      "gold_chunk_ids": [
+        "agenttoken-abi-guide:f3ceb57a6bac3790a78c181b9f502615c07d78d1d57faa0b66c911eeb7aba1fc",
+        "agenttoken-sepolia-abi:6d9b843135228b7d4b8a92e593db31e7fdf59cb81839ad0ca4b3d623191d0894",
+        "agenttoken-sepolia-abi:a6eb6068e03c343f7ab6205485c277cca9247eac34afde871e20bb425daf0116",
+        "agenttoken-sepolia-abi:df09fc2a46835ff9ebf14374d2cac4f1eb9e6fbfdd819f9eddd19b81aeef2e6d"
+      ],
+      "recall_at_5": 1.0,
+      "doc_hit_at_5": true,
+      "no_match_correct": null,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [
+        {
+          "chunk_id": "agenttoken-sepolia-abi:6d9b843135228b7d4b8a92e593db31e7fdf59cb81839ad0ca4b3d623191d0894",
+          "doc_id": "agenttoken-sepolia-abi",
+          "scope": "deployed_contract",
+          "score": 0.734323664934187,
+          "selection_reason": "exact_signature"
+        },
+        {
+          "chunk_id": "agenttoken-sepolia-abi:df09fc2a46835ff9ebf14374d2cac4f1eb9e6fbfdd819f9eddd19b81aeef2e6d",
+          "doc_id": "agenttoken-sepolia-abi",
+          "scope": "deployed_contract",
+          "score": 0.7265350873668517,
+          "selection_reason": "exact_signature"
+        },
+        {
+          "chunk_id": "agenttoken-sepolia-abi:a6eb6068e03c343f7ab6205485c277cca9247eac34afde871e20bb425daf0116",
+          "doc_id": "agenttoken-sepolia-abi",
+          "scope": "deployed_contract",
+          "score": 0.71408312131206,
+          "selection_reason": "exact_signature"
+        },
+        {
+          "chunk_id": "agenttoken-abi-guide:f3ceb57a6bac3790a78c181b9f502615c07d78d1d57faa0b66c911eeb7aba1fc",
+          "doc_id": "agenttoken-abi-guide",
+          "scope": "deployed_contract",
+          "score": 0.7114186927556804,
+          "selection_reason": "exact_signature"
+        }
+      ],
+      "latency_ms": 33.415500016417354
+    },
+    {
+      "id": "dev-13",
+      "category": "web3",
+      "query": "How should I handle decimal token amounts without floats?",
+      "mode": "deployment",
+      "scope": {
+        "chain_id": 11155111,
+        "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+        "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+        "doc_version": "repo-28a9a0b6a96f",
+        "include_general": true
+      },
+      "expect_empty": false,
+      "gold_chunk_ids": [
+        "web3-token-units:9e7183752d6eb2708ec29eaad1edf45061a172eeb25d4b5fcfb6b2a0a404f7bd"
+      ],
+      "recall_at_5": 1.0,
+      "doc_hit_at_5": true,
+      "no_match_correct": null,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [
+        {
+          "chunk_id": "web3-token-units:d85e20cbef703b43c08e3ad3f92e2a1c122182c23bb6be991ac88cc804c9f51b",
+          "doc_id": "web3-token-units",
+          "scope": "general",
+          "score": 0.6036088466644287,
+          "selection_reason": "semantic"
+        },
+        {
+          "chunk_id": "web3-token-units:0998ae04e46962fb997897941fefcab42aab0f7cb5fc4a24595edaf63577841f",
+          "doc_id": "web3-token-units",
+          "scope": "general",
+          "score": 0.38902729749679565,
+          "selection_reason": "parent_context"
+        },
+        {
+          "chunk_id": "web3-token-units:fa391565e9e301cf9680320fde06ce1d7e4a59d101ab05f6e67c69874831efd8",
+          "doc_id": "web3-token-units",
+          "scope": "general",
+          "score": 0.5995755195617676,
+          "selection_reason": "semantic"
+        },
+        {
+          "chunk_id": "web3-token-units:9e7183752d6eb2708ec29eaad1edf45061a172eeb25d4b5fcfb6b2a0a404f7bd",
+          "doc_id": "web3-token-units",
+          "scope": "general",
+          "score": 0.4955206513404846,
+          "selection_reason": "semantic"
+        },
+        {
+          "chunk_id": "web3-token-units:dde6294df0ff940394d84245b1001979e9ce5ac39bb1abc8db702382d9fcbf61",
+          "doc_id": "web3-token-units",
+          "scope": "general",
+          "score": 0.3390207886695862,
+          "selection_reason": "parent_context"
+        }
+      ],
+      "latency_ms": 32.6305000053253
+    },
+    {
+      "id": "dev-14",
+      "category": "web3",
+      "query": "Đổi 1.5 token với 6 decimals thành raw units theo ví dụ helper thế nào?",
+      "mode": "deployment",
+      "scope": {
+        "chain_id": 11155111,
+        "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+        "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+        "doc_version": "repo-28a9a0b6a96f",
+        "include_general": true
+      },
+      "expect_empty": false,
+      "gold_chunk_ids": [
+        "web3-token-units:dde6294df0ff940394d84245b1001979e9ce5ac39bb1abc8db702382d9fcbf61"
+      ],
+      "recall_at_5": 1.0,
+      "doc_hit_at_5": true,
+      "no_match_correct": null,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [
+        {
+          "chunk_id": "web3-token-units:d85e20cbef703b43c08e3ad3f92e2a1c122182c23bb6be991ac88cc804c9f51b",
+          "doc_id": "web3-token-units",
+          "scope": "general",
+          "score": 0.6750719547271729,
+          "selection_reason": "semantic"
+        },
+        {
+          "chunk_id": "web3-token-units:0998ae04e46962fb997897941fefcab42aab0f7cb5fc4a24595edaf63577841f",
+          "doc_id": "web3-token-units",
+          "scope": "general",
+          "score": 0.4926883578300476,
+          "selection_reason": "semantic"
+        },
+        {
+          "chunk_id": "web3-token-units:fa391565e9e301cf9680320fde06ce1d7e4a59d101ab05f6e67c69874831efd8",
+          "doc_id": "web3-token-units",
+          "scope": "general",
+          "score": 0.6692467927932739,
+          "selection_reason": "semantic"
+        },
+        {
+          "chunk_id": "web3-token-units:dde6294df0ff940394d84245b1001979e9ce5ac39bb1abc8db702382d9fcbf61",
+          "doc_id": "web3-token-units",
+          "scope": "general",
+          "score": 0.4840294122695923,
+          "selection_reason": "semantic"
+        },
+        {
+          "chunk_id": "web3-token-units:9e7183752d6eb2708ec29eaad1edf45061a172eeb25d4b5fcfb6b2a0a404f7bd",
+          "doc_id": "web3-token-units",
+          "scope": "general",
+          "score": 0.48332399129867554,
+          "selection_reason": "semantic"
+        }
+      ],
+      "latency_ms": 42.654699995182455
+    },
+    {
+      "id": "dev-15",
+      "category": "web3",
+      "query": "Checksum địa chỉ có xác nhận đúng mạng không?",
+      "mode": "deployment",
+      "scope": {
+        "chain_id": 11155111,
+        "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+        "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+        "doc_version": "repo-28a9a0b6a96f",
+        "include_general": true
+      },
+      "expect_empty": false,
+      "gold_chunk_ids": [
+        "web3-addresses:74b5178ea57a0b357d796b98ae9b287959996b595882f0996f71b5d92667bdd0"
+      ],
+      "recall_at_5": 1.0,
+      "doc_hit_at_5": true,
+      "no_match_correct": null,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [
+        {
+          "chunk_id": "web3-addresses:1306065b5665a514b1d3e1c50d4e3d2858fc2b3ac8ac0467b0220399a3b6eb98",
+          "doc_id": "web3-addresses",
+          "scope": "general",
+          "score": 0.5329119563102722,
+          "selection_reason": "semantic"
+        },
+        {
+          "chunk_id": "web3-addresses:74b5178ea57a0b357d796b98ae9b287959996b595882f0996f71b5d92667bdd0",
+          "doc_id": "web3-addresses",
+          "scope": "general",
+          "score": 0.5050801634788513,
+          "selection_reason": "semantic"
+        },
+        {
+          "chunk_id": "web3-addresses:74e93fa9025f6b96557fadf927ef568d73c5943fafc312d01b81328c5a6655e6",
+          "doc_id": "web3-addresses",
+          "scope": "general",
+          "score": 0.49452805519104004,
+          "selection_reason": "semantic"
+        },
+        {
+          "chunk_id": "web3-addresses:839c6c27644a139fdd62f9c771d8876059ed45d3ed95c3733862d3c29e93a5a5",
+          "doc_id": "web3-addresses",
+          "scope": "general",
+          "score": 0.39682137966156006,
+          "selection_reason": "parent_context"
+        },
+        {
+          "chunk_id": "agenttoken-deployment-guide:a6e789f4e58a0b907650228d8bd2cc8fc9d4b998a2e6dcfddfff0303b378f02d",
+          "doc_id": "agenttoken-deployment-guide",
+          "scope": "deployed_contract",
+          "score": 0.45442724227905273,
+          "selection_reason": "semantic"
+        }
+      ],
+      "latency_ms": 37.36909999861382
+    },
+    {
+      "id": "dev-16",
+      "category": "web3",
+      "query": "Do I sign and broadcast during an eth_call simulation?",
+      "mode": "deployment",
+      "scope": {
+        "chain_id": 11155111,
+        "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+        "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+        "doc_version": "repo-28a9a0b6a96f",
+        "include_general": true
+      },
+      "expect_empty": false,
+      "gold_chunk_ids": [
+        "web3-simulation:0df73c829270e52abc57a132732faec98572e3f25a616b034c72edc3dac9e290"
+      ],
+      "recall_at_5": 0.0,
+      "doc_hit_at_5": true,
+      "no_match_correct": null,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [
+        {
+          "chunk_id": "web3-simulation:66bbead220ed7b67b886da870cd0b194d4555f033d08289cef58d1a81cc62bfe",
+          "doc_id": "web3-simulation",
+          "scope": "general",
+          "score": 0.45428359508514404,
+          "selection_reason": "semantic"
+        }
+      ],
+      "latency_ms": 30.323300015879795
+    },
+    {
+      "id": "dev-21",
+      "category": "source",
+      "query": "Theo source faucet có giới hạn bao nhiêu và chờ bao lâu?",
+      "mode": "source",
+      "scope": {
+        "doc_version": "source-28a9a0b6a96f",
+        "include_general": true
+      },
+      "expect_empty": false,
+      "gold_chunk_ids": [
+        "agenttoken-faucet-admin-source:5540c64d4463ecfeaa5b9fbcb6a3f0ae34025907e064b2a0ed0087d1ffa8227b",
+        "agenttoken-faucet-admin-source:58841fb6dcd0b1db416d7b57009723827b8654aa25c60846acc4eda976b15b98"
+      ],
+      "recall_at_5": 1.0,
+      "doc_hit_at_5": true,
+      "no_match_correct": null,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [
+        {
+          "chunk_id": "agenttoken-faucet-admin-source:5540c64d4463ecfeaa5b9fbcb6a3f0ae34025907e064b2a0ed0087d1ffa8227b",
+          "doc_id": "agenttoken-faucet-admin-source",
+          "scope": "source_only",
+          "score": 0.6587705612182617,
+          "selection_reason": "symbol_name"
+        },
+        {
+          "chunk_id": "agenttoken-faucet-admin-source:e06fa8cb6a421b075cb8484b234b8ed7cd34815a1bced4019f32eb371268f023",
+          "doc_id": "agenttoken-faucet-admin-source",
+          "scope": "source_only",
+          "score": 0.5997436046600342,
+          "selection_reason": "symbol_name"
+        },
+        {
+          "chunk_id": "agenttoken-faucet-admin-source:fb6bfb23bb3c21282ad891a7caf842ba1931d0e80a7d47da8555b74949764de6",
+          "doc_id": "agenttoken-faucet-admin-source",
+          "scope": "source_only",
+          "score": 0.5145666599273682,
+          "selection_reason": "symbol_name"
+        },
+        {
+          "chunk_id": "agenttoken-faucet-admin-source:91a511ea3bc95e6760d4b35a5c63d53606dd13a9178e103ca36379fa07cb0f0f",
+          "doc_id": "agenttoken-faucet-admin-source",
+          "scope": "source_only",
+          "score": 0.48900556564331055,
+          "selection_reason": "symbol_name"
+        },
+        {
+          "chunk_id": "agenttoken-faucet-admin-source:58841fb6dcd0b1db416d7b57009723827b8654aa25c60846acc4eda976b15b98",
+          "doc_id": "agenttoken-faucet-admin-source",
+          "scope": "source_only",
+          "score": 0.3795310854911804,
+          "selection_reason": "parent_context"
+        }
+      ],
+      "latency_ms": 62.97970001469366
+    },
+    {
+      "id": "dev-22",
+      "category": "source",
+      "query": "Trong source transferFrom có cần allowance khi spender chính là sender không?",
+      "mode": "source",
+      "scope": {
+        "doc_version": "source-28a9a0b6a96f",
+        "include_general": true
+      },
+      "expect_empty": false,
+      "gold_chunk_ids": [
+        "agenttoken-transfers-source:1baec5b55943f7bc9f3bf2f42c496a37370c4458764ab14498d5c236f1a0a43c"
+      ],
+      "recall_at_5": 1.0,
+      "doc_hit_at_5": true,
+      "no_match_correct": null,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [
+        {
+          "chunk_id": "agenttoken-transfers-source:1daab9e7510eb3638b9c6af166810d09fa8d7332b0b12ca5c11c244a9f3e3007",
+          "doc_id": "agenttoken-transfers-source",
+          "scope": "source_only",
+          "score": 0.700993001461029,
+          "selection_reason": "symbol_name"
+        },
+        {
+          "chunk_id": "agenttoken-transfers-source:1baec5b55943f7bc9f3bf2f42c496a37370c4458764ab14498d5c236f1a0a43c",
+          "doc_id": "agenttoken-transfers-source",
+          "scope": "source_only",
+          "score": 0.6628776788711548,
+          "selection_reason": "symbol_name"
+        },
+        {
+          "chunk_id": "agenttoken-transfers-source:a47c126212c33389e086e3dc5380dbd9fabe3d849889d864a87a74fb782093f0",
+          "doc_id": "agenttoken-transfers-source",
+          "scope": "source_only",
+          "score": 0.5329967141151428,
+          "selection_reason": "symbol_name"
+        },
+        {
+          "chunk_id": "agenttoken-transfers-source:41d7202854d016f186988addc3a03168a00b076d11ab060dcb5d0f93f1c27d75",
+          "doc_id": "agenttoken-transfers-source",
+          "scope": "source_only",
+          "score": 0.6025811433792114,
+          "selection_reason": "symbol_name"
+        },
+        {
+          "chunk_id": "agenttoken-transfers-source:92ee3840673e387e15b97e893a5f06fb7502e492eed91fa84349074361448343",
+          "doc_id": "agenttoken-transfers-source",
+          "scope": "source_only",
+          "score": 0.5263159275054932,
+          "selection_reason": "symbol_name"
+        }
+      ],
+      "latency_ms": 51.93430001963861
+    },
+    {
+      "id": "dev-23",
+      "category": "source",
+      "query": "Owner có thể đổi hạn mức chuyển token trong source không?",
+      "mode": "source",
+      "scope": {
+        "doc_version": "source-28a9a0b6a96f",
+        "include_general": true
+      },
+      "expect_empty": false,
+      "gold_chunk_ids": [
+        "agenttoken-faucet-admin-source:566fd6f112e0d7f644d17b03b0d08875476ea4a3774f53f79fd92a9c15887101"
+      ],
+      "recall_at_5": 1.0,
+      "doc_hit_at_5": true,
+      "no_match_correct": null,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [
+        {
+          "chunk_id": "agenttoken-faucet-admin-source:90fc56de71033a0ca1da29d8d88455fcf9c0eda8786e1ead733b91ab68c5584c",
+          "doc_id": "agenttoken-faucet-admin-source",
+          "scope": "source_only",
+          "score": 0.7479321360588074,
+          "selection_reason": "semantic"
+        },
+        {
+          "chunk_id": "agenttoken-faucet-admin-source:566fd6f112e0d7f644d17b03b0d08875476ea4a3774f53f79fd92a9c15887101",
+          "doc_id": "agenttoken-faucet-admin-source",
+          "scope": "source_only",
+          "score": 0.4667637348175049,
+          "selection_reason": "semantic"
+        },
+        {
+          "chunk_id": "agenttoken-transfers-source:bafcb11b021f4f9a335aa11549074aa9e655523b695b31416841022aa1d03004",
+          "doc_id": "agenttoken-transfers-source",
+          "scope": "source_only",
+          "score": 0.6660629510879517,
+          "selection_reason": "semantic"
+        },
+        {
+          "chunk_id": "agenttoken-transfers-source:c575fa157532e22af21d45e7a081802ca4876cb2c124e7b8ae7a1f00d5be7264",
+          "doc_id": "agenttoken-transfers-source",
+          "scope": "source_only",
+          "score": 0.49857884645462036,
+          "selection_reason": "semantic"
+        },
+        {
+          "chunk_id": "agenttoken-transfers-source:dd816efc4f18897d28ac35fda2826ffa70dfee4a0c5c9f0d68f3b279377cd7a9",
+          "doc_id": "agenttoken-transfers-source",
+          "scope": "source_only",
+          "score": 0.36008691170345997,
+          "selection_reason": "parent_context"
+        }
+      ],
+      "latency_ms": 48.66450000554323
+    },
+    {
+      "id": "dev-24",
+      "category": "source",
+      "query": "Mint token vượt supply cap thì source xử lý thế nào?",
+      "mode": "source",
+      "scope": {
+        "doc_version": "source-28a9a0b6a96f",
+        "include_general": true
+      },
+      "expect_empty": false,
+      "gold_chunk_ids": [
+        "agenttoken-faucet-admin-source:09a705efee2d1a5f9c73b79bfa1d81cb80cbe4b0ee6dc91a39ce2faa884ecc37"
+      ],
+      "recall_at_5": 1.0,
+      "doc_hit_at_5": true,
+      "no_match_correct": null,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [
+        {
+          "chunk_id": "agenttoken-faucet-admin-source:09a705efee2d1a5f9c73b79bfa1d81cb80cbe4b0ee6dc91a39ce2faa884ecc37",
+          "doc_id": "agenttoken-faucet-admin-source",
+          "scope": "source_only",
+          "score": 0.6807042360305786,
+          "selection_reason": "semantic"
+        },
+        {
+          "chunk_id": "agenttoken-faucet-admin-source:8231ddcdc8acc365d14dda1ab5ce01bd8d24a84b87bff08d9b4e475b313e0b80",
+          "doc_id": "agenttoken-faucet-admin-source",
+          "scope": "source_only",
+          "score": 0.3696851134300232,
+          "selection_reason": "parent_context"
+        },
+        {
+          "chunk_id": "agenttoken-faucet-admin-source:3faabce75b3f25b1f3822f52beb06cbcd98c6137d7619c4ed3e38ce301e9fdd2",
+          "doc_id": "agenttoken-faucet-admin-source",
+          "scope": "source_only",
+          "score": 0.6688022017478943,
+          "selection_reason": "semantic"
+        },
+        {
+          "chunk_id": "agenttoken-faucet-admin-source:94f9d169859e0f61f9a2587c0d9144e67485c16a8647551caecae8ac47e913a2",
+          "doc_id": "agenttoken-faucet-admin-source",
+          "scope": "source_only",
+          "score": 0.5126543045043945,
+          "selection_reason": "semantic"
+        },
+        {
+          "chunk_id": "agenttoken-faucet-admin-source:91a511ea3bc95e6760d4b35a5c63d53606dd13a9178e103ca36379fa07cb0f0f",
+          "doc_id": "agenttoken-faucet-admin-source",
+          "scope": "source_only",
+          "score": 0.5444255471229553,
+          "selection_reason": "semantic"
+        }
+      ],
+      "latency_ms": 62.31619999743998
+    },
+    {
+      "id": "dev-29",
+      "category": "scope",
+      "query": "validateTransferFrom(address,address,uint256,address)",
+      "mode": "deployment",
+      "scope": {
+        "chain_id": 11155111,
+        "contract_address": "0xDf7B0c367817f97d756441da6047a1Da91cC6Fff",
+        "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+        "doc_version": "repo-28a9a0b6a96f",
+        "include_general": true
+      },
+      "expect_empty": true,
+      "gold_chunk_ids": [],
+      "recall_at_5": null,
+      "doc_hit_at_5": null,
+      "no_match_correct": true,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [],
+      "latency_ms": 48.748500004876405
+    },
+    {
+      "id": "dev-30",
+      "category": "scope",
+      "query": "transfer(address,uint256)",
+      "mode": "deployment",
+      "scope": {
+        "chain_id": 1,
+        "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+        "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+        "doc_version": "repo-28a9a0b6a96f",
+        "include_general": true
+      },
+      "expect_empty": true,
+      "gold_chunk_ids": [],
+      "recall_at_5": null,
+      "doc_hit_at_5": null,
+      "no_match_correct": true,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [],
+      "latency_ms": 37.66339999856427
+    },
+    {
+      "id": "dev-31",
+      "category": "scope",
+      "query": "decimals()",
+      "mode": "deployment",
+      "scope": {
+        "chain_id": 11155111,
+        "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+        "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+        "doc_version": "absent-version",
+        "include_general": true
+      },
+      "expect_empty": true,
+      "gold_chunk_ids": [],
+      "recall_at_5": null,
+      "doc_hit_at_5": null,
+      "no_match_correct": true,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [],
+      "latency_ms": 38.98880002088845
+    },
+    {
+      "id": "dev-35",
+      "category": "outside",
+      "query": "Cách nấu phở bò ngon",
+      "mode": "deployment",
+      "scope": {
+        "chain_id": 11155111,
+        "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+        "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+        "doc_version": "repo-28a9a0b6a96f",
+        "include_general": true
+      },
+      "expect_empty": true,
+      "gold_chunk_ids": [],
+      "recall_at_5": null,
+      "doc_hit_at_5": null,
+      "no_match_correct": true,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [],
+      "latency_ms": 37.88499999791384
+    },
+    {
+      "id": "dev-36",
+      "category": "outside",
+      "query": "What is the weather forecast for tomorrow in Hanoi?",
+      "mode": "deployment",
+      "scope": {
+        "chain_id": 11155111,
+        "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+        "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+        "doc_version": "repo-28a9a0b6a96f",
+        "include_general": true
+      },
+      "expect_empty": true,
+      "gold_chunk_ids": [],
+      "recall_at_5": null,
+      "doc_hit_at_5": null,
+      "no_match_correct": true,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [],
+      "latency_ms": 35.58630001498386
+    },
+    {
+      "id": "dev-37",
+      "category": "outside",
+      "query": "transfer(bytes32,uint256)",
+      "mode": "deployment",
+      "scope": {
+        "chain_id": 11155111,
+        "contract_address": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+        "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+        "doc_version": "repo-28a9a0b6a96f",
+        "include_general": true
+      },
+      "expect_empty": true,
+      "gold_chunk_ids": [],
+      "recall_at_5": null,
+      "doc_hit_at_5": null,
+      "no_match_correct": true,
+      "scope_leak_ids": [],
+      "error": null,
+      "returned": [],
+      "latency_ms": 3.129500022623688
+    }
+  ],
+  "limitations": "Curated small local split; intent isolation from prior P5/P6, same corpus/topics. Gold is curated evidence, not exhaustive relevance. Cold means process/model initialization with OS/model cache available, not first download. Sequential warm samples after accuracy pass; no concurrency/load or LLM-quality claim."
+}
