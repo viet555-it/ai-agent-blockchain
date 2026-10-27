@@ -1,0 +1,104 @@
+{
+  "brand": {
+    "title": "AI AGENT // BLOCKCHAIN",
+    "tag": "GUARDRAIL ENGINE v1.0"
+  },
+  "header": {
+    "connecting": "Connecting...",
+    "copyWallet": "Copy Address",
+    "walletCopied": "Address Copied!",
+    "themeToggle": "Toggle theme (Dark/Light)",
+    "langToggle": "Switch Language (EN/VI)"
+  },
+  "network": {
+    "title": "NETWORK & ASSETS",
+    "refreshTooltip": "Refresh blockchain info",
+    "nativeBalance": "Native Balance",
+    "tokenBalance": "AgentToken (AGNT) Balance",
+    "smartContract": "Smart Contract (Sepolia)",
+    "viewEtherscan": "View Etherscan",
+    "gasTracker": "Gas Tracker (EIP-1559)",
+    "baseFee": "Base fee: {fee} Gwei",
+    "guardrailsActive": "Guardrail Policies Active",
+    "maxTxLimit": "Max Tx Limit:",
+    "maxTxLimitDesc": "Transfers exceeding 500 AGNT are automatically rejected by smart contract guardrails.",
+    "recipientWhitelist": "Recipient Whitelist:",
+    "enforced": "Enforced",
+    "whitelistDesc": "Only pre-approved destination addresses are allowed for fund transfers.",
+    "hitl": "Human-in-the-Loop:",
+    "required": "Required",
+    "hitlDesc": "All state-modifying write operations strictly require explicit approval."
+  },
+  "chat": {
+    "title": "AI AGENT CONVERSATION",
+    "agentMode": "AUTONOMOUS AGENT ACTIVE",
+    "inputPlaceholder": "Instruct the AI Agent (e.g. 'Check balance', 'Transfer 50 AGNT to 0x...')",
+    "send": "SEND",
+    "analyzing": "Analyzing intent & verifying policies...",
+    "welcomeGreeting": "**Welcome to AI Agent with Blockchain Tools!**\n\nI am your autonomous on-chain assistant secured by the **Guardrail & Policy Engine**.\n\nYou can query balances, check token info, simulate dry-runs, or submit transfer requests. All write operations will be validated against safety policies and presented for your explicit approval.",
+    "promptBalance": "Check wallet balance",
+    "promptBalanceQuery": "Check the balance of this wallet.",
+    "promptTokenInfo": "Read token contract info",
+    "promptTokenInfoQuery": "Read the token contract information.",
+    "promptGas": "Check gas prices",
+    "promptGasQuery": "Check current gas prices.",
+    "promptSimulate": "Simulate 50 AGNT transfer",
+    "promptSimulateQuery": "Simulate a transfer of 50 AGNT to 0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    "promptTransfer": "Prepare 25 AGNT transfer",
+    "promptTransferQuery": "Transfer 25 AGNT to 0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    "ragTitle": "Knowledge Retrieval (RAG)",
+    "ragMatch": "Match: {score}%",
+    "ragSource": "Source: {title} ({file})"
+  },
+  "timeline": {
+    "title": "AGENT WORKFLOW TIMELINE",
+    "stepsCount": "{current} / {total} Steps",
+    "emptyTitle": "No Active Execution",
+    "emptyDesc": "Send a natural-language prompt to observe the 9-stage workflow in real-time.",
+    "toolLabel": "Tool:",
+    "viewPayload": "View Payload",
+    "hidePayload": "Hide Payload",
+    "stepTooltip": "Step {num} in execution sequence"
+  },
+  "steps": {
+    "Request received": "Request received",
+    "Intent analyzed": "Intent analyzed",
+    "Tool selected": "Tool selected",
+    "Parameters validated": "Parameters validated",
+    "Guardrail evaluation": "Guardrail evaluation",
+    "User approval required": "User approval required",
+    "Tool executed": "Tool executed",
+    "Blockchain result received": "Blockchain result received",
+    "Final Agent response": "Final Agent response"
+  },
+  "status": {
+    "SUCCESS": "SUCCESS",
+    "PENDING_APPROVAL": "PENDING APPROVAL",
+    "BLOCKED": "BLOCKED",
+    "FAILED": "FAILED",
+    "INFO": "INFO"
+  },
+  "modal": {
+    "title": "TRANSACTION APPROVAL REQUIRED",
+    "hitlBadge": "HUMAN-IN-THE-LOOP",
+    "intro": "The AI Agent has formulated a write operation that will modify blockchain state. Review the parameters and policy validation results below before signing.",
+    "opName": "Operation / Tool",
+    "network": "Target Network",
+    "recipient": "Recipient Address",
+    "amount": "Transfer Amount",
+    "gas": "Estimated Gas",
+    "guardrailPassed": "Guardrail Policy Checks Passed",
+    "guardrailDetails": "Recipient is verified on Whitelist. Amount is below 500 AGNT guardrail limit.",
+    "simLabel": "Pre-Flight Simulation (eth_call)",
+    "simValid": "Status: Valid ({reason})",
+    "simRevert": "Revert Warning: {reason}",
+    "simPreflightPassed": "Pre-flight check passed.",
+    "btnReject": "REJECT TRANSACTION",
+    "btnApprove": "CONFIRM & EXECUTE",
+    "processing": "Processing on Chain...",
+    "approvedMsg": "Transaction successfully approved and submitted!",
+    "rejectedMsg": "Transaction was rejected by your request. No funds were transferred.",
+    "viewTx": "View Transaction on Etherscan →"
+  }
+}
+
