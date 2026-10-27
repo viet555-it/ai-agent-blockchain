@@ -6,6 +6,7 @@ import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from dotenv import dotenv_values
 
 from rag.loaders import parse_json
 
@@ -22,6 +23,9 @@ class RAGSettings:
 
     @classmethod
     def load(cls, path: str | Path, *, root: Path) -> "RAGSettings":
+        # Read only RAG path overrides from the project's single root dotenv.
+        # Keep provider/wallet credentials out of the standalone RAG environment.
+        env_values = dotenv_values(root / ".env", encoding="utf-8")
         path = Path(path)
         if not path.is_absolute():
             path = root / path
@@ -39,7 +43,7 @@ class RAGSettings:
             raise ValueError("Invalid prefix_style")
 
         def location(key: str, env_name: str) -> Path:
-            raw = os.environ.get(env_name, value.get(key))
+            raw = os.environ.get(env_name, env_values.get(env_name) or value.get(key))
             if not isinstance(raw, str) or not raw.strip():
                 raise ValueError(f"{key} is required")
             target = Path(raw)

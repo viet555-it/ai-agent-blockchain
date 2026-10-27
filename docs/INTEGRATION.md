@@ -117,7 +117,7 @@ WALLET_PRIVATE_KEY=your-private-key  # NEVER commit!
 
 # Optional
 ETHERSCAN_API_KEY=your-etherscan-key  # for transaction history
-LLM_MODEL=                            # empty = provider default
+LLM_MODEL=gemini-3.5-flash-lite       # explicit Gemini model
 DRY_RUN=true                          # true = no real transactions
 MAX_STEPS=10                          # max agent reasoning steps
 ```

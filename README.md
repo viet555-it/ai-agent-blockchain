@@ -1,5 +1,13 @@
 # AI Agent with Blockchain Tools
 
+Môi trường tích hợp và kiểm thử giai đoạn 3: [PHASE3_INTEGRATION.md](docs/PHASE3_INTEGRATION.md).
+
+Chạy app với proposal/approval trên Hardhat local: [PHASE3_RUNBOOK.md](docs/PHASE3_RUNBOOK.md).
+
+Cấu hình duy nhất: `.env` tại root dự án (mẫu `.env.example`). API, Agent CLI,
+Hardhat và đường dẫn RAG đều dùng file này; không cần `.env` trong thư mục con.
+API trên nhánh kiểm thử mặc định dùng profile local; execution đang chờ hoàn thiện ở G3.2.
+
 Dự án phát triển Hệ thống **AI Agent** tích hợp các công cụ **Blockchain (Web3 Tools)** và hệ thống rào chắn an toàn (**Guardrail & Policy Engine**).
 
 ---

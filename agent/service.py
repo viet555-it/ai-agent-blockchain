@@ -69,7 +69,9 @@ class AgentService:
             )
         return self._sessions[session_id]
 
-    async def chat(self, session_id: str, message: str) -> list[AgentEvent]:
+    async def chat(self, session_id: str, message: str, *, retrieval_context: str = "",
+                   system_prompt: str | None = None,
+                   request_context: dict[str, Any] | None = None) -> list[AgentEvent]:
         """Process a user message and return all events."""
         memory = self._get_or_create_session(session_id)
 
@@ -79,6 +81,9 @@ class AgentService:
             blockchain=self._blockchain,
             settings=self._settings,
             memory=memory,
+            retrieval_context=retrieval_context,
+            system_prompt=system_prompt,
+            request_context=request_context,
         )
 
         raw_events = await loop.run(message)

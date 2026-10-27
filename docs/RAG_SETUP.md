@@ -90,7 +90,9 @@ Get-ChildItem data/rag/generations -Filter '*.json'
 
 Rollback kiểm manifest/count/hash trước khi đổi active pointer. Config/query provider phải khớp model identity của generation được chọn. Writer có lock; không sửa/xóa collection active hoặc xóa DB để rebuild. Nếu build lỗi, generation trước vẫn active. Chưa có tự động dọn các generation cũ.
 
-Có thể đặt đường dẫn riêng qua shell; CLI không tự đọc `.env`:
+Cấu hình `RAG_INDEX_PATH` và `RAG_CACHE_PATH` trong `.env` duy nhất ở root dự án.
+RAG chỉ đọc hai đường dẫn này, không xuất API key hoặc wallet key ra môi trường.
+Biến shell được ưu tiên khi cần override tạm thời:
 
 ```powershell
 $env:RAG_INDEX_PATH = 'data/rag/another-index'

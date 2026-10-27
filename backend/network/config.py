@@ -2,6 +2,9 @@
 import os
 from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
+from config.environment import load_project_env
+
+load_project_env()
 
 
 class NativeCurrency(BaseModel):

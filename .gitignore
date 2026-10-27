@@ -60,3 +60,11 @@ contracts/exported/31337/
 # Local RAG runtime data and downloaded models
 .cache/rag/
 data/rag/
+
+# Integration runtime and private environment variants
+.venv-phase3/
+.phase3/
+.env.*
+!.env.example
+.coverage
+htmlcov/

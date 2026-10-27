@@ -42,7 +42,12 @@ Script xuất ABI và manifest vào `contracts/exported/<chainId>/` và `backend
 
 Các file ở gốc `backend/abi/` và `contracts/exported/` là bản lưu deployment cũ; backend mới không đọc chúng. Thư mục `11155111/` giữ ABI của **contract cũ** tại `0xDf7B0c367817f97d756441da6047a1Da91cC6Fff`. Bản cũ chưa có supply cap hoặc validateTransferFrom. Không thay ABI source mới vào địa chỉ cũ. Cap và validator mới chỉ có hiệu lực sau khi deploy phiên bản mới.
 
-Để deploy Sepolia, dùng ví testnet mới và giữ key trong `.env` cục bộ, không chép key vào chat, báo cáo hoặc commit:
+Hardhat đọc `.env` tại root dự án qua đường dẫn cố định `../.env` từ file config,
+kể cả khi chạy lệnh trong `contracts/`. Không tạo `contracts/.env`; mẫu duy nhất
+là `.env.example` ở root. Các biến `PRIVATE_KEY`, `SEPOLIA_RPC_URL`,
+`ETHERSCAN_API_KEY`, `NEW_OWNER` cùng nằm trong file gốc.
+
+Để deploy Sepolia, dùng ví testnet mới và giữ key trong `.env` gốc cục bộ, không chép key vào chat, báo cáo hoặc commit:
 
 ```sh
 npm run deploy:sepolia

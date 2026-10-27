@@ -4,9 +4,7 @@
  */
 import { icons } from './icons.js';
 
-const API_BASE = window.location.origin.includes('8000') 
-  ? '' 
-  : 'http://localhost:8000';
+const API_BASE = window.location.origin;
 
 // Application State
 const state = {
@@ -16,6 +14,7 @@ const state = {
   isProcessing: false,
   pendingApproval: null,
   activeApprovalParameters: null,
+  sessionId: crypto.randomUUID(),
 };
 
 // DOM Elements
@@ -118,6 +117,12 @@ async function loadNetworkStatus() {
     elements.headerNetworkName.textContent = data.name;
     elements.badgeChainId.textContent = `Chain ${data.chain_id}`;
     elements.modalNetwork.textContent = `${data.name} (${data.chain_id})`;
+    document.getElementById('contract-network-label').textContent = `Smart Contract (${data.name})`;
+    elements.linkContractExplorer.hidden = !data.block_explorer_url || !data.contract_address;
+    elements.linkContractExplorer.style.display = data.block_explorer_url && data.contract_address ? '' : 'none';
+    if (!data.block_explorer_url || !data.contract_address) {
+      elements.linkContractExplorer.removeAttribute('href');
+    }
 
     if (data.contract_address) {
       elements.valContractAddress.textContent = data.contract_address;
@@ -190,6 +195,12 @@ async function loadPolicies() {
 /**
  * Format markdown text (bold, code block, links) to safe HTML
  */
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[char]));
+}
+
 function formatMarkdown(text) {
   if (!text) return '';
   let formatted = text
@@ -297,7 +308,7 @@ function renderTimeline(timelineSteps) {
           <span class="step-badge ${statusClass}">${step.status}</span>
         </div>
         ${step.duration_ms ? `<div class="step-duration">${step.duration_ms} ms</div>` : ''}
-        ${step.tool_name ? `<div style="font-size: 0.75rem; color: var(--primary);">Tool: <strong>${step.tool_name}</strong></div>` : ''}
+        ${step.tool_name ? `<div style="font-size: 0.75rem; color: var(--primary);">Tool: <strong>${escapeHtml(step.tool_name)}</strong></div>` : ''}
         
         ${step.result || step.sanitized_parameters || step.error ? `
           <button type="button" class="step-details-toggle" data-target="${stepId}">
@@ -305,7 +316,7 @@ function renderTimeline(timelineSteps) {
             <span>View Payload</span>
           </button>
           <div class="step-details-box" id="${stepId}">
-            ${JSON.stringify(step.result || step.sanitized_parameters || { error: step.error }, null, 2)}
+            ${escapeHtml(JSON.stringify(step.result || step.sanitized_parameters || { error: step.error }, null, 2))}
           </div>
         ` : ''}
       </div>
@@ -343,7 +354,7 @@ function openApprovalModal(approval, guardrailResult) {
   if (guardrailResult && guardrailResult.simulation_result) {
     const sim = guardrailResult.simulation_result;
     elements.modalSimResult.textContent = sim.isValid 
-      ? `Status: Valid (${sim.reason})` 
+      ? `Valid · chain ${approval.parameters.chain_id ?? '?'} · gas fee cap ${sim.max_fee_wei ?? '?'} wei`
       : `Revert Warning: ${sim.reason}`;
     elements.modalSimResult.style.color = sim.isValid ? 'var(--success)' : 'var(--danger)';
   } else {
@@ -384,14 +395,25 @@ async function submitApprovalAction(action) {
         approval_id: approvalId,
         action: action,
         parameters: params,
+        session_id: state.sessionId,
         reviewer_comment: action === 'APPROVE' 
           ? 'Approved by user via dashboard' 
           : 'Rejected by user',
       }),
     });
 
-    const data = await res.json();
+    let data = await res.json();
     if (!res.ok) throw new Error(data.detail || 'Approval submission failed');
+
+    // Receipt polling never resubmits APPROVE or broadcasts another transaction.
+    for (let attempt = 0; action === 'APPROVE' && data.status === 'PENDING' && attempt < 8; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const statusRes = await fetch(`${API_BASE}/api/approval/${encodeURIComponent(approvalId)}`, {
+        headers: { 'X-Session-ID': state.sessionId },
+      });
+      if (!statusRes.ok) break;
+      data = await statusRes.json();
+    }
 
     closeApprovalModal();
 
@@ -400,7 +422,14 @@ async function submitApprovalAction(action) {
         ? `<div style="margin-top: 0.5rem;"><a href="${data.explorer_url}" target="_blank" rel="noopener noreferrer" style="color: var(--primary); text-decoration: underline; font-weight: 600;">View Transaction on Etherscan &rarr;</a></div>` 
         : '';
       
-      appendMessage('agent', `Transaction successfully approved and submitted!\n- **Tx Hash:** \`${data.tx_hash}\``, explorerLink);
+      const descriptions = {
+        CONFIRMED: 'Giao dịch đã được xác nhận thành công trên blockchain.',
+        REVERTED: 'Giao dịch đã revert. Không thể coi là thành công.',
+        PENDING: 'Đã gửi giao dịch, đang chờ receipt. Không gửi lại yêu cầu.',
+        UNKNOWN: 'Chưa xác định kết quả giao dịch. Cần kiểm tra nonce/chain; không gửi lại.',
+      };
+      const description = descriptions[data.status] || `Trạng thái: ${data.status}`;
+      appendMessage('agent', `${description}\n- **Tx Hash:** \`${data.tx_hash || 'chưa xác định'}\``, explorerLink);
       // Refresh wallet balances
       loadWalletInfo();
       loadNetworkStatus();
@@ -436,6 +465,7 @@ async function handleSendMessage(query) {
       body: JSON.stringify({
         query: query,
         wallet_address: state.wallet ? state.wallet.address : null,
+        session_id: state.sessionId,
       }),
     });
 
@@ -456,10 +486,10 @@ async function handleSendMessage(query) {
         <div class="rag-citation">
           <div class="rag-header">
             <span>${icons.bookOpen} Knowledge Retrieval (RAG)</span>
-            <span>Match: ${(doc.score * 100).toFixed(0)}%</span>
+            <span>Similarity: ${Number(doc.score).toFixed(3)}</span>
           </div>
-          <div class="rag-body">${doc.excerpt}</div>
-          <div class="rag-source">Source: ${doc.title} (${doc.source_file})</div>
+          <div class="rag-body">${escapeHtml(doc.excerpt)}</div>
+          <div class="rag-source">Source: ${escapeHtml(doc.title)} (${escapeHtml(doc.source_file)})</div>
         </div>
       `;
     }

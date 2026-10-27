@@ -12,7 +12,7 @@ class RetrievedDocument(BaseModel):
     doc_id: str
     title: str
     source_file: str
-    score: float = Field(default=0.9, ge=0.0, le=1.0)
+    score: float = Field(default=0.9, ge=-1.0, le=1.0, allow_inf_nan=False)
     excerpt: str
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
@@ -20,9 +20,11 @@ class RetrievedDocument(BaseModel):
 class RAGSearchResult(BaseModel):
     """Result of context retrieval for an agent query."""
     query: str
+    retrieval_query: str | None = None
     documents: List[RetrievedDocument] = Field(default_factory=list)
     has_relevant_context: bool = False
     provider: str = "curated_knowledge_adapter"  # Or "vector_db" once integrated by Nguyễn Trọng Bảo Việt
+    status: str = "ok"
 
 
 class RAGAdapter:
