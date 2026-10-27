@@ -270,4 +270,7 @@ Chi tiết rubric, giới hạn, usage, thời gian và evidence:
 - Chưa chạy paired RAG on/off, chưa có 100 mẫu latency Gemini. Chưa benchmark
   Gemini trên Sepolia hoặc kiểm UI ký Sepolia thủ công; APPROVE của hai fixture
   Sepolia trước đó do harness thực hiện. Grant hai giao dịch đã tiêu thụ hết.
-- Chưa hoàn tất nghiệm thu mọi gate giai đoạn 3, chưa commit bàn giao/push/PR.
+- Source tích hợp đã commit/push tại `d190139` trên `feature/e2e-testing`.
+  [Bàn giao G3.6](PHASE3_HANDOFF.md) có hướng dẫn checkout mới, checklist demo,
+  source/version manifest và evidence Sepolia đã lọc. Chưa merge/PR hoặc nghiệm
+  thu mọi gate giai đoạn 3. Việc chuẩn bị tài liệu không phải một lượt demo mới.

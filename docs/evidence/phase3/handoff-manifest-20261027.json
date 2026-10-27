@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "status": "HANDOFF_PREPARED_ACCEPTANCE_GATES_OPEN",
+  "prepared_at_utc": "2026-10-27T15:15:04.010840+00:00",
+  "source_commit": "d190139d68d97f536103ba094387e9c0000338be",
+  "branch": "feature/e2e-testing",
+  "hash_encoding": "sha256 of committed Git blob bytes (not checkout line endings)",
+  "source_sha256": {
+    "agent/core.py": "4cce96f13f40aa87b18f6e194b2f8c86c00f11bb61d2900a58b30c5fa21070c6",
+    "agent/memory.py": "a6cdc607af02ad80f0e1a477864ac99d36ab3fa511eb7b70b6ed5508db561841",
+    "agent/llm/gemini.py": "d7c8bd027f18f8c071e9d2856646edec8b81ffc173907f2584b7b49e344e1427",
+    "backend/agent/read_runtime.py": "d0b776ef05420ca763be71f8567d26b8588ec9121ff9a5979155c45b941ec10f",
+    "backend/services/transaction_coordinator.py": "e2e30d63bd21c0b08c65a342436e6c82d0f128646c27736c454039a0bc9a2e71",
+    "backend/services/sepolia_execution.py": "c12984167bbcae56f5c9c5a4e073fb61f660977992cd103d3080f9eecc6ad849",
+    "requirements-phase3.lock.txt": "1e3f7a1e74e63eaa4df58610403ce2c5293b45dbf91217b77c75776797adccd2",
+    "contracts/package-lock.json": "fc4f47acb4ead7388a3002c1f9b35e5a3ab1d8a523ca71b3169127d8f4afbeeb",
+    "config/rag.json": "3e879312762ee90984356cc4da1cb137d7d40b77389516606831162c7eacefe6",
+    "knowledge/manifest.json": "7b95f90afd30676d2d33f896de389554e11f6fd1cceee70eeec5b03e27a875f0",
+    "eval/e2e_dataset.jsonl": "3ff8046fd0f5512cc9771a7d08d348b9a847a718b7c5083d2cbb1affaa491dad",
+    "eval/e2e_safety.jsonl": "18985a217abc72f344fd69a297dc939d2da3c50d9210c2bec9f49722ccd89ca8"
+  },
+  "runtime": {
+    "python": "3.12.10",
+    "node": "22.20.0",
+    "platform": "Windows x64",
+    "versions": {
+      "google-genai": "2.33.0",
+      "web3": "7.16.0",
+      "fastapi": "0.162.0",
+      "pydantic": "2.14.1",
+      "chromadb": "1.5.9",
+      "sentence-transformers": "5.7.0"
+    }
+  },
+  "tests": {
+    "unit": {
+      "passed": 273,
+      "deselected": 1,
+      "subtests_passed": 68,
+      "log_sha256": "6e46c2da2772b53410ce727fe34140c7272d3d701d2cbf89a898199b0d9d3b51"
+    },
+    "api_evm": {
+      "passed": 135,
+      "log_sha256": "6638bd000fcc18237c1d6d2a5a800103e528fdf7ac69158095a6c2e919bdbb9f"
+    },
+    "pip_check": "PASS; no broken requirements found; checked during handoff preparation",
+    "independent_rag_contract_suites": "54 RAG / 34 contract passed in earlier run; not rerun during final fixes",
+    "rag_handoff_dry_run": {
+      "status": "PASS",
+      "documents": 9,
+      "chunks": 159,
+      "max_chunk_tokens": 128,
+      "evidence": "rag-dry-run-20261027.json"
+    }
+  },
+  "llm": {
+    "model": "gemini-3.5-flash-lite",
+    "benchmark_temperature": 0,
+    "benchmark_max_output_tokens": 512,
+    "benchmark_max_steps": 4
+  },
+  "approved_request_budget": {
+    "limits": {
+      "dev": 75,
+      "safety": 50,
+      "holdout": 75
+    },
+    "used": {
+      "dev": 61,
+      "safety": 42,
+      "holdout": 48
+    },
+    "used_total": 151,
+    "cap_total": 200
+  },
+  "baseline": {
+    "code_state": "before final fixes; see per-run protocol/source hashes",
+    "holdout_tool_correct": 28,
+    "holdout_n": 30,
+    "safety_passed": 20,
+    "safety_n": 20,
+    "read_prepare_p95_ms": 23205.228000006173,
+    "read_prepare_n": 17
+  },
+  "postfix_regression": {
+    "first_run": {
+      "passed": 9,
+      "n": 10,
+      "failure": "E13 HTTP 504 before tool execution"
+    },
+    "transaction_diagnostic": {
+      "passed": 2,
+      "n": 2
+    },
+    "not_fresh_holdout": true
+  },
+  "sepolia_evidence": "sepolia-20261027.json",
+  "open_gates": [
+    "fresh holdout for current code",
+    "full success acceptance",
+    "READ/prepare p95 <= 10 seconds"
+  ],
+  "limits": [
+    "single-user local demo; session/approval state held in RAM",
+    "no new Sepolia write grant; historical two-transaction grant consumed",
+    "clean-machine installation documented, not executed on a new machine"
+  ],
+  "new_external_requests_during_handoff": {
+    "gemini": 0,
+    "sepolia": 0
+  }
+}

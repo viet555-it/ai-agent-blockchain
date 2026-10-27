@@ -1,5 +1,8 @@
 # Chạy demo giai đoạn 3 trên máy local
 
+Máy mới: dùng [hướng dẫn bàn giao](PHASE3_HANDOFF.md) để cài dependency, chuẩn bị
+root env và index RAG. Trình diễn cho nhóm theo [checklist demo](PHASE3_DEMO.md).
+
 Mở hai terminal PowerShell. Các lệnh dưới đây chạy từ repository
 `D:\study_materials\ATI\Project\ai-agent-blockchain` và dùng môi trường
 `.venv-phase3` đã chuẩn bị. Không cần private key: giao dịch chỉ dùng account
@@ -56,8 +59,9 @@ chuyển AGNT, faucet; không có generic contract call hoặc allowance trong A
 
 ## Trạng thái và giới hạn demo
 
-- WRITE mặc định tắt. `PHASE3_LOCAL_WRITES=true` chỉ có hiệu lực với
-  `local_evm` + `llm`; profile Sepolia WRITE vẫn khóa.
+- Khi thiếu cờ, code mặc định tắt WRITE. Mẫu demo `.env.example` đặt
+  `PHASE3_LOCAL_WRITES=true`, chỉ có hiệu lực với `local_evm` + `llm`;
+  profile Sepolia WRITE vẫn cần execution grant riêng.
 - Model chỉ tạo đề xuất. Một coordinator chung kiểm policy, mô phỏng, bind
   payload và xử lý duyệt; chỉ sau APPROVE mới gửi giao dịch.
 - Pending approval hết hạn sau 10 phút. Session nằm trong tab, không phải đăng

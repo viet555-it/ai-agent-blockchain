@@ -1,5 +1,10 @@
 # G3.0 — Môi trường và bản tích hợp
 
+Tài liệu này giữ nhật ký từ G3.0 qua các bước tích hợp; các đoạn nói về giới hạn
+ở G3.0/G3.1 là trạng thái lịch sử. Trạng thái hiện tại, cách chạy và phần còn
+thiếu nằm tại [bàn giao G3.6](PHASE3_HANDOFF.md). Local WRITE đã có approval;
+Sepolia WRITE chỉ mở bằng execution grant tường minh.
+
 Ngày: 26/10/2026 (Asia/Saigon). Nhánh làm việc: `feature/e2e-testing`.
 Nền source: `develop@24d5a3b` sau PR #9 đưa `ai-agent` vào develop.
 
@@ -132,7 +137,7 @@ LLM thật hoặc giao dịch Sepolia thật.
 suite API/EVM local pass. Chi tiết, phạm vi và phần còn thiếu tại
 [PHASE3_RESULTS.md](PHASE3_RESULTS.md).
 
-Regression mới nhất: 248 unit tests và 130 tests API/EVM local pass; browser
+Regression sau sửa: 273 unit tests/68 subtest và 135 tests API/EVM local pass; browser
 smoke với Gemini/RAG thật đạt 6/6 ca sau sửa chuẩn hóa câu FAQ. Các suite
 RAG/contract độc lập giữ kết quả baseline; không cộng test trùng giữa các runner.
 
@@ -193,9 +198,11 @@ Hướng dẫn khởi động node, export fixture, chạy API và thử giao di
 
 Người dùng đã duyệt payload; smoke Gemini + RAG + API + EVM local đã chạy.
 Đã sửa lỗi model làm tròn raw wei; ca số dư chạy lại đạt. Xem PHASE3_RESULTS.md.
-G3.5 đã đo đủ 60 benchmark/20 safety bằng Gemini thật: holdout tool accuracy
-93,3%, safety 20/20; còn lỗi LLM/hỏi làm rõ và chưa đạt latency p95. Xem
-[báo cáo G3.5](PHASE3_G35_REPORT.md) trước vòng sửa/đánh giá mới. Sáu ca browser
+G3.5 đã đo đủ 60 benchmark/20 safety bằng Gemini thật: baseline holdout tool
+accuracy 93,3%, safety 20/20; lỗi đã được sửa và kiểm hồi quy riêng, chưa có
+holdout mới/latency acceptance cho code hiện tại. Xem
+[bàn giao G3.6](PHASE3_HANDOFF.md) và [báo cáo baseline](PHASE3_G35_REPORT.md).
+Sáu ca browser
 local đã đạt; G3.4 READ và hai fixture WRITE Sepolia được duyệt đã hoàn thành.
 Grant WRITE đã tiêu thụ hết, không được tự lặp lại. Chi tiết
 tất cả gate ở [kế hoạch giai đoạn 3](GIAI_DOAN_3_E2E_PLAN.md).

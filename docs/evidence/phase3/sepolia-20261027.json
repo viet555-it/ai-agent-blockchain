@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "purpose": "historical_sepolia_receipt_evidence_no_execution_grant",
+  "status": "PASS",
+  "observed_from_utc": "2026-10-27T11:02:16.487860+00:00",
+  "observed_until_utc": "2026-10-27T11:07:48.866833+00:00",
+  "chain_id": 11155111,
+  "sender": "0x59c6f777551a5Bd19d73d8a47499F21fb53dCbe5",
+  "recipient": "0xeF9F53B00B069782256fC20697E7cf6a3136F9BC",
+  "contract": "0xa453B71a492558C17efA82E294739e4eFef3C220",
+  "approval_mode": "automated harness; user explicitly approved two fixtures",
+  "llm": "FakeLLM; no Gemini quality claim",
+  "grant_consumed": true,
+  "transaction_count": 2,
+  "total_fee_wei": "5395392",
+  "identity": {
+    "abi_hash": "sha256:2b3ca413594b0ed56a5271910b3c98028ea2a2ceed8bd8ffe34ea357e6c90497",
+    "runtime_code_hash": "0x93baa9b6feec50647d48e313f67e3e7b4dec306061958ffc7a6a29bbc1d8ef42",
+    "decimals": 18,
+    "rag_doc_version": "repo-28a9a0b6a96f"
+  },
+  "cases": [
+    {
+      "operation": "faucet_claim",
+      "status": "CONFIRMED",
+      "tx_hash": "0x68e8cad3e05fdae35067a4b6dcc3ce9a3b2cc2982bf479c39c5fe8c002604211",
+      "receipt": {
+        "transactionHash": "0x68e8cad3e05fdae35067a4b6dcc3ce9a3b2cc2982bf479c39c5fe8c002604211",
+        "blockHash": "0xd10dfcfbd3075b0c62fd4dedbd8ed28954bcece67b2561bed2a34a115a50725e",
+        "blockNumber": 12004698,
+        "status": 1,
+        "gasUsed": 156692,
+        "effectiveGasPrice": 18,
+        "from": "0x59c6f777551a5Bd19d73d8a47499F21fb53dCbe5",
+        "to": "0xa453B71a492558C17efA82E294739e4eFef3C220"
+      },
+      "before": {
+        "block": 12004697,
+        "sender_eth_wei": "49992284686987130",
+        "sender_agnt_raw": "1000000000000000000000000",
+        "recipient_agnt_raw": "0"
+      },
+      "after": {
+        "block": 12004698,
+        "sender_eth_wei": "49992284684166674",
+        "sender_agnt_raw": "1000010000000000000000000",
+        "recipient_agnt_raw": "0"
+      },
+      "actual_fee_wei": "2820456",
+      "confirmations_observed": 22,
+      "transfer_events": [
+        {
+          "from": "0x0000000000000000000000000000000000000000",
+          "to": "0x59c6f777551a5Bd19d73d8a47499F21fb53dCbe5",
+          "value_raw": "10000000000000000000"
+        }
+      ]
+    },
+    {
+      "operation": "erc20_transfer",
+      "status": "CONFIRMED",
+      "tx_hash": "0x53fec2ab9b58202da36955d4f8e6b2212ef345857a1fd7c2b0fc910dbbb495b9",
+      "receipt": {
+        "transactionHash": "0x53fec2ab9b58202da36955d4f8e6b2212ef345857a1fd7c2b0fc910dbbb495b9",
+        "blockHash": "0x63e805b3fbef8e660e5f1a527633a980767757770beff89e940a59ed80d7df80",
+        "blockNumber": 12004721,
+        "status": 1,
+        "gasUsed": 143052,
+        "effectiveGasPrice": 18,
+        "from": "0x59c6f777551a5Bd19d73d8a47499F21fb53dCbe5",
+        "to": "0xa453B71a492558C17efA82E294739e4eFef3C220"
+      },
+      "before": {
+        "block": 12004719,
+        "sender_eth_wei": "49992284684166674",
+        "sender_agnt_raw": "1000010000000000000000000",
+        "recipient_agnt_raw": "0"
+      },
+      "after": {
+        "block": 12004721,
+        "sender_eth_wei": "49992284681591738",
+        "sender_agnt_raw": "1000009000000000000000000",
+        "recipient_agnt_raw": "1000000000000000000"
+      },
+      "actual_fee_wei": "2574936",
+      "confirmations_observed": 2,
+      "transfer_events": [
+        {
+          "from": "0x59c6f777551a5Bd19d73d8a47499F21fb53dCbe5",
+          "to": "0xeF9F53B00B069782256fC20697E7cf6a3136F9BC",
+          "value_raw": "1000000000000000000"
+        }
+      ]
+    }
+  ],
+  "note": "Confirmation counts are historical observations, not a current finality claim. No raw signed transaction, key, RPC endpoint, session or approval identifier is exported."
+}

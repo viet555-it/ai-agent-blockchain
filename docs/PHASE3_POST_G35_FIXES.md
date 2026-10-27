@@ -107,7 +107,8 @@ riêng transaction; kết quả luôn ghi vào thư mục mới, không thay evi
 
 ## Trạng thái bàn giao
 
-Code đã sửa và kiểm hồi quy; chưa push/PR. Khởi động lại backend đang chạy để
+Code đã sửa, kiểm hồi quy và push tại `d190139` trên `feature/e2e-testing`;
+chưa PR/merge. Xem [bàn giao G3.6](PHASE3_HANDOFF.md). Khởi động lại backend đang chạy để
 nạp bản sửa; giữ nguyên Hardhat nếu muốn giữ số dư và deployment hiện tại.
 Không restart khi còn giao dịch UNKNOWN/pending cần đối soát. Không đổi `.env`
 hoặc tạo file env con. Bước đánh giá tiếp cần một bộ holdout chưa quan sát và
