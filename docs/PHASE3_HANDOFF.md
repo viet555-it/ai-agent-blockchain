@@ -1,8 +1,10 @@
 # Bàn giao giai đoạn 3 để nhóm kiểm thử
 
-Source ứng dụng: [`d190139`](https://github.com/viet555-it/ai-agent-blockchain/commit/d190139d68d97f536103ba094387e9c0000338be)
-trên nhánh `feature/e2e-testing`, đã push. Tài liệu bàn giao bổ sung không thay
-đổi runtime của commit này. Chưa merge vào develop/main và chưa tạo PR.
+Backend/Agent tích hợp tại [`d190139`](https://github.com/viet555-it/ai-agent-blockchain/commit/d190139d68d97f536103ba094387e9c0000338be).
+Nhánh `feature/e2e-testing` sau đó tích hợp frontend theme/EN–VI/timeline từ
+develop `491ebc5` và xử lý conflict theo [báo cáo merge](PHASE3_CONFLICT_RESOLUTION.md).
+[PR #11](https://github.com/viet555-it/ai-agent-blockchain/pull/11) đã mở lại và
+đổi đích sang develop theo xác nhận của người dùng; chưa merge PR vào develop/main.
 
 Ứng dụng local đã tích hợp AgentService, Gemini, RAG, policy, proposal/approval
 và receipt. Có thể bàn giao để thử sản phẩm; **chưa nghiệm thu hết gate giai
@@ -86,7 +88,7 @@ Sepolia. FakeLLM kiểm wiring/hành vi có kịch bản, không thay phép đo 
 Runner ghi đè log/summary cùng suite trong `.phase3/`; giữ bản cũ nếu cần đối soát.
 Không dùng `--suite all` chỉ để trình diễn nếu không cần chạy lại các suite khác.
 
-Kết quả đã có: **273 unit PASS + 68 subtest PASS**, **135 API/EVM PASS**.
+Kết quả sau xử lý conflict: **274 unit PASS + 70 subtest PASS**, **136 API/EVM PASS**.
 `pip check` trong môi trường tích hợp đạt. Suite RAG 54/contract 34 là kết quả
 trước đó; không chạy lại hai suite này trong đợt sửa cuối. Không cộng các runner
 có test trùng thành một tổng test độc lập.
@@ -97,9 +99,10 @@ có test trùng thành một tổng test độc lập.
   đạt 93,3% holdout; full success 100% và latency p95 10 s chưa đạt.
 - Code sau sửa: lượt ca trọng điểm 9/10 (HTTP 504 giữ nguyên), lượt transaction
   riêng 2/2. Đây là các câu đã quan sát, không phải holdout mới.
-- Six-case browser smoke trước các sửa cuối đã đạt 6/6; kịch bản demo mới là
-  checklist cho người trình diễn, chưa được chạy lại toàn bộ trên browser sau
-  commit d190139 trong bước bàn giao này.
+- Browser sau merge frontend đạt 13/13 với API fixture, không lỗi JavaScript;
+  đây là kiểm giao diện, không phải lượt Gemini/on-chain mới. Six-case browser
+  smoke với model/RPC thật trước các sửa cuối đã đạt 6/6. Checklist demo đầy đủ
+  vẫn cần người trình diễn chạy với runtime và model của mình.
 - Hai giao dịch Sepolia đã có receipt status=1/event/balance đúng, nhưng smoke
   dùng FakeLLM có script với RAG/RPC thật. Không tính là accuracy Gemini hoặc
   demo UI ký Sepolia bằng người.
@@ -124,7 +127,7 @@ hồi quy. Không xóa ledger để tăng quota hoặc cấp lại grant giao d�
 | Kịch bản demo | Đã chuẩn bị với expected/stop conditions; chờ người trình diễn chạy checklist |
 | Metadata và evidence có thể chia sẻ | Có manifest source SHA/versions/hashes và Sepolia summary đã lọc |
 | Commit/push bản tích hợp | d190139 đã push lên feature/e2e-testing |
-| Merge / PR / nghiệm thu toàn giai đoạn | Chưa thực hiện / còn gate mở |
+| PR / merge / nghiệm thu toàn giai đoạn | PR #11 nhắm develop; chưa merge PR, còn gate mở |
 
 Nhóm có thể review và kiểm thử trên nhánh feature. Trước khi nhận là bản hoàn
 thiện, cần chốt bộ holdout chưa dùng cho code hiện tại và ngân sách mới phù hợp,

@@ -38,8 +38,8 @@ Phân hệ này đảm nhiệm toàn bộ việc kết nối mạng blockchain, 
 
 - **Integration Tests** ([backend/tests](backend/tests/)):
   - Runner hiện tại kiểm API và EVM thật, gồm vòng đời deployment, RPC, faucet,
-    simulation, approval, token transfer và receipt. Lượt cuối đạt 135 test;
-    unit riêng đạt 273 test và 68 subtest, không cộng các test trùng giữa runner.
+    simulation, approval, token transfer và receipt. Sau merge frontend đạt 136 test;
+    unit riêng đạt 274 test và 70 subtest, không cộng các test trùng giữa runner.
 
 ---
 

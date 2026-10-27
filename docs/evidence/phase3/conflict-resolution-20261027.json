@@ -1,0 +1,88 @@
+{
+  "mode": "browser_with_stubbed_api_no_blockchain",
+  "cases": [
+    {
+      "name": "native module/locale boot and real network label",
+      "status": "PASS"
+    },
+    {
+      "name": "theme toggle",
+      "status": "PASS"
+    },
+    {
+      "name": "RAG raw similarity and escaped untrusted content",
+      "status": "PASS"
+    },
+    {
+      "name": "sequential timeline and unknown-step fallback",
+      "status": "PASS"
+    },
+    {
+      "name": "reactive VI translation preserves dynamic network and timeline",
+      "status": "PASS"
+    },
+    {
+      "name": "theme/language persistence",
+      "status": "PASS"
+    },
+    {
+      "name": "exact token amount, fee cap, Reject and session binding",
+      "status": "PASS"
+    },
+    {
+      "name": "1 wei native amount and one APPROVE followed by session-bound receipt polling",
+      "status": "PASS"
+    },
+    {
+      "name": "truthful REVERTED receipt message",
+      "status": "PASS"
+    },
+    {
+      "name": "truthful UNKNOWN receipt message",
+      "status": "PASS"
+    },
+    {
+      "name": "bounded PENDING polling without false success or repeated APPROVE",
+      "status": "PASS"
+    },
+    {
+      "name": "independent session per tab",
+      "status": "PASS"
+    },
+    {
+      "name": "no JavaScript page errors",
+      "status": "PASS"
+    }
+  ],
+  "js_errors": [],
+  "gemini_requests": 0,
+  "sepolia_transactions": 0,
+  "started_at": "2026-10-27T16:37:39.946Z",
+  "status": "PASS",
+  "finished_at": "2026-10-27T16:37:53.190Z",
+  "pr": 11,
+  "base_branch": "develop",
+  "feature_before_merge": "708c6ec16d98d799a36115cc46c98d89efce8d2f",
+  "develop_merged": "491ebc5ddf75bbd35d70a17aa1e498367aa317b2",
+  "source_hash_encoding": "sha256 of UTF-8 source with LF line endings",
+  "backend_tests": {
+    "unit_passed": 274,
+    "unit_deselected": 1,
+    "subtests_passed": 70,
+    "api_evm_passed": 136
+  },
+  "gemini_budget_used_total": 151,
+  "limitations": [
+    "Browser API responses are fixtures; no browser-to-real-chain claim.",
+    "No fresh LLM holdout or latency acceptance run."
+  ],
+  "source_sha256": {
+    "frontend/app.js": "0b3bf91e71dabef93086ce86a263dca115ffb23808bff76c3db3a0bdde05f835",
+    "frontend/index.html": "30f637395d5c8cb6fe858e110ed29e69600fa2ba7e150a7195118b404a621deb",
+    "frontend/i18n.js": "ea616b81f4e7e8961f5d75e4e2537e5eb57193a1f611a34578fed2a1ff54e20f",
+    "frontend/icons.js": "48bafb33dc80012cf3e4c9b6d1d57c72db5d2d3fe8f93cc73668f8cde264c01b",
+    "frontend/styles.css": "b0bc115efc69297d5ce91b4efdbe4952e48d2e342ee2a4438cb4179eff8f7c48",
+    "frontend/locales/en.json": "375885094012a5d2a8b94d138916986968f49cb5e7f081e1386f02d20f431c9e",
+    "frontend/locales/vi.json": "a5d7897ff8e09f339eaf349596acadcd9a90d6b6deefade435da94e8acbfaebc"
+  }
+}

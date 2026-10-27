@@ -1,10 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Agent with Blockchain Tools | Web3 Security & Guardrail Engine</title>
+  <title>AI Agent with Blockchain Tools | Web3 Security &amp; Guardrail Engine</title>
   <meta name="description" content="AI Agent dashboard for autonomous blockchain actions, smart contract interaction, dry-run simulations, and human-in-the-loop guardrail approval.">
+
+  <!-- Preconnect to Google Fonts with Vietnamese / Latin-ext Subset Support -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&subset=latin,latin-ext,vietnamese&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -13,22 +19,46 @@
     <div class="brand-group">
       <div class="brand-icon" id="app-brand-icon"></div>
       <div>
-        <h1 class="brand-title">AI AGENT // BLOCKCHAIN</h1>
+        <h1 class="brand-title" data-i18n="brand.title">AI AGENT // BLOCKCHAIN</h1>
       </div>
-      <span class="brand-tag">GUARDRAIL ENGINE v1.0</span>
+      <span class="brand-tag" data-i18n="brand.tag">GUARDRAIL ENGINE v1.0</span>
     </div>
 
     <div class="header-status-group">
+      <!-- Network Status Chip -->
       <div class="status-chip" id="network-chip">
         <span class="pulse-dot" id="network-pulse"></span>
-        <span id="header-network-name">Connecting...</span>
+        <span id="header-network-name" data-i18n="header.connecting">Connecting...</span>
       </div>
+
+      <!-- RPC Latency Chip -->
       <div class="status-chip" id="rpc-chip">
         <span id="rpc-latency-text">RPC: -- ms</span>
       </div>
+
+      <!-- Wallet Address Chip -->
       <div class="status-chip" id="wallet-chip">
         <span id="header-wallet-address">0x...</span>
-        <button class="icon-button" id="btn-copy-header-wallet" title="Copy Address"></button>
+        <button class="icon-button" id="btn-copy-header-wallet" title="Copy Address" data-i18n-title="header.copyWallet"></button>
+      </div>
+
+      <!-- Theme Switcher & Language Switcher Controls -->
+      <div class="header-actions">
+        <!-- Language Switcher Toggle -->
+        <button class="action-pill-btn" id="btn-toggle-lang" title="Switch Language (EN/VI)" data-i18n-title="header.langToggle">
+          <span id="icon-lang-btn"></span>
+          <span class="lang-indicator">
+            <span class="lang-opt active" id="lang-opt-en">EN</span>
+            <span>/</span>
+            <span class="lang-opt" id="lang-opt-vi">VI</span>
+          </span>
+        </button>
+
+        <!-- Dynamic Theme Switcher Toggle -->
+        <button class="action-pill-btn" id="btn-toggle-theme" title="Toggle Theme" data-i18n-title="header.themeToggle">
+          <span id="icon-theme-btn"></span>
+          <span id="theme-label-text">Dark</span>
+        </button>
       </div>
     </div>
   </header>
@@ -41,15 +71,15 @@
       <div class="panel-header">
         <h2 class="panel-title" id="title-blockchain-panel">
           <span class="panel-icon" id="icon-blockchain-panel"></span>
-          NETWORK &amp; ASSETS
+          <span data-i18n="network.title">NETWORK &amp; ASSETS</span>
         </h2>
-        <button class="icon-button" id="btn-refresh-assets" title="Refresh blockchain info"></button>
+        <button class="icon-button" id="btn-refresh-assets" title="Refresh blockchain info" data-i18n-title="network.refreshTooltip"></button>
       </div>
 
       <div class="panel-body">
         <!-- Native Balance Card -->
         <div class="info-card">
-          <div class="info-label">Native Balance</div>
+          <div class="info-label" data-i18n="network.nativeBalance">Native Balance</div>
           <div class="info-value-row">
             <div>
               <span class="info-main-val" id="val-native-balance">0.0000</span>
@@ -61,23 +91,23 @@
 
         <!-- AGNT Token Balance Card -->
         <div class="info-card">
-          <div class="info-label">AgentToken (AGNT) Balance</div>
+          <div class="info-label" data-i18n="network.tokenBalance">AgentToken (AGNT) Balance</div>
           <div class="info-value-row">
             <div>
-              <span class="info-main-val" id="val-token-balance" style="color: var(--primary);">0.00</span>
+              <span class="info-main-val primary-val" id="val-token-balance">0.00</span>
               <span class="info-unit">AGNT</span>
             </div>
-            <span class="panel-badge" style="color: var(--primary); border-color: rgba(245,158,11,0.3);">ERC-20</span>
+            <span class="panel-badge primary-badge">ERC-20</span>
           </div>
         </div>
 
         <!-- Smart Contract Card -->
         <div class="info-card">
-          <div class="info-label" id="contract-network-label">Smart Contract</div>
+          <div class="info-label" id="contract-network-label" data-i18n="network.smartContract">Smart Contract</div>
           <div class="info-mono" id="val-contract-address">0x...</div>
-          <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem;">
-            <a href="#" target="_blank" rel="noopener noreferrer" class="prompt-chip" id="link-contract-explorer" style="text-decoration: none; font-size: 0.72rem; padding: 0.2rem 0.5rem;">
-              <span>View Etherscan</span>
+          <div class="contract-link-row">
+            <a href="#" target="_blank" rel="noopener noreferrer" class="prompt-chip" id="link-contract-explorer">
+              <span data-i18n="network.viewEtherscan">View Etherscan</span>
               <span id="icon-external-contract"></span>
             </a>
           </div>
@@ -85,31 +115,46 @@
 
         <!-- Gas Price Card -->
         <div class="info-card">
-          <div class="info-label">Gas Tracker (EIP-1559)</div>
+          <div class="info-label" data-i18n="network.gasTracker">Gas Tracker (EIP-1559)</div>
           <div class="info-value-row">
             <span class="info-main-val" id="val-gas-price">--</span>
             <span class="info-unit">Gwei</span>
           </div>
-          <div class="info-mono" id="val-base-fee" style="font-size: 0.75rem;">Base fee: -- Gwei</div>
+          <div class="info-mono" id="val-base-fee">Base fee: -- Gwei</div>
         </div>
 
         <!-- Guardrail Engine Policies Card -->
-        <div class="info-card" style="border-color: rgba(245, 158, 11, 0.3);">
-          <div class="info-label" style="color: var(--primary); display: flex; align-items: center; gap: 0.3rem;">
+        <div class="info-card gold-bordered">
+          <div class="info-label primary-color">
             <span id="icon-guardrail-badge"></span>
-            Guardrail Policies Active
+            <span data-i18n="network.guardrailsActive">Guardrail Policies Active</span>
           </div>
           <div class="policy-card safe">
-            <div class="policy-title">Max Tx Limit: <span id="policy-max-limit" style="font-family: var(--font-mono);">500 AGNT</span></div>
-            <div class="policy-desc">Transfers exceeding 500 AGNT are automatically rejected by smart contract guardrails.</div>
+            <div class="policy-title">
+              <span data-i18n="network.maxTxLimit">Max Tx Limit:</span>
+              <span id="policy-max-limit" class="font-mono">500 AGNT</span>
+            </div>
+            <div class="policy-desc" data-i18n="network.maxTxLimitDesc">
+              Transfers exceeding 500 AGNT are automatically rejected by smart contract guardrails.
+            </div>
           </div>
           <div class="policy-card">
-            <div class="policy-title">Recipient Whitelist: <span style="color: var(--primary);">Enforced</span></div>
-            <div class="policy-desc">Only pre-approved destination addresses are allowed for fund transfers.</div>
+            <div class="policy-title">
+              <span data-i18n="network.recipientWhitelist">Recipient Whitelist:</span>
+              <span class="primary-color" data-i18n="network.enforced">Enforced</span>
+            </div>
+            <div class="policy-desc" data-i18n="network.whitelistDesc">
+              Only pre-approved destination addresses are allowed for fund transfers.
+            </div>
           </div>
           <div class="policy-card safe">
-            <div class="policy-title">Human-in-the-Loop: <span style="color: var(--success);">Required</span></div>
-            <div class="policy-desc">All state-modifying write operations strictly require explicit approval.</div>
+            <div class="policy-title">
+              <span data-i18n="network.hitl">Human-in-the-Loop:</span>
+              <span class="success-badge" data-i18n="network.required">Required</span>
+            </div>
+            <div class="policy-desc" data-i18n="network.hitlDesc">
+              All state-modifying write operations strictly require explicit approval.
+            </div>
           </div>
         </div>
       </div>
@@ -120,9 +165,9 @@
       <div class="panel-header">
         <h2 class="panel-title" id="title-chat-panel">
           <span class="panel-icon" id="icon-chat-panel"></span>
-          AI AGENT CONVERSATION
+          <span data-i18n="chat.title">AI AGENT CONVERSATION</span>
         </h2>
-        <span class="panel-badge" style="color: var(--success);" id="agent-mode-badge">AUTONOMOUS AGENT ACTIVE</span>
+        <span class="panel-badge success-badge" id="agent-mode-badge" data-i18n="chat.agentMode">AUTONOMOUS AGENT ACTIVE</span>
       </div>
 
       <!-- Chat History -->
@@ -132,20 +177,20 @@
 
       <!-- Quick Prompt Suggestions -->
       <div class="prompt-chips" id="prompt-chips">
-        <button class="prompt-chip" data-prompt="Check the balance of this wallet.">
-          Check wallet balance
+        <button class="prompt-chip" id="chip-prompt-1" data-prompt-key="chat.promptBalanceQuery" data-prompt="Check the balance of this wallet.">
+          <span data-i18n="chat.promptBalance">Check wallet balance</span>
         </button>
-        <button class="prompt-chip" data-prompt="Read the token contract information.">
-          Read token contract info
+        <button class="prompt-chip" id="chip-prompt-2" data-prompt-key="chat.promptTokenInfoQuery" data-prompt="Read the token contract information.">
+          <span data-i18n="chat.promptTokenInfo">Read token contract info</span>
         </button>
-        <button class="prompt-chip" data-prompt="Check current gas prices.">
-          Check gas prices
+        <button class="prompt-chip" id="chip-prompt-3" data-prompt-key="chat.promptGasQuery" data-prompt="Check current gas prices.">
+          <span data-i18n="chat.promptGas">Check gas prices</span>
         </button>
-        <button class="prompt-chip" data-prompt="Simulate a transfer of 50 AGNT to 0x70997970C51812dc3A010C7d01b50e0d17dc79C8">
-          Simulate 50 AGNT transfer
+        <button class="prompt-chip" id="chip-prompt-4" data-prompt-key="chat.promptSimulateQuery" data-prompt="Simulate a transfer of 50 AGNT to 0x70997970C51812dc3A010C7d01b50e0d17dc79C8">
+          <span data-i18n="chat.promptSimulate">Simulate 50 AGNT transfer</span>
         </button>
-        <button class="prompt-chip" data-prompt="Transfer 25 AGNT to 0x70997970C51812dc3A010C7d01b50e0d17dc79C8">
-          Prepare 25 AGNT transfer
+        <button class="prompt-chip" id="chip-prompt-5" data-prompt-key="chat.promptTransferQuery" data-prompt="Transfer 25 AGNT to 0x70997970C51812dc3A010C7d01b50e0d17dc79C8">
+          <span data-i18n="chat.promptTransfer">Prepare 25 AGNT transfer</span>
         </button>
       </div>
 
@@ -157,12 +202,13 @@
             id="chat-input" 
             class="composer-input" 
             placeholder="Instruct the AI Agent (e.g. 'Check balance', 'Transfer 50 AGNT to 0x...')"
+            data-i18n-placeholder="chat.inputPlaceholder"
             autocomplete="off"
             required
           />
         </div>
         <button type="submit" class="btn-send" id="btn-send-message">
-          <span>SEND</span>
+          <span data-i18n="chat.send">SEND</span>
           <span id="icon-send-btn"></span>
         </button>
       </form>
@@ -173,17 +219,19 @@
       <div class="panel-header">
         <h2 class="panel-title" id="title-activity-panel">
           <span class="panel-icon" id="icon-activity-panel"></span>
-          AGENT WORKFLOW TIMELINE
+          <span data-i18n="timeline.title">AGENT WORKFLOW TIMELINE</span>
         </h2>
         <span class="panel-badge" id="timeline-step-count">0 / 9 Steps</span>
       </div>
 
       <div class="panel-body" id="timeline-container">
         <!-- Empty state placeholder -->
-        <div id="timeline-empty-state" style="text-align: center; color: var(--text-dim); padding: 3rem 1rem;">
-          <div style="margin-bottom: 0.75rem;" id="icon-empty-timeline"></div>
-          <div style="font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">No Active Execution</div>
-          <div style="font-size: 0.8rem; margin-top: 0.25rem;">Send a natural-language prompt to observe the 9-stage workflow in real-time.</div>
+        <div id="timeline-empty-state" class="timeline-empty-container">
+          <div id="icon-empty-timeline" class="timeline-empty-icon"></div>
+          <div class="timeline-empty-title" data-i18n="timeline.emptyTitle">No Active Execution</div>
+          <div class="timeline-empty-desc" data-i18n="timeline.emptyDesc">
+            Send a natural-language prompt to observe the 9-stage workflow in real-time.
+          </div>
         </div>
 
         <div class="timeline-list" id="timeline-list" style="display: none;">
@@ -200,35 +248,35 @@
       <div class="modal-header">
         <h3 class="modal-title">
           <span id="icon-modal-shield"></span>
-          TRANSACTION APPROVAL REQUIRED
+          <span data-i18n="modal.title">TRANSACTION APPROVAL REQUIRED</span>
         </h3>
-        <span class="panel-badge" style="background: rgba(245, 158, 11, 0.2); color: var(--primary);">HUMAN-IN-THE-LOOP</span>
+        <span class="panel-badge primary-badge" data-i18n="modal.hitlBadge">HUMAN-IN-THE-LOOP</span>
       </div>
 
       <div class="modal-body">
-        <p style="font-size: 0.88rem; color: var(--text-muted);">
+        <p class="modal-intro-text" data-i18n="modal.intro">
           The AI Agent has formulated a write operation that will modify blockchain state. Review the parameters and policy validation results below before signing.
         </p>
 
         <div class="review-grid">
           <div class="review-item">
-            <span class="review-label">Operation / Tool</span>
+            <span class="review-label" data-i18n="modal.opName">Operation / Tool</span>
             <span class="review-val" id="modal-op-name">erc20_transfer</span>
           </div>
           <div class="review-item">
-            <span class="review-label">Target Network</span>
+            <span class="review-label" data-i18n="modal.network">Target Network</span>
             <span class="review-val" id="modal-network">Sepolia Testnet (11155111)</span>
           </div>
           <div class="review-item full-width">
-            <span class="review-label">Recipient Address</span>
+            <span class="review-label" data-i18n="modal.recipient">Recipient Address</span>
             <span class="review-val mono" id="modal-recipient">0x...</span>
           </div>
           <div class="review-item">
-            <span class="review-label">Transfer Amount</span>
-            <span class="review-val" id="modal-amount" style="color: var(--primary);">50 AGNT</span>
+            <span class="review-label" data-i18n="modal.amount">Transfer Amount</span>
+            <span class="review-val primary-val" id="modal-amount">50 AGNT</span>
           </div>
           <div class="review-item">
-            <span class="review-label">Estimated Gas</span>
+            <span class="review-label" data-i18n="modal.gas">Estimated Gas</span>
             <span class="review-val" id="modal-gas">~65,000 Units</span>
           </div>
         </div>
@@ -237,16 +285,18 @@
         <div class="guardrail-check-banner" id="modal-guardrail-banner">
           <span id="icon-modal-check"></span>
           <div>
-            <div style="font-weight: 600; font-size: 0.85rem;" id="modal-guardrail-title">Guardrail Policy Checks Passed</div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);" id="modal-guardrail-details">
+            <div style="font-weight: 600; font-size: 0.85rem;" id="modal-guardrail-title" data-i18n="modal.guardrailPassed">
+              Guardrail Policy Checks Passed
+            </div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);" id="modal-guardrail-details" data-i18n="modal.guardrailDetails">
               Recipient is verified on Whitelist. Amount is below 500 AGNT guardrail limit.
             </div>
           </div>
         </div>
 
         <!-- Simulation Result Card -->
-        <div class="info-card" id="modal-sim-card" style="padding: 0.75rem;">
-          <div class="info-label">Pre-Flight Simulation (eth_call)</div>
+        <div class="info-card" id="modal-sim-card">
+          <div class="info-label" data-i18n="modal.simLabel">Pre-Flight Simulation (eth_call)</div>
           <div class="info-mono" id="modal-sim-result" style="color: var(--success); font-weight: 600;">
             Status: Valid (No revert detected)
           </div>
@@ -254,11 +304,11 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn-reject" id="btn-modal-reject">
+        <button type="button" class="btn-reject" id="btn-modal-reject" data-i18n="modal.btnReject">
           REJECT TRANSACTION
         </button>
         <button type="button" class="btn-approve" id="btn-modal-approve">
-          <span>CONFIRM &amp; EXECUTE</span>
+          <span data-i18n="modal.btnApprove">CONFIRM &amp; EXECUTE</span>
           <span id="icon-modal-approve"></span>
         </button>
       </div>

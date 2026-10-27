@@ -272,5 +272,8 @@ Chi tiết rubric, giới hạn, usage, thời gian và evidence:
   Sepolia trước đó do harness thực hiện. Grant hai giao dịch đã tiêu thụ hết.
 - Source tích hợp đã commit/push tại `d190139` trên `feature/e2e-testing`.
   [Bàn giao G3.6](PHASE3_HANDOFF.md) có hướng dẫn checkout mới, checklist demo,
-  source/version manifest và evidence Sepolia đã lọc. Chưa merge/PR hoặc nghiệm
-  thu mọi gate giai đoạn 3. Việc chuẩn bị tài liệu không phải một lượt demo mới.
+  source/version manifest và evidence Sepolia đã lọc. PR #11 đã mở lại với đích
+  develop; chưa merge PR hoặc nghiệm thu mọi gate giai đoạn 3. Sau tích hợp
+  frontend PR #12: 274 unit/70 subtest, 136 API/EVM và 13 browser fixture checks
+  đạt. Xem [xử lý conflict](PHASE3_CONFLICT_RESOLUTION.md); đây không phải một
+  lượt Gemini/on-chain hoặc holdout mới.

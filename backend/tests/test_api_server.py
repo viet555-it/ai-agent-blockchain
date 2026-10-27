@@ -39,6 +39,17 @@ class ApiServerTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('src="app.js"', response.text)
 
+    def test_frontend_locales_are_served_by_api_without_a_build(self):
+        module = self.client.get("/i18n.js")
+        self.assertEqual(module.status_code, 200)
+        self.assertIn("javascript", module.headers["content-type"])
+        for language in ["en", "vi"]:
+            with self.subTest(language=language):
+                response = self.client.get(f"/locales/{language}.json")
+                self.assertEqual(response.status_code, 200)
+                self.assertIn("application/json", response.headers["content-type"])
+                self.assertTrue(response.json()["chat"]["send"])
+
     def test_switch_outside_profile_is_blocked(self):
         response = self.client.post("/api/network/switch", json={"chain_id": 11155111})
         self.assertEqual(response.status_code, 400)
