@@ -4,6 +4,7 @@ Starts a local Hardhat node (if not already running), executes all tests,
 and cleans up processes automatically.
 """
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -13,6 +14,9 @@ from web3 import Web3
 ROOT_DIR = Path(__file__).resolve().parents[1]
 CONTRACTS_DIR = ROOT_DIR / "contracts"
 RPC_URL = "http://127.0.0.1:8545"
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+from backend.runtime_profiles import isolated_test_environment
 
 
 def is_node_ready(url: str) -> bool:
@@ -29,26 +33,38 @@ def main():
     print("=" * 70)
 
     node_process = None
+    node_log = None
     started_node = False
+    env = isolated_test_environment()
 
     if is_node_ready(RPC_URL):
         print(f"[+] Detected already running Hardhat node on {RPC_URL}")
     else:
         print(f"[*] Spawning local Hardhat node in {CONTRACTS_DIR}...")
-        is_windows = sys.platform == "win32"
-        npm_cmd = "npx.cmd" if is_windows else "npx"
+        # Run Node directly so the owned process is the node, not an npm shell.
+        node_cmd = shutil.which("node")
+        if node_cmd is None:
+            raise RuntimeError("Node.js is required for local EVM integration")
+        log_dir = ROOT_DIR / ".phase3"
+        log_dir.mkdir(exist_ok=True)
+        node_log = (log_dir / "hardhat-node.log").open("w", encoding="utf-8")
         node_process = subprocess.Popen(
-            [npm_cmd, "hardhat", "node"],
+            [node_cmd, str(CONTRACTS_DIR / "node_modules/hardhat/internal/cli/cli.js"),
+             "node", "--hostname", "127.0.0.1"],
             cwd=str(CONTRACTS_DIR),
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            env=env,
+            creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
+            stdout=node_log,
+            stderr=subprocess.STDOUT,
         )
 
         started_node = True
 
         # Wait for node to initialize
         ready = False
-        for _ in range(25):
+        for _ in range(100):
+            if node_process.poll() is not None:
+                break
             time.sleep(0.5)
             if is_node_ready(RPC_URL):
                 ready = True
@@ -57,12 +73,15 @@ def main():
         if not ready:
             print("[-] Error: Failed to start Hardhat local node within timeout.")
             if node_process:
-                node_process.terminate()
+                if node_process.poll() is None:
+                    node_process.terminate()
+                node_process.wait(timeout=5)
+            node_log.close()
+            print("See .phase3/hardhat-node.log for startup diagnostics.")
             sys.exit(1)
 
         print(f"[+] Local Hardhat node is running and healthy on {RPC_URL} (Chain 31337)")
 
-    env = os.environ.copy()
     env["LOCAL_TEST_RPC"] = RPC_URL
     env["RUN_INTEGRATION_TESTS"] = "1"
 
@@ -83,6 +102,8 @@ def main():
             except subprocess.TimeoutExpired:
                 node_process.kill()
             print("[+] Hardhat node stopped.")
+        if node_log:
+            node_log.close()
 
     if exit_code == 0:
         print("\n" + "=" * 70)

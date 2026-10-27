@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-10-27T15:18:53.060169+00:00",
+  "command": "python -m scripts.ingest_rag --dry-run --verify-git",
+  "mode": "offline cached model; no index writes",
+  "exit_code": 0,
+  "result": {
+    "status": "dry_run",
+    "doc_count": 9,
+    "chunk_count": 159,
+    "max_chunk_tokens": 128,
+    "corpus_hash": "sha256:710a6a980a30252fbc47478d3463eaa792229b784c02a2ff61ffe70f6b341808",
+    "model_load_seconds": 41.828,
+    "elapsed_seconds": 44.622,
+    "embedding": {
+      "device": "cpu",
+      "dimension": 384,
+      "dtype": "float32",
+      "max_tokens": 128,
+      "model_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+      "normalize_embeddings": true,
+      "prompt": "",
+      "provider": "sentence-transformers",
+      "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42"
+    }
+  }
+}

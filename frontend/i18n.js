@@ -2,10 +2,8 @@
  * Internationalization (i18n) Engine
  * Supports Vietnamese (vi) and English (en) with reactive updates.
  */
-import en from './locales/en.json';
-import vi from './locales/vi.json';
-
-const translations = { en, vi };
+// The API serves native browser modules directly, without a Vite build.
+const translations = { en: {}, vi: {} };
 const STORAGE_KEY = 'ati_language';
 const DEFAULT_LANG = 'en';
 
@@ -15,6 +13,15 @@ if (!translations[currentLang]) {
 }
 
 const listeners = new Set();
+
+export async function initializeI18n() {
+  await Promise.all(Object.keys(translations).map(async lang => {
+    const response = await fetch(new URL(`./locales/${lang}.json`, import.meta.url));
+    if (!response.ok) throw new Error(`Unable to load locale ${lang}`);
+    translations[lang] = await response.json();
+  }));
+  document.documentElement.lang = currentLang;
+}
 
 /**
  * Get current active language code ('en' | 'vi')
@@ -60,7 +67,7 @@ function notifyListeners(lang) {
  * Translate a key path (e.g. 'network.title' or 'steps.Request received')
  * Supports variable interpolation: {fee}, {current}, etc.
  */
-export function t(key, params = {}) {
+export function t(key, params = {}, fallback = key) {
   const langDict = translations[currentLang] || translations[DEFAULT_LANG];
   let val = resolveKey(langDict, key);
 
@@ -71,7 +78,7 @@ export function t(key, params = {}) {
 
   // Fallback to key itself if not found
   if (val === undefined) {
-    return key;
+    return fallback;
   }
 
   if (typeof val === 'string' && Object.keys(params).length > 0) {
@@ -83,7 +90,7 @@ export function t(key, params = {}) {
 
 function resolveKey(obj, path) {
   if (!obj || !path) return undefined;
-  
+
   // Try direct property first (useful for keys containing spaces or dots like step names)
   if (obj[path] !== undefined) return obj[path];
 
@@ -124,4 +131,3 @@ export function updateDomTranslations() {
     el.setAttribute('title', t(key));
   });
 }
-

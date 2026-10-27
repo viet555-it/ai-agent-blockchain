@@ -17,7 +17,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from agent.llm.base import LLMProvider, ToolCall
-from agent.memory import ConversationMemory
+from agent.memory import ContextBudgetExceededError, ConversationMemory
 from agent.prompts import get_system_prompt
 from config.settings import LLMProviderName, Settings
 from tools.base import RiskLevel, ToolContext, ToolResult
@@ -43,15 +43,19 @@ class AgentLoop:
         blockchain: Any,
         settings: Settings,
         memory: ConversationMemory | None = None,
+        retrieval_context: str = "",
+        system_prompt: str | None = None,
+        request_context: dict[str, Any] | None = None,
     ) -> None:
         self.llm = llm
         self.registry = registry
-        self.ctx = ToolContext(blockchain=blockchain, settings=settings)
+        self.ctx = ToolContext(blockchain=blockchain, settings=settings,
+                               request_context=dict(request_context or {}))
         self.settings = settings
         self.memory = memory or ConversationMemory(
             max_tokens=settings.effective_token_budget
         )
-        self.memory.set_system_prompt(get_system_prompt())
+        self.memory.set_system_prompt((system_prompt or get_system_prompt()) + retrieval_context)
         self._provider_name = settings.llm_provider
 
     async def run(self, user_message: str) -> list[dict[str, Any]]:
@@ -72,13 +76,17 @@ class AgentLoop:
             # Call LLM
             t0 = time.time()
             try:
+                self.memory.ensure_within_budget()
                 response = await self.llm.chat(
                     messages=self.memory.get_messages(),
                     tools=tools_defs if tools_defs else None,
                 )
             except Exception as e:
                 logger.exception("LLM call failed at step %d", step)
-                events.append({"type": "error", "data": {"error": f"LLM error: {e}"}})
+                diagnostic = ({"http_status": None, "reason": "CONTEXT_BUDGET_EXCEEDED"}
+                              if isinstance(e, ContextBudgetExceededError) else self._diagnostic())
+                events.append({"type": "error", "data": {"error": f"LLM error: {e}",
+                                                          "diagnostic": diagnostic}})
                 break
 
             latency_ms = (time.time() - t0) * 1000
@@ -92,7 +100,8 @@ class AgentLoop:
             if response.tool_calls:
                 # Record assistant message with tool calls
                 self.memory.add_assistant(
-                    content=response.content, tool_calls=response.tool_calls
+                    content=response.content, tool_calls=response.tool_calls,
+                    provider_metadata=response.provider_metadata,
                 )
 
                 if response.content:
@@ -104,18 +113,27 @@ class AgentLoop:
                     events.append(tc_event)
                     events.append(tc_result)
 
+                # Integrated proposal results are already rendered by the backend.
+                # A second LLM request cannot authorize or improve that decision.
+                context = self.ctx.request_context
+                if context.get("stop_after_proposal") and context.get("proposal_results"):
+                    final = "Proposal evaluated; no transaction has been sent."
+                    self.memory.add_assistant(content=final)
+                    events.append({"type": "final", "data": {"content": final}})
+                    break
+
                 continue  # Loop back for next LLM step
 
             # Case 2: LLM gives final text answer
             if response.content:
-                self.memory.add_assistant(content=response.content)
+                self.memory.add_assistant(content=response.content, provider_metadata=response.provider_metadata)
                 events.append({"type": "final", "data": {"content": response.content}})
                 break
 
             # Case 3: Empty response
             events.append({
                 "type": "error",
-                "data": {"error": "LLM returned empty response"},
+                "data": {"error": "LLM returned empty response", "diagnostic": self._diagnostic()},
             })
             break
         else:
@@ -126,6 +144,19 @@ class AgentLoop:
             })
 
         return events
+
+    def _diagnostic(self) -> dict[str, Any]:
+        value = getattr(self.llm, "last_error", None)
+        if not isinstance(value, dict):
+            return {}
+        # Providers own these fields; never copy arbitrary exception/payload text.
+        result = {"http_status": value.get("http_status") if type(value.get("http_status")) is int else None}
+        reasons = {"INVALID_TOOL_HISTORY", "THOUGHT_SIGNATURE", "INVALID_TOOL_SCHEMA",
+                   "CONTEXT_LIMIT", "EMPTY_RESPONSE", "MAX_TOKENS", "SAFETY",
+                   "MALFORMED_FUNCTION_CALL", "PROVIDER_HTTP_ERROR"}
+        if value.get("reason") in reasons:
+            result["reason"] = value["reason"]
+        return result
 
     async def _execute_tool_call(
         self, tc: ToolCall

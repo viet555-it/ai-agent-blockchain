@@ -11,6 +11,7 @@ provider does not return exact counts (e.g. pre-request budgeting).
 from __future__ import annotations
 
 import abc
+import json
 from dataclasses import dataclass, field
 from typing import Any, Protocol, runtime_checkable
 
@@ -33,6 +34,8 @@ class LLMResponse:
     content: str | None = None
     tool_calls: list[ToolCall] = field(default_factory=list)
     usage: dict[str, int] = field(default_factory=dict)
+    # Opaque provider state for tool-call round trips; never expose in UI/logs.
+    provider_metadata: dict[str, Any] = field(default_factory=dict, repr=False)
     # usage keys: prompt_tokens, completion_tokens, total_tokens
 
 
@@ -96,5 +99,7 @@ class TiktokenCounter(TokenCounter):
             for value in msg.values():
                 if isinstance(value, str):
                     total += self.count(value)
+            if msg.get("tool_calls"):
+                total += self.count(json.dumps(msg["tool_calls"], ensure_ascii=False))
         total += 2  # reply priming
         return total

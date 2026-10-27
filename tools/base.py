@@ -61,6 +61,7 @@ class ToolContext:
     blockchain: Any  # services.blockchain.BlockchainService
     settings: Any  # config.settings.Settings
     _cache: dict[str, tuple[float, Any]] = field(default_factory=dict)
+    request_context: dict[str, Any] = field(default_factory=dict)
 
     def cache_get(self, key: str, ttl: float = 60.0) -> Any | None:
         """Return cached value if still valid, else ``None``."""

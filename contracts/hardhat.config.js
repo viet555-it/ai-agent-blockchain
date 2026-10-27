@@ -1,5 +1,5 @@
 require("@nomicfoundation/hardhat-toolbox");
-require("dotenv").config({ quiet: true });
+require("dotenv").config({ path: require("path").resolve(__dirname, "../.env"), quiet: true });
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {

@@ -15,6 +15,7 @@ from typing import Any
 import yaml
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from config.environment import ENV_FILE
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ class Settings(BaseSettings):
     """Central application settings, loaded from environment variables."""
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=ENV_FILE,
         env_file_encoding="utf-8",
         extra="ignore",
     )

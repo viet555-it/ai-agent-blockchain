@@ -4,17 +4,16 @@
  * Dynamic Theming, and Reactive Internationalization (i18n).
  */
 import { icons } from './icons.js';
-import { 
-  t, 
-  getLanguage, 
-  setLanguage, 
-  onLanguageChange, 
-  updateDomTranslations 
+import {
+  t,
+  getLanguage,
+  setLanguage,
+  onLanguageChange,
+  updateDomTranslations,
+  initializeI18n,
 } from './i18n.js';
 
-const API_BASE = window.location.origin.includes('8000') 
-  ? '' 
-  : 'http://localhost:8000';
+const API_BASE = window.location.origin;
 
 // Application State
 const state = {
@@ -24,6 +23,7 @@ const state = {
   isProcessing: false,
   pendingApproval: null,
   activeApprovalParameters: null,
+  sessionId: crypto.randomUUID(),
   theme: localStorage.getItem('ati_theme') || 'dark',
   language: getLanguage(),
   lastTimelineSteps: null,
@@ -167,6 +167,7 @@ function updateLanguageUI(lang) {
 
   // Update all declarative elements in DOM
   updateDomTranslations();
+  updateNetworkLabels();
 
   // Update dynamic prompt chip queries
   elements.promptChips.querySelectorAll('.prompt-chip').forEach(chip => {
@@ -210,6 +211,14 @@ function shortenAddress(addr) {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
 
+function updateNetworkLabels() {
+  if (!state.network) return;
+  elements.modalNetwork.textContent = `${state.network.name} (${state.network.chain_id})`;
+  document.getElementById('contract-network-label').textContent = t('network.smartContractOn', {
+    network: state.network.name,
+  });
+}
+
 /**
  * Fetch and update network status & RPC latency
  */
@@ -222,7 +231,12 @@ async function loadNetworkStatus() {
 
     elements.headerNetworkName.textContent = data.name;
     elements.badgeChainId.textContent = `Chain ${data.chain_id}`;
-    elements.modalNetwork.textContent = `${data.name} (${data.chain_id})`;
+    updateNetworkLabels();
+    elements.linkContractExplorer.hidden = !data.block_explorer_url || !data.contract_address;
+    elements.linkContractExplorer.style.display = data.block_explorer_url && data.contract_address ? '' : 'none';
+    if (!data.block_explorer_url || !data.contract_address) {
+      elements.linkContractExplorer.removeAttribute('href');
+    }
 
     if (data.contract_address) {
       elements.valContractAddress.textContent = data.contract_address;
@@ -296,6 +310,12 @@ async function loadPolicies() {
 /**
  * Format markdown text (bold, code block, quotes, links) to safe HTML
  */
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[char]));
+}
+
 function formatMarkdown(text) {
   if (!text) return '';
   let formatted = text
@@ -376,7 +396,7 @@ function removeTypingIndicator() {
 
 /**
  * Render Agent Workflow Timeline
- * 
+ *
  * FIX FOR INCORRECT STEP NUMBERING:
  * 1. Explicitly sort timelineSteps by execution sequence:
  *    stepOrder || step_number || timestamp || id.
@@ -418,8 +438,8 @@ function renderTimeline(timelineSteps) {
     const statusClass = statusKey.toLowerCase().replace('_', '-');
 
     // Translate step name and status
-    const translatedName = t(`steps.${step.name}`) || step.name;
-    const translatedStatus = t(`status.${statusKey}`) || statusKey;
+    const translatedName = t(`steps.${step.name}`, {}, step.name);
+    const translatedStatus = t(`status.${statusKey}`, {}, statusKey);
     const stepTooltip = t('timeline.stepTooltip', { num: normalizedStepNum });
     const viewPayloadText = t('timeline.viewPayload');
     const hidePayloadText = t('timeline.hidePayload');
@@ -436,11 +456,11 @@ function renderTimeline(timelineSteps) {
       </div>
       <div class="step-content">
         <div class="step-header">
-          <span class="step-name">${translatedName}</span>
-          <span class="step-badge ${statusClass}">${translatedStatus}</span>
+          <span class="step-name">${escapeHtml(translatedName)}</span>
+          <span class="step-badge ${statusClass}">${escapeHtml(translatedStatus)}</span>
         </div>
         ${step.duration_ms ? `<div class="step-duration">${step.duration_ms} ms</div>` : ''}
-        ${step.tool_name ? `<div class="step-tool-tag">${toolLabelText} <strong>${step.tool_name}</strong></div>` : ''}
+        ${step.tool_name ? `<div class="step-tool-tag">${toolLabelText} <strong>${escapeHtml(step.tool_name)}</strong></div>` : ''}
         
         ${step.result || step.sanitized_parameters || step.error ? `
           <button type="button" class="step-details-toggle" data-target="${stepId}">
@@ -448,7 +468,7 @@ function renderTimeline(timelineSteps) {
             <span class="toggle-label">${viewPayloadText}</span>
           </button>
           <div class="step-details-box" id="${stepId}">
-            ${JSON.stringify(step.result || step.sanitized_parameters || { error: step.error }, null, 2)}
+            ${escapeHtml(JSON.stringify(step.result || step.sanitized_parameters || { error: step.error }, null, 2))}
           </div>
         ` : ''}
       </div>
@@ -489,10 +509,12 @@ function openApprovalModal(approval, guardrailResult) {
   if (guardrailResult && guardrailResult.simulation_result) {
     const sim = guardrailResult.simulation_result;
     elements.modalSimResult.textContent = sim.isValid 
-      ? t('modal.simValid', { reason: sim.reason })
+      ? t('modal.simValidDetails', { chain: approval.parameters.chain_id ?? '?', fee: sim.max_fee_wei ?? '?' })
       : t('modal.simRevert', { reason: sim.reason });
+    elements.modalGas.textContent = String(sim.gas_limit ?? sim.gas_estimate ?? '--');
     elements.modalSimResult.style.color = sim.isValid ? 'var(--success)' : 'var(--danger)';
   } else {
+    elements.modalGas.textContent = '--';
     elements.modalSimResult.textContent = t('modal.simPreflightPassed');
     elements.modalSimResult.style.color = 'var(--success)';
   }
@@ -530,24 +552,41 @@ async function submitApprovalAction(action) {
         approval_id: approvalId,
         action: action,
         parameters: params,
+        session_id: state.sessionId,
         reviewer_comment: action === 'APPROVE' 
           ? 'Approved by user via dashboard' 
           : 'Rejected by user',
       }),
     });
 
-    const data = await res.json();
+    let data = await res.json();
     if (!res.ok) throw new Error(data.detail || 'Approval submission failed');
+
+    // Receipt polling never resubmits APPROVE or broadcasts another transaction.
+    for (let attempt = 0; action === 'APPROVE' && data.status === 'PENDING' && attempt < 8; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const statusRes = await fetch(`${API_BASE}/api/approval/${encodeURIComponent(approvalId)}`, {
+        headers: { 'X-Session-ID': state.sessionId },
+      });
+      if (!statusRes.ok) break;
+      data = await statusRes.json();
+    }
 
     closeApprovalModal();
 
     if (action === 'APPROVE') {
       const explorerLink = data.explorer_url 
-        ? `<div style="margin-top: 0.5rem;"><a href="${data.explorer_url}" target="_blank" rel="noopener noreferrer" style="color: var(--primary); text-decoration: underline; font-weight: 600;">${t('modal.viewTx')}</a></div>` 
+        ? `<div style="margin-top: 0.5rem;"><a href="${data.explorer_url}" target="_blank" rel="noopener noreferrer" style="color: var(--primary); text-decoration: underline; font-weight: 600;">${t('modal.viewTx')}</a></div>`
         : '';
       
-      const successText = `${t('modal.approvedMsg')}\n- **Tx Hash:** \`${data.tx_hash}\``;
-      appendMessage('agent', successText, explorerLink);
+      const descriptions = {
+        CONFIRMED: 'modal.confirmedMsg',
+        REVERTED: 'modal.revertedMsg',
+        PENDING: 'modal.pendingMsg',
+        UNKNOWN: 'modal.unknownMsg',
+      };
+      const description = descriptions[data.status] ? t(descriptions[data.status]) : t('modal.statusMsg', { status: data.status });
+      appendMessage('agent', `${description}\n- **Tx Hash:** \`${data.tx_hash || t('modal.unknownHash')}\``, explorerLink);
       // Refresh wallet balances
       loadWalletInfo();
       loadNetworkStatus();
@@ -583,6 +622,7 @@ async function handleSendMessage(query) {
       body: JSON.stringify({
         query: query,
         wallet_address: state.wallet ? state.wallet.address : null,
+        session_id: state.sessionId,
       }),
     });
 
@@ -599,15 +639,14 @@ async function handleSendMessage(query) {
     let ragCitationHtml = '';
     if (data.rag_result && data.rag_result.has_relevant_context && data.rag_result.documents.length > 0) {
       const doc = data.rag_result.documents[0];
-      const matchScore = (doc.score * 100).toFixed(0);
       ragCitationHtml = `
         <div class="rag-citation">
           <div class="rag-header">
             <span>${icons.bookOpen} ${t('chat.ragTitle')}</span>
-            <span>${t('chat.ragMatch', { score: matchScore })}</span>
+            <span>${t('chat.ragSimilarity', { score: Number(doc.score).toFixed(3) })}</span>
           </div>
-          <div class="rag-body">${doc.excerpt}</div>
-          <div class="rag-source">${t('chat.ragSource', { title: doc.title, file: doc.source_file })}</div>
+          <div class="rag-body">${escapeHtml(doc.excerpt)}</div>
+          <div class="rag-source">${escapeHtml(t('chat.ragSource', { title: doc.title, file: doc.source_file }))}</div>
         </div>
       `;
     }
@@ -679,7 +718,7 @@ function setupEventListeners() {
       const original = elements.btnCopyHeaderWallet.innerHTML;
       elements.btnCopyHeaderWallet.innerHTML = icons.checkCircle;
       elements.btnCopyHeaderWallet.title = t('header.walletCopied');
-      setTimeout(() => { 
+      setTimeout(() => {
         elements.btnCopyHeaderWallet.innerHTML = original;
         elements.btnCopyHeaderWallet.title = t('header.copyWallet');
       }, 1500);
@@ -706,7 +745,8 @@ function greetUser() {
 }
 
 // Bootstrap
-window.addEventListener('DOMContentLoaded', async () => {
+async function bootstrap() {
+  await initializeI18n();
   // Apply persisted theme immediately
   applyTheme(state.theme);
 
@@ -729,4 +769,10 @@ window.addEventListener('DOMContentLoaded', async () => {
       loadWalletInfo();
     }
   }, 20000);
-});
+}
+
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', bootstrap, { once: true });
+} else {
+  bootstrap();
+}

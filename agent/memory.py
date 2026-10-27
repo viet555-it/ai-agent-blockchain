@@ -15,6 +15,10 @@ from agent.llm.base import TiktokenCounter, TokenCounter
 logger = logging.getLogger(__name__)
 
 
+class ContextBudgetExceededError(ValueError):
+    pass
+
+
 class ConversationMemory:
     """Token-bounded conversation history.
 
@@ -45,7 +49,8 @@ class ConversationMemory:
     def add_user(self, content: str) -> None:
         self.add_message({"role": "user", "content": content})
 
-    def add_assistant(self, content: str | None = None, tool_calls: list | None = None) -> None:
+    def add_assistant(self, content: str | None = None, tool_calls: list | None = None,
+                      provider_metadata: dict[str, Any] | None = None) -> None:
         msg: dict[str, Any] = {"role": "assistant"}
         if content:
             msg["content"] = content
@@ -54,6 +59,8 @@ class ConversationMemory:
                 {"id": tc.id, "name": tc.name, "arguments": tc.arguments}
                 for tc in tool_calls
             ]
+        if provider_metadata:
+            msg["provider_metadata"] = provider_metadata
         self.add_message(msg)
 
     def add_tool_result(self, tool_call_id: str, name: str, content: str) -> None:
@@ -86,10 +93,26 @@ class ConversationMemory:
         return len(self._messages)
 
     def _trim(self) -> None:
-        """Remove oldest non-system messages to stay within token budget."""
-        while self._current_tokens() > self._max_tokens and len(self._messages) > 1:
-            removed = self._messages.pop(0)
-            logger.debug("Trimmed message to stay within token budget: %s", removed.get("role"))
+        """Evict complete old turns, keeping tool calls and responses together.
+
+        Never split the active turn to fit a large result: that creates orphan
+        function responses. The caller must reject an oversized active turn
+        before making another provider request.
+        """
+        while self._current_tokens() > self._max_tokens:
+            boundary = next(
+                (i for i, message in enumerate(self._messages)
+                 if i > 0 and message.get("role") == "user"),
+                None,
+            )
+            if boundary is None:
+                break
+            del self._messages[:boundary]
+            logger.debug("Trimmed a complete conversation turn")
+
+    def ensure_within_budget(self) -> None:
+        if self._current_tokens() > self._max_tokens:
+            raise ContextBudgetExceededError("Active conversation turn exceeds the context budget")
 
     def _current_tokens(self) -> int:
         return self._counter.count_messages(self.get_messages())

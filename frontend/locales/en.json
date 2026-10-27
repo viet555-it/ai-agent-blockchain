@@ -15,7 +15,7 @@
     "refreshTooltip": "Refresh blockchain info",
     "nativeBalance": "Native Balance",
     "tokenBalance": "AgentToken (AGNT) Balance",
-    "smartContract": "Smart Contract (Sepolia)",
+    "smartContract": "Smart Contract",
     "viewEtherscan": "View Etherscan",
     "gasTracker": "Gas Tracker (EIP-1559)",
     "baseFee": "Base fee: {fee} Gwei",
@@ -27,7 +27,8 @@
     "whitelistDesc": "Only pre-approved destination addresses are allowed for fund transfers.",
     "hitl": "Human-in-the-Loop:",
     "required": "Required",
-    "hitlDesc": "All state-modifying write operations strictly require explicit approval."
+    "hitlDesc": "All state-modifying write operations strictly require explicit approval.",
+    "smartContractOn": "Smart Contract ({network})"
   },
   "chat": {
     "title": "AI AGENT CONVERSATION",
@@ -48,7 +49,8 @@
     "promptTransferQuery": "Transfer 25 AGNT to 0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
     "ragTitle": "Knowledge Retrieval (RAG)",
     "ragMatch": "Match: {score}%",
-    "ragSource": "Source: {title} ({file})"
+    "ragSource": "Source: {title} ({file})",
+    "ragSimilarity": "Similarity: {score}"
   },
   "timeline": {
     "title": "AGENT WORKFLOW TIMELINE",
@@ -69,7 +71,13 @@
     "User approval required": "User approval required",
     "Tool executed": "Tool executed",
     "Blockchain result received": "Blockchain result received",
-    "Final Agent response": "Final Agent response"
+    "Final Agent response": "Final Agent response",
+    "Scoped RAG retrieval": "Scoped RAG retrieval",
+    "READ tool result": "READ tool result",
+    "Proposal tool result": "Proposal tool result",
+    "Transaction policy and simulation": "Transaction policy and simulation",
+    "LLM provider request": "LLM provider request",
+    "Clarification required": "Clarification required"
   },
   "status": {
     "SUCCESS": "SUCCESS",
@@ -98,7 +106,13 @@
     "processing": "Processing on Chain...",
     "approvedMsg": "Transaction successfully approved and submitted!",
     "rejectedMsg": "Transaction was rejected by your request. No funds were transferred.",
-    "viewTx": "View Transaction on Etherscan →"
+    "viewTx": "View Transaction on Etherscan →",
+    "simValidDetails": "Valid · chain {chain} · gas fee cap {fee} wei",
+    "confirmedMsg": "Transaction confirmed successfully on chain.",
+    "revertedMsg": "Transaction reverted; it was not successful.",
+    "pendingMsg": "Transaction sent, waiting for a receipt. Do not submit again.",
+    "unknownMsg": "Transaction outcome is unknown. Check nonce/chain; do not submit again.",
+    "statusMsg": "Transaction status: {status}",
+    "unknownHash": "not available"
   }
 }
-
