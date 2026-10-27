@@ -1,8 +1,16 @@
 /**
  * AI Agent Blockchain Dashboard Application Logic
- * Integrates with FastAPI backend, Policy Engine, and Web3 Services.
+ * Integrates with FastAPI backend, Policy Engine, Web3 Services,
+ * Dynamic Theming, and Reactive Internationalization (i18n).
  */
 import { icons } from './icons.js';
+import { 
+  t, 
+  getLanguage, 
+  setLanguage, 
+  onLanguageChange, 
+  updateDomTranslations 
+} from './i18n.js';
 
 const API_BASE = window.location.origin.includes('8000') 
   ? '' 
@@ -16,6 +24,10 @@ const state = {
   isProcessing: false,
   pendingApproval: null,
   activeApprovalParameters: null,
+  theme: localStorage.getItem('ati_theme') || 'dark',
+  language: getLanguage(),
+  lastTimelineSteps: null,
+  lastBaseFeeGwei: null,
 };
 
 // DOM Elements
@@ -27,6 +39,15 @@ const elements = {
   rpcLatencyText: document.getElementById('rpc-latency-text'),
   headerWalletAddress: document.getElementById('header-wallet-address'),
   btnCopyHeaderWallet: document.getElementById('btn-copy-header-wallet'),
+
+  // Theme & Language Controls
+  btnToggleTheme: document.getElementById('btn-toggle-theme'),
+  iconThemeBtn: document.getElementById('icon-theme-btn'),
+  themeLabelText: document.getElementById('theme-label-text'),
+  btnToggleLang: document.getElementById('btn-toggle-lang'),
+  iconLangBtn: document.getElementById('icon-lang-btn'),
+  langOptEn: document.getElementById('lang-opt-en'),
+  langOptVi: document.getElementById('lang-opt-vi'),
 
   // Assets Panel
   iconBlockchainPanel: document.getElementById('icon-blockchain-panel'),
@@ -79,7 +100,7 @@ const elements = {
 };
 
 /**
- * Initialize icons and event handlers
+ * Initialize SVG icons
  */
 function initIcons() {
   elements.appBrandIcon.innerHTML = icons.bot;
@@ -95,6 +116,90 @@ function initIcons() {
   elements.iconModalShield.innerHTML = icons.shield;
   elements.iconModalCheck.innerHTML = icons.checkCircle;
   elements.iconModalApprove.innerHTML = icons.checkCircle;
+  elements.iconLangBtn.innerHTML = icons.globe;
+  updateThemeIcon();
+}
+
+/**
+ * Apply and synchronize theme state
+ */
+function applyTheme(theme) {
+  state.theme = theme;
+  document.documentElement.setAttribute('data-theme', theme);
+  try {
+    localStorage.setItem('ati_theme', theme);
+  } catch (e) {
+    console.warn('Unable to persist theme:', e);
+  }
+  updateThemeIcon();
+}
+
+function updateThemeIcon() {
+  if (state.theme === 'light') {
+    elements.iconThemeBtn.innerHTML = icons.moon;
+    elements.themeLabelText.textContent = 'Light';
+  } else {
+    elements.iconThemeBtn.innerHTML = icons.sun;
+    elements.themeLabelText.textContent = 'Dark';
+  }
+}
+
+/**
+ * Toggle between Dark and Light mode
+ */
+function toggleTheme() {
+  const nextTheme = state.theme === 'dark' ? 'light' : 'dark';
+  applyTheme(nextTheme);
+}
+
+/**
+ * Update Language UI Indicator and refresh dynamic text
+ */
+function updateLanguageUI(lang) {
+  state.language = lang;
+  if (lang === 'vi') {
+    elements.langOptVi.classList.add('active');
+    elements.langOptEn.classList.remove('active');
+  } else {
+    elements.langOptEn.classList.add('active');
+    elements.langOptVi.classList.remove('active');
+  }
+
+  // Update all declarative elements in DOM
+  updateDomTranslations();
+
+  // Update dynamic prompt chip queries
+  elements.promptChips.querySelectorAll('.prompt-chip').forEach(chip => {
+    const key = chip.getAttribute('data-prompt-key');
+    if (key) {
+      chip.setAttribute('data-prompt', t(key));
+    }
+  });
+
+  // Re-render base fee if present
+  if (state.lastBaseFeeGwei !== null) {
+    elements.valBaseFee.textContent = t('network.baseFee', { fee: state.lastBaseFeeGwei });
+  }
+
+  // Re-render timeline if steps exist
+  if (state.lastTimelineSteps && state.lastTimelineSteps.length > 0) {
+    renderTimeline(state.lastTimelineSteps);
+  } else {
+    elements.timelineStepCount.textContent = t('timeline.stepsCount', { current: 0, total: 9 });
+  }
+
+  // Update document title
+  document.title = lang === 'vi'
+    ? 'AI Agent với Công cụ Blockchain | Web3 Security & Guardrail Engine'
+    : 'AI Agent with Blockchain Tools | Web3 Security & Guardrail Engine';
+}
+
+/**
+ * Toggle between Vietnamese and English
+ */
+function toggleLanguage() {
+  const nextLang = getLanguage() === 'en' ? 'vi' : 'en';
+  setLanguage(nextLang);
 }
 
 /**
@@ -131,7 +236,8 @@ async function loadNetworkStatus() {
       const baseGwei = data.gas_info.base_fee_per_gas 
         ? (data.gas_info.base_fee_per_gas / 1e9).toFixed(2) 
         : 'N/A';
-      elements.valBaseFee.textContent = `Base fee: ${baseGwei} Gwei`;
+      state.lastBaseFeeGwei = baseGwei;
+      elements.valBaseFee.textContent = t('network.baseFee', { fee: baseGwei });
     }
 
     if (data.rpc_health && data.rpc_health.length > 0) {
@@ -188,7 +294,7 @@ async function loadPolicies() {
 }
 
 /**
- * Format markdown text (bold, code block, links) to safe HTML
+ * Format markdown text (bold, code block, quotes, links) to safe HTML
  */
 function formatMarkdown(text) {
   if (!text) return '';
@@ -200,9 +306,9 @@ function formatMarkdown(text) {
   // Bold
   formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   // Inline code
-  formatted = formatted.replace(/`([^`]+)`/g, '<code class="info-mono" style="background: rgba(0,0,0,0.3); padding: 0.15rem 0.35rem; border-radius: 4px;">$1</code>');
+  formatted = formatted.replace(/`([^`]+)`/g, '<code class="mono">$1</code>');
   // Block quotes
-  formatted = formatted.replace(/^>\s*(.*?)$/gm, '<blockquote style="border-left: 3px solid var(--secondary); padding-left: 0.75rem; color: var(--text-muted); margin: 0.5rem 0;">$1</blockquote>');
+  formatted = formatted.replace(/^>\s*(.*?)$/gm, '<blockquote>$1</blockquote>');
   // Newlines
   formatted = formatted.replace(/\n/g, '<br>');
 
@@ -233,7 +339,7 @@ function appendMessage(sender, text, extraHtml = '') {
 }
 
 /**
- * Render typing indicator
+ * Render typing indicator with localized message
  */
 function showTypingIndicator() {
   const typingDiv = document.createElement('div');
@@ -247,11 +353,13 @@ function showTypingIndicator() {
   const bubble = document.createElement('div');
   bubble.className = 'message-bubble';
   bubble.innerHTML = `
-    <div style="display: flex; gap: 0.3rem; align-items: center; padding: 0.3rem 0;">
+    <div style="display: flex; gap: 0.35rem; align-items: center; padding: 0.3rem 0;">
       <span class="pulse-dot" style="width: 6px; height: 6px;"></span>
       <span class="pulse-dot" style="width: 6px; height: 6px; animation-delay: 200ms;"></span>
       <span class="pulse-dot" style="width: 6px; height: 6px; animation-delay: 400ms;"></span>
-      <span style="font-size: 0.8rem; color: var(--text-dim); margin-left: 0.4rem;">Analyzing intent & verifying policies...</span>
+      <span style="font-size: 0.8rem; color: var(--text-dim); margin-left: 0.45rem;">
+        ${t('chat.analyzing')}
+      </span>
     </div>
   `;
 
@@ -267,42 +375,77 @@ function removeTypingIndicator() {
 }
 
 /**
- * Render 9-Step Agent Workflow Timeline
+ * Render Agent Workflow Timeline
+ * 
+ * FIX FOR INCORRECT STEP NUMBERING:
+ * 1. Explicitly sort timelineSteps by execution sequence:
+ *    stepOrder || step_number || timestamp || id.
+ * 2. Bind the displayed step badge strictly to the normalized 1-based index (idx + 1),
+ *    preventing skipped numbers or corrupt numbering during dynamic/async updates or filtering.
+ * 3. Localize step names and statuses reactively via i18n engine.
  */
 function renderTimeline(timelineSteps) {
   if (!timelineSteps || timelineSteps.length === 0) {
+    state.lastTimelineSteps = null;
     elements.timelineEmptyState.style.display = 'block';
     elements.timelineList.style.display = 'none';
-    elements.timelineStepCount.textContent = '0 / 9 Steps';
+    elements.timelineStepCount.textContent = t('timeline.stepsCount', { current: 0, total: 9 });
     return;
   }
+
+  // Explicit sort by execution sequence
+  const sortedSteps = [...timelineSteps].sort((a, b) => {
+    const orderA = a.stepOrder ?? a.step_number ?? (a.timestamp ? a.timestamp * 1000 : 0);
+    const orderB = b.stepOrder ?? b.step_number ?? (b.timestamp ? b.timestamp * 1000 : 0);
+    if (orderA !== orderB) return orderA - orderB;
+    return (a.timestamp || 0) - (b.timestamp || 0);
+  });
+
+  state.lastTimelineSteps = sortedSteps;
 
   elements.timelineEmptyState.style.display = 'none';
   elements.timelineList.style.display = 'flex';
   elements.timelineList.innerHTML = '';
-  elements.timelineStepCount.textContent = `${timelineSteps.length} / 9 Steps`;
+  elements.timelineStepCount.textContent = t('timeline.stepsCount', {
+    current: sortedSteps.length,
+    total: 9,
+  });
 
-  timelineSteps.forEach((step, idx) => {
+  sortedSteps.forEach((step, idx) => {
+    // 1-based normalized index for sequential display
+    const normalizedStepNum = idx + 1;
+    const statusKey = step.status || 'INFO';
+    const statusClass = statusKey.toLowerCase().replace('_', '-');
+
+    // Translate step name and status
+    const translatedName = t(`steps.${step.name}`) || step.name;
+    const translatedStatus = t(`status.${statusKey}`) || statusKey;
+    const stepTooltip = t('timeline.stepTooltip', { num: normalizedStepNum });
+    const viewPayloadText = t('timeline.viewPayload');
+    const hidePayloadText = t('timeline.hidePayload');
+    const toolLabelText = t('timeline.toolLabel');
+
     const item = document.createElement('div');
-    const statusClass = step.status.toLowerCase().replace('_', '-');
     item.className = `timeline-item ${statusClass}`;
 
     const stepId = `step-details-${idx}`;
 
     item.innerHTML = `
-      <div class="step-num-badge">${step.step_number}</div>
+      <div class="step-num-badge" title="${stepTooltip}" aria-label="${stepTooltip}">
+        ${normalizedStepNum}
+      </div>
       <div class="step-content">
         <div class="step-header">
-          <span class="step-name">${step.name}</span>
-          <span class="step-badge ${statusClass}">${step.status}</span>
+          <span class="step-name">${translatedName}</span>
+          <span class="step-badge ${statusClass}">${translatedStatus}</span>
         </div>
         ${step.duration_ms ? `<div class="step-duration">${step.duration_ms} ms</div>` : ''}
-        ${step.tool_name ? `<div style="font-size: 0.75rem; color: var(--primary);">Tool: <strong>${step.tool_name}</strong></div>` : ''}
+        ${step.tool_name ? `<div class="step-tool-tag">${toolLabelText} <strong>${step.tool_name}</strong></div>` : ''}
         
         ${step.result || step.sanitized_parameters || step.error ? `
           <button type="button" class="step-details-toggle" data-target="${stepId}">
             <span>${icons.chevronDown}</span>
-            <span>View Payload</span>
+            <span class="toggle-label">${viewPayloadText}</span>
           </button>
           <div class="step-details-box" id="${stepId}">
             ${JSON.stringify(step.result || step.sanitized_parameters || { error: step.error }, null, 2)}
@@ -314,16 +457,19 @@ function renderTimeline(timelineSteps) {
     elements.timelineList.appendChild(item);
   });
 
-  // Attach toggle listeners
+  // Attach toggle listeners with localized labels
   elements.timelineList.querySelectorAll('.step-details-toggle').forEach(btn => {
     btn.addEventListener('click', () => {
       const targetId = btn.getAttribute('data-target');
       const box = document.getElementById(targetId);
+      const labelSpan = btn.querySelector('.toggle-label');
       if (box) {
         box.classList.toggle('open');
-        btn.querySelector('span:first-child').innerHTML = box.classList.contains('open') 
-          ? icons.chevronUp 
-          : icons.chevronDown;
+        const isOpen = box.classList.contains('open');
+        btn.querySelector('span:first-child').innerHTML = isOpen ? icons.chevronUp : icons.chevronDown;
+        if (labelSpan) {
+          labelSpan.textContent = isOpen ? t('timeline.hidePayload') : t('timeline.viewPayload');
+        }
       }
     });
   });
@@ -343,17 +489,17 @@ function openApprovalModal(approval, guardrailResult) {
   if (guardrailResult && guardrailResult.simulation_result) {
     const sim = guardrailResult.simulation_result;
     elements.modalSimResult.textContent = sim.isValid 
-      ? `Status: Valid (${sim.reason})` 
-      : `Revert Warning: ${sim.reason}`;
+      ? t('modal.simValid', { reason: sim.reason })
+      : t('modal.simRevert', { reason: sim.reason });
     elements.modalSimResult.style.color = sim.isValid ? 'var(--success)' : 'var(--danger)';
   } else {
-    elements.modalSimResult.textContent = 'Pre-flight check passed.';
+    elements.modalSimResult.textContent = t('modal.simPreflightPassed');
     elements.modalSimResult.style.color = 'var(--success)';
   }
 
   elements.btnModalApprove.disabled = false;
   elements.btnModalReject.disabled = false;
-  elements.btnModalApprove.querySelector('span:first-child').textContent = 'CONFIRM & EXECUTE';
+  elements.btnModalApprove.querySelector('span:first-child').textContent = t('modal.btnApprove');
   elements.approvalModal.classList.add('open');
 }
 
@@ -374,7 +520,7 @@ async function submitApprovalAction(action) {
 
   elements.btnModalApprove.disabled = true;
   elements.btnModalReject.disabled = true;
-  elements.btnModalApprove.querySelector('span:first-child').textContent = 'Processing on Chain...';
+  elements.btnModalApprove.querySelector('span:first-child').textContent = t('modal.processing');
 
   try {
     const res = await fetch(`${API_BASE}/api/approval/action`, {
@@ -397,21 +543,22 @@ async function submitApprovalAction(action) {
 
     if (action === 'APPROVE') {
       const explorerLink = data.explorer_url 
-        ? `<div style="margin-top: 0.5rem;"><a href="${data.explorer_url}" target="_blank" rel="noopener noreferrer" style="color: var(--primary); text-decoration: underline; font-weight: 600;">View Transaction on Etherscan &rarr;</a></div>` 
+        ? `<div style="margin-top: 0.5rem;"><a href="${data.explorer_url}" target="_blank" rel="noopener noreferrer" style="color: var(--primary); text-decoration: underline; font-weight: 600;">${t('modal.viewTx')}</a></div>` 
         : '';
       
-      appendMessage('agent', `Transaction successfully approved and submitted!\n- **Tx Hash:** \`${data.tx_hash}\``, explorerLink);
+      const successText = `${t('modal.approvedMsg')}\n- **Tx Hash:** \`${data.tx_hash}\``;
+      appendMessage('agent', successText, explorerLink);
       // Refresh wallet balances
       loadWalletInfo();
       loadNetworkStatus();
     } else {
-      appendMessage('agent', 'Transaction was rejected by your request. No funds were transferred.');
+      appendMessage('agent', t('modal.rejectedMsg'));
     }
   } catch (err) {
     alert(`Approval Error: ${err.message}`);
     elements.btnModalApprove.disabled = false;
     elements.btnModalReject.disabled = false;
-    elements.btnModalApprove.querySelector('span:first-child').textContent = 'CONFIRM & EXECUTE';
+    elements.btnModalApprove.querySelector('span:first-child').textContent = t('modal.btnApprove');
   }
 }
 
@@ -452,14 +599,15 @@ async function handleSendMessage(query) {
     let ragCitationHtml = '';
     if (data.rag_result && data.rag_result.has_relevant_context && data.rag_result.documents.length > 0) {
       const doc = data.rag_result.documents[0];
+      const matchScore = (doc.score * 100).toFixed(0);
       ragCitationHtml = `
         <div class="rag-citation">
           <div class="rag-header">
-            <span>${icons.bookOpen} Knowledge Retrieval (RAG)</span>
-            <span>Match: ${(doc.score * 100).toFixed(0)}%</span>
+            <span>${icons.bookOpen} ${t('chat.ragTitle')}</span>
+            <span>${t('chat.ragMatch', { score: matchScore })}</span>
           </div>
           <div class="rag-body">${doc.excerpt}</div>
-          <div class="rag-source">Source: ${doc.title} (${doc.source_file})</div>
+          <div class="rag-source">${t('chat.ragSource', { title: doc.title, file: doc.source_file })}</div>
         </div>
       `;
     }
@@ -467,7 +615,7 @@ async function handleSendMessage(query) {
     // Append Agent reply
     appendMessage('agent', data.reply, ragCitationHtml);
 
-    // Update Activity Timeline
+    // Update Activity Timeline with sorted steps & normalized sequence numbering
     renderTimeline(data.timeline);
 
     // If approval is required, trigger approval modal
@@ -490,6 +638,17 @@ async function handleSendMessage(query) {
  * Setup Event Listeners
  */
 function setupEventListeners() {
+  // Theme Toggle
+  elements.btnToggleTheme.addEventListener('click', toggleTheme);
+
+  // Language Toggle
+  elements.btnToggleLang.addEventListener('click', toggleLanguage);
+
+  // Subscribe to i18n changes
+  onLanguageChange((lang) => {
+    updateLanguageUI(lang);
+  });
+
   // Chat form submit
   elements.chatForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -519,7 +678,11 @@ function setupEventListeners() {
       navigator.clipboard.writeText(state.wallet.address);
       const original = elements.btnCopyHeaderWallet.innerHTML;
       elements.btnCopyHeaderWallet.innerHTML = icons.checkCircle;
-      setTimeout(() => { elements.btnCopyHeaderWallet.innerHTML = original; }, 1500);
+      elements.btnCopyHeaderWallet.title = t('header.walletCopied');
+      setTimeout(() => { 
+        elements.btnCopyHeaderWallet.innerHTML = original;
+        elements.btnCopyHeaderWallet.title = t('header.copyWallet');
+      }, 1500);
     }
   });
 
@@ -539,18 +702,17 @@ function setupEventListeners() {
  * Initial greeting message
  */
 function greetUser() {
-  appendMessage(
-    'agent',
-    `**Welcome to AI Agent with Blockchain Tools!**\n\n` +
-    `I am your autonomous on-chain assistant secured by the **Guardrail & Policy Engine**.\n\n` +
-    `You can query balances, check token info, simulate dry-runs, or submit transfer requests. ` +
-    `All write operations will be validated against safety policies and presented for your explicit approval.`
-  );
+  appendMessage('agent', t('chat.welcomeGreeting'));
 }
 
 // Bootstrap
 window.addEventListener('DOMContentLoaded', async () => {
+  // Apply persisted theme immediately
+  applyTheme(state.theme);
+
+  // Initialize icons and i18n
   initIcons();
+  updateLanguageUI(state.language);
   setupEventListeners();
   greetUser();
 
