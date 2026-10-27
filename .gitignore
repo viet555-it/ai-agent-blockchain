@@ -56,3 +56,7 @@ Thumbs.db
 backend/abi/31337/
 
 contracts/exported/31337/
+
+# Local RAG runtime data and downloaded models
+.cache/rag/
+data/rag/

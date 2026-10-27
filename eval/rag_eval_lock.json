@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "dataset_hash": "sha256:f599424654e492d89331fd2f46772aa9fd1ba17dca642c7b7b4948926034d3c3",
+  "gold_catalog_hash": "sha256:6d87480fda223819b9a6e4c3756db797992fd289f76f0132947908c21c44d848",
+  "config_hash": "sha256:3e879312762ee90984356cc4da1cb137d7d40b77389516606831162c7eacefe6",
+  "index_fingerprint": "sha256:fac5405f38d38b19252b95d5b91021dc509a8d9357aaf82e6145afa5a2152e8f",
+  "source_manifest_hash": "sha256:7b95f90afd30676d2d33f896de389554e11f6fd1cceee70eeec5b03e27a875f0",
+  "embedding": {
+    "device": "cpu",
+    "dimension": 384,
+    "dtype": "float32",
+    "max_tokens": 128,
+    "model_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "normalize_embeddings": true,
+    "prompt": "",
+    "provider": "sentence-transformers",
+    "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42"
+  },
+  "benchmark_k": 5,
+  "benchmark_queries": 100,
+  "policy": "Freeze before dev/holdout runs. No tuning on holdout. P5/P6-exposed intents assigned to dev; curated local benchmark, not an external independent test set.",
+  "development_revision": {
+    "previous_lock_hash": "sha256:66a047722a8ba1b41bb2e6185409234b2aecf1996a38428860dca3f5787485ae",
+    "baseline_report": "eval/rag_results_dev_baseline.json",
+    "reason": "Dev-only parent context expansion; corrected malformed ABI scope digest before any holdout execution; gold evidence unchanged."
+  },
+  "runtime_hashes": {
+    "rag/retriever.py": "sha256:900f02b83d533bf667978a51040854bf4049d4556d8a1a14506497233ca3f317",
+    "eval/run_rag_eval.py": "sha256:788cdd0b2aec92e2a4af7d84795f0f21bc6a39fde1113492f0cc628824cec3a3"
+  },
+  "lock_hash": "sha256:9aa8ce8a22fda6f2fe5ac92e689d3e4f20ebfd0eabcaafbd363ee502a1a5d1c6"
+}
