@@ -16,6 +16,7 @@ export class WalletController extends EventTarget {
     this.conversation = null;
     this.signing = false;
     this.authenticating = false;
+    this.connecting = false;
     this.authRevocation = Promise.resolve();
     this.channel = typeof BroadcastChannel === 'undefined' ? null : new BroadcastChannel('ati-wallet-auth');
     this.channel?.addEventListener('message', () => {
@@ -28,12 +29,15 @@ export class WalletController extends EventTarget {
     this.announced = event => {
       const detail = event.detail;
       if (!detail?.provider?.request || !detail.info?.uuid) return;
+      if (this.providers.get('injected')?.provider === detail.provider) this.providers.delete('injected');
       this.providers.set(detail.info.uuid, { name: String(detail.info.name).slice(0, 80), provider: detail.provider });
       this.dispatchEvent(new Event('providers'));
     };
     surface.addEventListener('eip6963:announceProvider', this.announced);
     surface.dispatchEvent(new Event('eip6963:requestProvider'));
-    if (surface.ethereum?.request) this.providers.set('injected', { name: 'Browser wallet', provider: surface.ethereum });
+    if (surface.ethereum?.request && ![...this.providers.values()].some(item => item.provider === surface.ethereum)) {
+      this.providers.set('injected', { name: surface.ethereum.isMetaMask ? 'MetaMask' : 'Browser wallet', provider: surface.ethereum });
+    }
   }
 
   get ready() { return this.status === 'ready' && Boolean(this.context); }
@@ -148,19 +152,42 @@ export class WalletController extends EventTarget {
     this.attach(provider.provider);
     const generation = this.generation;
     try {
-      const [accounts, chain, me] = await Promise.all([
-        this.provider.request({ method: 'eth_accounts' }), this.provider.request({ method: 'eth_chainId' }), api('/auth/me'),
+      const [accounts, chain] = await Promise.all([
+        this.provider.request({ method: 'eth_accounts' }), this.provider.request({ method: 'eth_chainId' }),
       ]);
       if (!this.current(generation)) return;
-      this.select(accounts[0], Number(BigInt(chain)));
-      if (!sameAddress(me.address, this.address) || this.chainId !== this.expectedChain) return;
+      this.select(accounts[0] || null, Number(BigInt(chain)));
+      if (!this.address || this.chainId !== this.expectedChain) return;
       const selectedGeneration = this.generation;
+      // Extension permission is independent of the server login cookie. A 401
+      // must leave the detected account visible with a Sign in action.
+      const me = await api('/auth/me');
+      if (!this.current(selectedGeneration)) return;
+      if (!sameAddress(me.address, this.address) || this.chainId !== this.expectedChain) return;
       const context = await api('/wallet-contexts', { method: 'POST', body: { chain_id: this.chainId } });
       if (!this.current(selectedGeneration)) return;
       this.context = context;
       this.status = 'ready';
       this.changed();
     } catch (error) { if (error.status !== 401) this.dispatchEvent(new CustomEvent('error', { detail: error })); }
+  }
+
+  async connectAndSignIn(providerId, requestSelection = false) {
+    if (this.connecting) return;
+    this.connecting = true;
+    this.changed();
+    try {
+      await this.connect(providerId, requestSelection);
+      if (this.address && this.chainId !== this.expectedChain) {
+        await this.switchNetwork();
+        const chainId = Number(BigInt(await this.provider.request({ method: 'eth_chainId' })));
+        this.select(this.address, chainId);
+      }
+      if (!this.ready && this.address && this.chainId === this.expectedChain) await this.authenticate();
+    } finally {
+      this.connecting = false;
+      this.changed();
+    }
   }
 
   async disconnect() {

@@ -3,6 +3,30 @@
 Luồng browser-wallet đã được tích hợp vào app. Database lưu chat, tool protocol, proposal,
 approval, các lần gửi, receipt và audit. Ví trình duyệt giữ quyền ký; API không ký/gửi thay user.
 
+## MetaMask hiện Connected nhưng Agent chưa dùng được
+
+Mở đúng `http://127.0.0.1:8000` trong browser đang cài MetaMask, bấm **Kết nối ví** một lần.
+App tự xin quyền tài khoản và xác thực chữ ký trong cùng luồng; MetaMask có thể hiện hai popup
+để user xác nhận. Khi hiện **Agent sẵn sàng**, app đã mở hoặc tạo chat trên deployment hiện tại.
+Không có bước hay nút “Sign in to history” riêng. Chữ ký vẫn bắt buộc để bảo vệ lịch sử riêng.
+Nếu cookie hết hạn nhưng extension vẫn Connected, dùng lại chính nút **Kết nối ví**.
+
+Nếu thấy thông báo sai mạng: chuyển MetaMask sang Hardhat Local, chain 31337, RPC
+`http://127.0.0.1:8545`. Nếu mạng chưa có trong extension, thêm thủ công trong phần quản lý mạng.
+Không đổi sang Sepolia chỉ để kiểm thử local. Ví chưa có ETH vẫn có thể đăng nhập; gửi giao dịch
+mới cần ETH trả gas. Với tài khoản test của Hardhat, node đã cấp sẵn ETH local.
+
+Nếu lịch sử đang mở thuộc lần reset Hardhat trước, chọn **Chat mới**. Chữ ký đã bị từ chối hoặc có
+request đang chờ thì mở MetaMask để xử lý request; tải lại trang không tự ký hoặc gửi giao dịch.
+
+Sau khi cập nhật frontend, bấm **Ctrl+F5** để tải lại JS/CSS. Trong PowerShell dùng `npm.cmd`;
+có thể chạy toàn bộ test bằng file batch để tránh lỗi ExecutionPolicy:
+
+```powershell
+Set-Location "D:\study_materials\ATI\Project\ai-agent-blockchain"
+.\scripts\test_wallet.cmd
+```
+
 ## Chạy trên máy hiện tại
 
 Chạy các lệnh từ root repository. Đã cài dependency Python và frontend trong môi trường hiện tại.
@@ -10,7 +34,7 @@ Máy mới dùng dependency đã khóa:
 
 ```powershell
 .venv-phase3/Scripts/python.exe -m pip install -r requirements-phase3.lock.txt
-npm --prefix frontend ci
+npm.cmd --prefix frontend ci
 ```
 
 File `.env` root dùng:
@@ -33,8 +57,8 @@ chạy migration và cấu hình origin trước.
 Terminal 1:
 
 ```powershell
-npm --prefix contracts run compile
-npm --prefix contracts run node -- --hostname 127.0.0.1
+npm.cmd --prefix contracts run compile
+npm.cmd --prefix contracts run node -- --hostname 127.0.0.1
 ```
 
 Terminal 2:
@@ -53,12 +77,12 @@ lại API. HTTPS bắt buộc ngoài localhost. Triển khai SQLite chạy một
 
 1. Cấu hình mạng Hardhat trong extension: RPC `http://127.0.0.1:8545`, chain ID `31337`, ETH.
    Nếu extension chưa có mạng này, thêm mạng trong extension trước khi chọn Switch network.
-2. Chọn extension ở danh sách provider, bấm **Connect wallet**.
-3. Bấm **Sign in to history / Đăng nhập lịch sử**, kiểm message và ký. Chữ ký này xác thực
-   quyền đọc lịch sử; không phải giao dịch chuyển tài sản.
+2. Nếu có nhiều extension, chọn provider rồi bấm **Kết nối ví / Connect wallet**.
+3. Xác nhận yêu cầu tài khoản và ký message khi MetaMask hỏi. App tự hoàn tất xác thực rồi mở
+   chat, không cần bấm thêm nút đăng nhập. Chữ ký này không phải giao dịch chuyển tài sản.
 4. App tải hoặc tạo hội thoại của ví. Các nút New chat, Rename, Archive quản lý hội thoại;
    Older messages/Load more phân trang lịch sử. Archive không xóa vĩnh viễn dữ liệu.
-5. Bấm Change account hoặc chọn tài khoản khác trong extension. App khóa thao tác và dọn
+5. Bấm địa chỉ ví để mở menu **Đổi tài khoản / Ngắt kết nối**, hoặc chọn tài khoản khác trong extension. App khóa thao tác và dọn
    nội dung cũ. Đăng nhập ví mới để tải lịch sử riêng. Không cần sửa `.env` hoặc restart API.
 6. Quay về A và đăng nhập: thấy lại lịch sử A. Việc đăng nhập ví mới được thông báo tới
    các tab cùng browser; các tab cũ phải xác thực lại.
@@ -152,8 +176,8 @@ purge/export và retention tự động là phần mở rộng, chưa được b
 ```powershell
 .venv-phase3/Scripts/python.exe -m scripts.run_phase3 --suite unit
 .venv-phase3/Scripts/python.exe -m scripts.run_phase3 --suite local_evm
-npm --prefix frontend test
-npm --prefix frontend run build
+npm.cmd --prefix frontend test
+npm.cmd --prefix frontend run build
 node frontend/node_modules/playwright/cli.js install chromium
 .venv-phase3/Scripts/python.exe -m scripts.run_wallet_e2e
 ```
@@ -164,7 +188,8 @@ Kết quả ở `.phase3/wallet-e2e/results.json`, `api.log`, `history.png`; run
 xóa database tạm khi kết thúc. Browser provider test mô phỏng protocol extension; chưa thay
 cho smoke thủ công UI của từng extension thật.
 
-Kết quả kiểm tra ngày 28/10/2026: 291 test unit qua (3 ca Hardhat được skip ở suite unit),
-156 test trong suite backend/Hardhat qua, 5 test frontend qua và 5 ca Chromium E2E qua
-(đổi ví/reload, faucet, response đến muộn, nhiều tab, mobile/tiếng Việt). Frontend build,
+Kết quả kiểm tra ngày 28/10/2026 sau gộp kết nối Agent và sửa responsive: 293 test unit qua
+(3 ca Hardhat được skip ở suite unit), 157 test trong suite backend/Hardhat qua,
+7 test frontend qua và 9 ca Chromium E2E qua (kết nối + xác thực bằng một nút, đổi ví/reload, faucet/số dư AGNT,
+response đến muộn, nhiều tab, cookie hết hạn, mobile/tiếng Việt và sáu độ rộng màn hình). Frontend build,
 lint các module mới, kiểm tra dependency và migration schema 0001 đều qua.

@@ -1,12 +1,15 @@
 const { test, expect } = require('@playwright/test');
 
-async function installWallet(page) {
-  await page.addInitScript(({ rpc }) => {
+async function installWallet(page, { connected = true } = {}) {
+  // Keep local E2E independent of external font/CDN availability.
+  await page.route(/https:\/\/fonts\.(googleapis|gstatic)\.com\//, route => route.abort());
+  await page.addInitScript(({ rpc, connected }) => {
     const listeners = new Map();
     const accounts = ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'];
     let index = Number(sessionStorage.getItem('test_wallet_index') || 0);
+    let granted = connected;
     window.__testWallet = {
-      sends: 0,
+      sends: 0, connects: 0, signatures: 0,
       switchAccount(value) {
         index = value;
         sessionStorage.setItem('test_wallet_index', String(index));
@@ -17,10 +20,11 @@ async function installWallet(page) {
       on(event, listener) { const values = listeners.get(event) || new Set(); values.add(listener); listeners.set(event, values); },
       removeListener(event, listener) { listeners.get(event)?.delete(listener); },
       async request({ method, params = [] }) {
-        if (['eth_accounts', 'eth_requestAccounts'].includes(method)) return [accounts[index]];
+        if (method === 'eth_accounts') return granted ? [accounts[index]] : [];
+        if (method === 'eth_requestAccounts') { granted = true; window.__testWallet.connects++; return [accounts[index]]; }
         if (method === 'eth_chainId') return '0x7a69';
         if (method === 'wallet_requestPermissions') return [{ parentCapability: 'eth_accounts' }];
-        if (method === 'personal_sign') { method = 'eth_sign'; params = [params[1], params[0]]; }
+        if (method === 'personal_sign') { window.__testWallet.signatures++; method = 'eth_sign'; params = [params[1], params[0]]; }
         if (method === 'eth_sendTransaction') window.__testWallet.sends++;
         const response = await fetch(rpc, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }) });
         const data = await response.json();
@@ -28,26 +32,29 @@ async function installWallet(page) {
         return data.result;
       },
     };
-  }, { rpc: process.env.WALLET_E2E_RPC });
+  }, { rpc: process.env.WALLET_E2E_RPC, connected });
 }
 
 async function signIn(page) {
-  await page.locator('#wallet-sign-in').click();
-  await expect(page.locator('#wallet-status')).toContainText('History is saved');
-  await expect(page.locator('#conversation-list option')).toHaveCount(1);
+  // A single app action handles extension permission and authenticated login.
+  if (!(await page.locator('#wallet-status').textContent()).includes('Agent ready')) {
+    await page.locator('#wallet-connect').click();
+  }
+  await expect(page.locator('#wallet-status')).toContainText('Agent ready', { timeout: 20000 });
+  await expect(page.locator('#conversation-list option').first()).toBeAttached();
+  await expect(page.locator('#chat-input')).toBeEnabled();
 }
 
 test('A/B histories remain separate and reload restores the conversation', async ({ page }) => {
   await installWallet(page);
   await page.goto('/');
-  await page.locator('#wallet-connect').click();
   await signIn(page);
   await page.locator('#chat-input').fill('Remember alpha');
   await page.locator('#chat-form').evaluate(form => form.requestSubmit());
   await expect(page.locator('#btn-send-message')).toBeEnabled();
   await expect(page.locator('#chat-history')).toContainText('Remember alpha');
   await page.reload();
-  await expect(page.locator('#wallet-status')).toContainText('History is saved');
+  await expect(page.locator('#wallet-status')).toContainText('Agent ready');
   await expect(page.locator('#chat-history')).toContainText('Remember alpha');
   await page.evaluate(() => window.__testWallet.switchAccount(1));
   await expect(page.locator('#chat-history')).not.toContainText('Remember alpha');
@@ -62,7 +69,6 @@ test('A/B histories remain separate and reload restores the conversation', async
 test('faucet is signed once in the wallet and becomes a matched on-chain transaction', async ({ page }) => {
   await installWallet(page);
   await page.goto('/');
-  await page.locator('#wallet-connect').click();
   await signIn(page);
   // Use B, which has not claimed faucet in this fresh test context.
   await page.evaluate(() => window.__testWallet.switchAccount(1));
@@ -75,6 +81,7 @@ test('faucet is signed once in the wallet and becomes a matched on-chain transac
   await expect(page.locator('#approval-modal')).not.toHaveClass(/open/);
   await expect(page.locator('#chat-history')).toContainText('Transaction submitted');
   expect(await page.evaluate(() => window.__testWallet.sends)).toBe(1);
+  await expect(page.locator('#val-token-balance')).toHaveText(/^10(?:\.|$)/);
   await expect(async () => {
     await page.locator('#history-refresh').click();
     await expect(page.locator('#history-transactions')).toContainText('MATCHED');
@@ -84,7 +91,6 @@ test('faucet is signed once in the wallet and becomes a matched on-chain transac
 test('a delayed A response cannot reopen or overwrite the B conversation', async ({ page }) => {
   await installWallet(page);
   await page.goto('/');
-  await page.locator('#wallet-connect').click();
   await signIn(page);
   let release, fetched;
   const gate = new Promise(resolve => { release = resolve; });
@@ -109,14 +115,14 @@ test('a delayed A response cannot reopen or overwrite the B conversation', async
 test('logout from one tab clears private history in the other tab', async ({ page, context }) => {
   await installWallet(page);
   await page.goto('/');
-  await page.locator('#wallet-connect').click();
   await signIn(page);
   const second = await context.newPage();
   await installWallet(second);
   await second.goto('/');
-  await expect(second.locator('#wallet-status')).toContainText('History is saved');
+  await expect(second.locator('#wallet-status')).toContainText('Agent ready');
+  await page.locator('#wallet-menu summary').click();
   await page.locator('#wallet-disconnect').click();
-  await expect(second.locator('#wallet-status')).toContainText('Signed out');
+  await expect(second.locator('#wallet-status')).toContainText('Wallet disconnected');
   await expect(second.locator('#chat-history .chat-message')).toHaveCount(0);
   await expect(second.locator('#btn-send-message')).toBeDisabled();
 });
@@ -125,10 +131,95 @@ test('wallet controls and history fit a mobile viewport and support Vietnamese',
   await page.setViewportSize({ width: 390, height: 844 });
   await installWallet(page);
   await page.goto('/');
-  await page.locator('#wallet-connect').click();
   await signIn(page);
   await page.locator('#btn-toggle-lang').click();
-  await expect(page.locator('#wallet-status')).toContainText('Đã đăng nhập');
+  await expect(page.locator('#wallet-status')).toContainText('Agent sẵn sàng');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: '../.phase3/wallet-e2e/mobile.png', fullPage: true, animations: 'disabled' });
+});
+
+test('the same Connect wallet action restores access when a login cookie expires', async ({ page, context }) => {
+  await installWallet(page);
+  await page.goto('/');
+  await expect(page.locator('#wallet-connect')).toBeVisible();
+  await expect(page.locator('#wallet-chat-gate')).toBeVisible();
+  await expect(page.locator('#header-wallet-address')).toContainText('0xf39');
+  await expect(page.locator('#chat-input')).toBeDisabled();
+  await signIn(page);
+  await context.clearCookies();
+  await page.reload();
+  await expect(page.locator('#wallet-connect')).toBeVisible();
+  await expect(page.locator('#wallet-chat-guidance')).toContainText('Click Connect wallet');
+  await signIn(page);
+  await expect(page.locator('#wallet-chat-gate')).toBeHidden();
+});
+
+test('one app click connects a fresh wallet, verifies its signature and opens Agent', async ({ page }) => {
+  await installWallet(page, { connected: false });
+  await page.goto('/');
+  await expect(page.locator('#wallet-connect')).toBeVisible();
+  await expect(page.locator('#wallet-sign-in')).toHaveCount(0);
+  await page.locator('#wallet-connect').click();
+  await expect(page.locator('#wallet-status')).toContainText('Agent ready', { timeout: 20000 });
+  await expect(page.locator('#chat-input')).toBeEnabled();
+  await expect(page.locator('#wallet-connect')).toBeHidden();
+  await expect(page.locator('#wallet-menu')).toBeVisible();
+  expect(await page.evaluate(() => ({ connects: window.__testWallet.connects, signatures: window.__testWallet.signatures, sends: window.__testWallet.sends })))
+    .toEqual({ connects: 1, signatures: 1, sends: 0 });
+  await page.locator('#chat-input').fill('Check my ETH balance');
+  await page.locator('#chat-form').evaluate(form => form.requestSubmit());
+  await expect(page.locator('#btn-send-message')).toBeEnabled();
+  await expect(page.locator('#chat-history')).toContainText('ETH');
+});
+
+test('opening a wallet sidebar keeps the composer usable without a tall header', async ({ page }) => {
+  await installWallet(page);
+  await page.goto('/');
+  await signIn(page);
+  for (const [width, height] of [[1365, 768], [1092, 700], [900, 720], [820, 720], [390, 640], [1536, 600]]) {
+    await page.setViewportSize({ width, height });
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await expect(page.locator('#chat-input')).toBeInViewport({ ratio: 1 });
+    await expect(page.locator('#btn-send-message')).toBeInViewport({ ratio: 1 });
+    const header = await page.locator('.app-header').boundingBox();
+    expect(header.height, `Header too tall at ${width}x${height}`).toBeLessThan(width > 700 ? 155 : 205);
+    const messages = await page.locator('#chat-history').boundingBox();
+    expect(messages.height).toBeGreaterThan(120);
+    await expect.poll(async () => {
+      const last = await page.locator('#chat-history .chat-message').last().boundingBox();
+      const history = await page.locator('#chat-history').boundingBox();
+      return last.y + last.height <= history.y + history.height + 1;
+    }).toBe(true);
+    await expect(page.locator('#wallet-connect')).toBeHidden();
+    await page.screenshot({ path: `../.phase3/wallet-e2e/sidebar-${width}-${height}.png`, fullPage: true, animations: 'disabled' });
+  }
+});
+
+test('header, composer and panels remain inside the viewport at phone, tablet and desktop sizes', async ({ page }) => {
+  await installWallet(page);
+  await page.goto('/');
+  await signIn(page);
+  await page.locator('#btn-toggle-lang').click();
+  for (const width of [360, 390, 768, 1024, 1280, 1536]) {
+    await page.setViewportSize({ width, height: 900 });
+    const problems = await page.evaluate(() => {
+      const selectors = ['.app-header', '#panel-chat', '#panel-blockchain', '#panel-activity', '#wallet-controls', '#chat-form', '#chat-input', '#btn-send-message'];
+      return selectors.filter(selector => {
+        const box = document.querySelector(selector).getBoundingClientRect();
+        return box.x < -1 || box.right > window.innerWidth + 1 || box.width < 20 || box.height < 15;
+      });
+    });
+    expect(problems, `Layout overflow at ${width}px`).toEqual([]);
+    if (width >= 1440) {
+      const bounds = await page.locator('#panel-chat').boundingBox();
+      expect(bounds.y + bounds.height).toBeLessThanOrEqual(901);
+    }
+    if (width < 820) {
+      await page.locator('#panel-blockchain').scrollIntoViewIfNeeded();
+      await expect(page.locator('#panel-blockchain .panel-title')).toBeInViewport();
+      await page.screenshot({ path: `../.phase3/wallet-e2e/assets-${width}.png`, animations: 'disabled' });
+      await page.evaluate(() => window.scrollTo(0, 0));
+    }
+    await page.screenshot({ path: `../.phase3/wallet-e2e/layout-${width}.png`, fullPage: true, animations: 'disabled' });
+  }
 });

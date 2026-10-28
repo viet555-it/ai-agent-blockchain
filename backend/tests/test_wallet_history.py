@@ -70,6 +70,11 @@ class WalletHistoryTests(unittest.TestCase):
             {"contractAddress": "0x" + "12" * 20, "runtimeCodeHash": "0x" + "34" * 32},
         )
         self.chain.network_manager.verify_contract_bytecode.return_value = True
+        self.chain.get_token_balance.return_value = {
+            "balance": "10",
+            "symbol": "AGNT",
+            "token_address": "0x" + "12" * 20,
+        }
         self.chain.prepare_native_transfer.side_effect = lambda sender, recipient, amount: {
             "transaction": {
                 "from": sender,
@@ -186,6 +191,18 @@ class WalletHistoryTests(unittest.TestCase):
         )
         self.assertEqual(self.client.get("/api/auth/me").json()["address"], self.a.address)
         self.assertEqual(self.client.get("/api/auth/me").headers["cache-control"], "no-store")
+
+    def test_wallet_assets_use_the_browser_deployment_contract(self):
+        response = self.client.get("/api/wallet/info", params={"address": self.a.address})
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(response.json()["token_address"], "0x" + "12" * 20)
+        self.assertEqual(response.json()["token_balance"], "10")
+
+    def test_frontend_revalidates_assets_so_old_wallet_controls_are_not_cached(self):
+        for path in ["/", "/app.js", "/styles.css"]:
+            response = self.client.get(path)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.headers["cache-control"], "no-cache")
 
     def test_invalid_signature_and_expired_challenge(self):
         challenge = self.client.post(

@@ -203,6 +203,7 @@ def create_app(
                     app.state.history = HistoryService(wallet_db)
                     app.state.history.recover()
                     browser = BrowserWalletService(wallet_db, wallet_settings, blockchain_service, policy_engine)
+                    network_config.default_contracts["AgentToken"] = browser.contract_address
                     app.state.browser_wallet = browser
                     app.state.history_runtime = ReadAgentRuntime(blockchain=blockchain_service, retriever=selected_retriever,
                         llm=selected_llm, settings=settings, transactions=browser if wallet_settings.browser_writes else None)
@@ -257,6 +258,8 @@ def create_app(
             if request.url.path.startswith("/api/"):
                 response.headers["Cache-Control"] = "no-store"
                 response.headers["X-Request-ID"] = request_id
+            elif request.url.path in {"/", "/index.html"} or request.url.path.endswith((".js", ".css", ".json")):
+                response.headers["Cache-Control"] = "no-cache"
             return response
 
         @app.exception_handler(SQLAlchemyError)

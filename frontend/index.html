@@ -43,15 +43,6 @@
       </div>
 
       <!-- Theme Switcher & Language Switcher Controls -->
-      <div id="wallet-controls" class="wallet-controls" hidden>
-        <select id="wallet-provider" aria-label="Wallet provider"></select>
-        <button type="button" id="wallet-connect" class="action-pill-btn" data-i18n="wallet.connect">Connect wallet</button>
-        <button type="button" id="wallet-sign-in" class="action-pill-btn" data-i18n="wallet.signIn">Sign in</button>
-        <button type="button" id="wallet-switch" class="action-pill-btn" data-i18n="wallet.change">Change account</button>
-        <button type="button" id="wallet-network" class="action-pill-btn" data-i18n="wallet.switchNetwork">Switch network</button>
-        <button type="button" id="wallet-disconnect" class="action-pill-btn" data-i18n="wallet.disconnect">Disconnect</button>
-        <span id="wallet-status" role="status" aria-live="polite"></span>
-      </div>
       <div class="header-actions">
         <!-- Language Switcher Toggle -->
         <button class="action-pill-btn" id="btn-toggle-lang" title="Switch Language (EN/VI)" data-i18n-title="header.langToggle">
@@ -69,6 +60,19 @@
           <span id="theme-label-text">Dark</span>
         </button>
       </div>
+    </div>
+    <div id="wallet-controls" class="wallet-controls" hidden>
+      <select id="wallet-provider" aria-label="Wallet provider"></select>
+      <button type="button" id="wallet-connect" class="action-pill-btn wallet-primary" data-i18n="wallet.connectSignIn">Connect wallet to use Agent</button>
+      <details id="wallet-menu" class="wallet-menu" hidden>
+        <summary aria-label="Wallet actions"><span class="wallet-ready-dot" aria-hidden="true"></span><span id="wallet-menu-address"></span><span aria-hidden="true">⌄</span></summary>
+        <div class="wallet-menu-items">
+          <button type="button" id="wallet-copy" data-i18n="header.copyWallet">Copy address</button>
+          <button type="button" id="wallet-switch" data-i18n="wallet.change">Change account</button>
+          <button type="button" id="wallet-disconnect" data-i18n="wallet.disconnect">Disconnect</button>
+        </div>
+      </details>
+      <span id="wallet-status" role="status" aria-live="polite"></span>
     </div>
   </header>
 
@@ -199,6 +203,10 @@
         <span class="panel-badge success-badge" id="agent-mode-badge" data-i18n="chat.agentMode">AUTONOMOUS AGENT ACTIVE</span>
       </div>
 
+      <div id="wallet-chat-gate" class="wallet-chat-gate" hidden>
+        <p id="wallet-chat-guidance" role="status"></p>
+        <button type="button" id="wallet-chat-action" class="action-pill-btn"></button>
+      </div>
       <!-- Chat History -->
       <div class="chat-history" id="chat-history">
         <!-- Messages will be injected by JavaScript -->

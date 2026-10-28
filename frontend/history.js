@@ -63,7 +63,8 @@ export class HistoryView {
     const generation = this.wallet.generation;
     await this.list();
     if (!this.wallet.current(generation) || !this.wallet.ready) return;
-    if (this.conversations.length) await this.open(this.conversations[0].id);
+    const current = this.conversations.find(item => item.deployment_id === this.wallet.context.deployment_id);
+    if (current) await this.open(current.id);
     else await this.create();
     await Promise.all([this.refreshTransactions(), this.refreshAudit()]);
   }

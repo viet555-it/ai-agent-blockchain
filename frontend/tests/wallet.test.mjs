@@ -59,6 +59,16 @@ test('changing provider removes listeners from the previous provider', () => {
   assert.equal(second.listeners.get('accountsChanged').size, 1);
 });
 
+test('an already connected extension remains visible when the server cookie expired', async () => {
+  globalThis.fetch = async () => ({ ok: false, status: 401, json: async () => ({ detail: { code: 'AUTH_REQUIRED', message: 'Sign in' } }) });
+  const wallet = new WalletController(31337);
+  wallet.providers.set('injected', { name: 'MetaMask', provider: provider() });
+  await wallet.restore();
+  assert.equal(wallet.address, A);
+  assert.equal(wallet.status, 'signIn');
+  assert.equal(wallet.ready, false);
+});
+
 test('account change during authorize never sends from the new wallet', async () => {
   let resolveAuthorize;
   const waiting = new Promise(resolve => { resolveAuthorize = resolve; });
