@@ -43,6 +43,15 @@
       </div>
 
       <!-- Theme Switcher & Language Switcher Controls -->
+      <div id="wallet-controls" class="wallet-controls" hidden>
+        <select id="wallet-provider" aria-label="Wallet provider"></select>
+        <button type="button" id="wallet-connect" class="action-pill-btn" data-i18n="wallet.connect">Connect wallet</button>
+        <button type="button" id="wallet-sign-in" class="action-pill-btn" data-i18n="wallet.signIn">Sign in</button>
+        <button type="button" id="wallet-switch" class="action-pill-btn" data-i18n="wallet.change">Change account</button>
+        <button type="button" id="wallet-network" class="action-pill-btn" data-i18n="wallet.switchNetwork">Switch network</button>
+        <button type="button" id="wallet-disconnect" class="action-pill-btn" data-i18n="wallet.disconnect">Disconnect</button>
+        <span id="wallet-status" role="status" aria-live="polite"></span>
+      </div>
       <div class="header-actions">
         <!-- Language Switcher Toggle -->
         <button class="action-pill-btn" id="btn-toggle-lang" title="Switch Language (EN/VI)" data-i18n-title="header.langToggle">
@@ -77,6 +86,26 @@
       </div>
 
       <div class="panel-body">
+        <section id="wallet-history" class="info-card wallet-history" hidden>
+          <div class="info-label" data-i18n="wallet.history">Your history</div>
+          <select id="conversation-list" aria-label="Conversations"></select>
+          <div class="history-actions">
+            <button type="button" id="history-new" data-i18n="wallet.newChat">New chat</button>
+            <button type="button" id="history-rename" data-i18n="wallet.rename">Rename</button>
+            <button type="button" id="history-archive" data-i18n="wallet.archive">Archive</button>
+            <button type="button" id="conversation-more" data-i18n="wallet.more" hidden>More</button>
+            <button type="button" id="history-older" data-i18n="wallet.older" hidden>Older messages</button>
+          </div>
+          <button type="button" id="history-refresh" data-i18n="wallet.refresh">Refresh history</button>
+          <details><summary data-i18n="wallet.transactions">Transactions</summary>
+            <div id="history-transactions"></div>
+            <button type="button" id="transactions-more" data-i18n="wallet.more" hidden>More</button>
+          </details>
+          <details><summary data-i18n="wallet.audit">Activity</summary>
+            <div id="history-audits"></div>
+            <button type="button" id="audits-more" data-i18n="wallet.more" hidden>More</button>
+          </details>
+        </section>
         <!-- Native Balance Card -->
         <div class="info-card">
           <div class="info-label" data-i18n="network.nativeBalance">Native Balance</div>
@@ -259,6 +288,10 @@
         </p>
 
         <div class="review-grid">
+          <div class="review-item full-width">
+            <span class="review-label" data-i18n="wallet.sender">Sending wallet</span>
+            <span class="review-val mono" id="modal-sender">0x...</span>
+          </div>
           <div class="review-item">
             <span class="review-label" data-i18n="modal.opName">Operation / Tool</span>
             <span class="review-val" id="modal-op-name">erc20_transfer</span>

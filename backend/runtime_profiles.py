@@ -65,6 +65,8 @@ def isolated_test_environment() -> dict[str, str]:
         PHASE3_PROFILE="local_evm",
         PHASE3_LOCAL_WRITES="false",
         PHASE3_AGENT="legacy",
+        WALLET_HISTORY_ENABLED="false",
+        BROWSER_WALLET_WRITES="false",
         DEFAULT_CHAIN_ID="31337",
         LLM_PROVIDER="fake",
         LLM_MODEL="",

@@ -8,6 +8,9 @@ Môi trường tích hợp và kiểm thử giai đoạn 3: [PHASE3_INTEGRATION.
 
 Chạy app với proposal/approval trên Hardhat local: [PHASE3_RUNBOOK.md](docs/PHASE3_RUNBOOK.md).
 
+Đổi ví trình duyệt và lưu lịch sử chat/giao dịch trong SQLite:
+[WALLET_HISTORY_RUNBOOK.md](docs/WALLET_HISTORY_RUNBOOK.md).
+
 Cấu hình duy nhất: `.env` tại root dự án (mẫu `.env.example`). API, Agent CLI,
 Hardhat và đường dẫn RAG đều dùng file này; không cần `.env` trong thư mục con.
 API trên nhánh kiểm thử dùng profile local; chuyển ETH/AGNT và faucet đi qua
