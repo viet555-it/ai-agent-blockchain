@@ -1,36 +1,20 @@
 """Shared durable-wallet primitives."""
 
-import hashlib
-import secrets
 import time
-import uuid
 from dataclasses import dataclass
 
 from fastapi import HTTPException
 from sqlalchemy import select, update
 
+from backend.db.rows import one as one
 from backend.db.schema_v1 import attempts, audit, contexts, proposals, sessions
-
-
-def uid():
-    return str(uuid.uuid4())
-
-
-def hashed(value):
-    return hashlib.sha256(value.encode()).hexdigest()
-
-
-def token():
-    return secrets.token_urlsafe(32)
+from backend.wallet_values import hashed as hashed
+from backend.wallet_values import token as token
+from backend.wallet_values import uid as uid
 
 
 def fail(status, code, message):
     raise HTTPException(status, detail={"code": code, "message": message})
-
-
-def one(connection, statement):
-    row = connection.execute(statement).mappings().first()
-    return dict(row) if row else None
 
 
 def record_audit(connection, wallet_id, event_type, proposal_id=None, **data):

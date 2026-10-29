@@ -71,6 +71,36 @@ Sepolia giữ các fixture và fee/nonce ledger hiện có. Transport ký transa
 lưu reservation bền vững, gắn expected hash vào pending approval, rồi mới gửi raw
 transaction. Không có thay đổi về thứ tự reserve-before-send hoặc xử lý `UNKNOWN`.
 
+## Durable browser-wallet workflows
+
+`BrowserWalletService` là facade giữ các method API hiện có. Nó lắp các workflow
+trong `backend/services/wallet/` bằng composition:
+
+| Workflow | Trách nhiệm |
+|---|---|
+| `deployments.py` | Nhận diện RPC/deployment, xác minh bytecode và phát hiện Hardhat reset |
+| `contexts.py` | Tạo wallet context và hàng send lock trước authorization |
+| `proposals.py` | Policy theo ví, chuẩn bị proposal, đọc và từ chối proposal |
+| `submissions.py` | Authorize, report, lịch sử transaction và khôi phục hash theo owner |
+| `reconciliation.py` | Claim lease, đọc chain evidence, xử lý replacement/reorg và cập nhật receipt |
+| `scope.py` | ContextVar dùng chung giữa history routes và proposal tools |
+
+`backend/db/repositories/` chứa SQL của các workflow trên. Mỗi hàm repository nhận
+connection đang mở từ workflow, không tạo session/engine và không tự commit. Đổi
+proposal sang `AWAITING_SIGNATURE`, tạo attempt, claim send lock, tạo approval và
+ghi audit cùng nằm trong một transaction; lỗi ở bất kỳ bước nào sẽ rollback toàn bộ.
+
+Reconciliation claim lease trước khi gọi RPC, sau đó kiểm tra lại deployment và
+lease trước khi ghi chain evidence. Report đến trong lúc worker đọc RPC không bị
+ghi đè bằng hash cũ. Các điều kiện version, lease timeout, batch size và status
+transitions giữ nguyên.
+
+`backend/db/rows.py` và `pagination.py` chứa row materialization/keyset pagination;
+`backend/wallet_values.py` chứa ID, capability hash/token và chuyển RPC scalar.
+Các import cũ qua `wallet_common`, `history_service` và `browser_wallet` tiếp tục
+trỏ đến cùng helper/ContextVar. HTTP error mapping hiện vẫn giữ cách xử lý cũ;
+việc chuyển sang domain errors được tách thành bước tiếp theo.
+
 ## 1. Tổng quan
 
 ```mermaid

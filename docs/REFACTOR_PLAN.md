@@ -301,5 +301,17 @@ Phần còn lại sau commit đầu: tách runtime assembly/lifespan, bổ sung 
 - Thêm 3 test: browser preparation với tài khoản không mở khóa tại backend, kiểm tra lại nonce qua public preflight và execution transport chỉ chạy một lần sau approval.
 - Kiểm chứng: 306 unit tests passed, 3 skipped, 1 deselected, 75 subtests passed; 13 local-EVM integration tests passed trên Hardhat cổng riêng/deployment tạm; 10/10 wallet Playwright E2E passed. Ruff và kiểm tra format đạt. Các test Sepolia dùng signer fixture và RPC giả; không gửi testnet.
 
-Tiếp theo trong lộ trình: PR 4 — tách durable wallet workflow và persistence. Ma trận/hợp đồng đầy đủ của các profile ở PR 0 vẫn cần bổ sung; chưa đo coverage mới.
+### PR 4a — tách durable wallet workflow và persistence
+
+- `BrowserWalletService` giảm từ 862 còn 95 dòng và giữ public facade cho routes, tools và scripts.
+- Tách workflow deployment, context, proposal, submission và reconciliation vào `backend/services/wallet/`. Các dependency được truyền rõ trong constructor, không có workflow tham chiếu ngược về facade.
+- Tách SQL sang `backend/db/repositories/` theo workflow. Workflow giữ quyền sở hữu connection/transaction; repository không tự mở/commit transaction.
+- Giữ cùng `proposal_scope` ContextVar qua re-export, cùng generation/context/deployment binding, CAS/version predicates, send locks, leases, batch size và status transitions.
+- Tách shared scalar/capability helpers, row materialization và pagination; giữ import cũ tương thích. HTTP error mapping và schema/migration giữ nguyên.
+- Đối chiếu AST sau khi inline repository calls: 16 method nghiệp vụ khớp bản cũ, bao gồm SQL và các khối transaction.
+- Thêm 3 test failure/concurrency: lỗi ghi approval rollback proposal/attempt/lock; lỗi release lock khi từ chối chữ ký rollback state; worker mất lease trong RPC không được ghi receipt hoặc giải phóng send lock.
+- Unit suite: 309 passed, 3 skipped, 1 deselected, 75 subtests passed. Ruff và kiểm tra format các module mới đạt.
+- Integration: 13/13 local-EVM/API tests passed, gồm RAG thật từ index/cache local; 10/10 Playwright wallet E2E passed. Mỗi runner dùng Hardhat cổng riêng và dữ liệu test tạm, không dùng node demo.
+
+Tiếp theo: PR 4b tách domain error khỏi HTTP trước PR 5 (agent integration/guardrail). Ma trận/hợp đồng đầy đủ của các profile ở PR 0 vẫn cần bổ sung; chưa đo coverage mới.
 

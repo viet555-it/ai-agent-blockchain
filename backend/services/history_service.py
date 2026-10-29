@@ -3,8 +3,10 @@
 import base64
 import time
 
-from sqlalchemy import and_, or_, select, update
+from sqlalchemy import select, update
 
+from backend.db.pagination import encode_cursor as encode_cursor
+from backend.db.pagination import page as page
 from backend.db.schema_v1 import audit, conversations, messages, proposals, turns
 from backend.services.wallet_common import fail, one, record_audit, require_context, uid
 
@@ -19,33 +21,6 @@ def protocol_json(value, decode=False):
     if isinstance(value, list):
         return [protocol_json(item, decode) for item in value]
     return value
-
-
-def encode_cursor(timestamp, record_id):
-    return base64.urlsafe_b64encode(f"{timestamp}|{record_id}".encode()).decode()
-
-
-def page(connection, statement, table, timestamp, cursor=None, limit=30):
-    if cursor:
-        try:
-            value, record_id = base64.urlsafe_b64decode(cursor.encode()).decode().split("|", 1)
-            value = float(value)
-        except Exception:
-            fail(400, "CURSOR", "Invalid history cursor.")
-        statement = statement.where(
-            or_(timestamp < value, and_(timestamp == value, table.c.id < record_id))
-        )
-    rows = [
-        dict(row)
-        for row in connection.execute(
-            statement.order_by(timestamp.desc(), table.c.id.desc()).limit(limit + 1)
-        ).mappings()
-    ]
-    more, rows = len(rows) > limit, rows[:limit]
-    return {
-        "items": rows,
-        "next_cursor": encode_cursor(rows[-1][timestamp.name], rows[-1]["id"]) if more else None,
-    }
 
 
 class HistoryService:
