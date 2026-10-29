@@ -215,6 +215,8 @@ def create_app(
                                 await asyncio.to_thread(app.state.history.recover)
                             except asyncio.CancelledError:
                                 raise
+                            except HTTPException as error:
+                                logger.warning("Wallet receipt reconciliation deferred: %s", error.detail)
                             except Exception:
                                 logger.warning("Wallet receipt reconciliation deferred; dependencies unavailable")
                             await asyncio.sleep(15)

@@ -855,7 +855,7 @@ async function initializeWalletMode(health) {
   document.getElementById('wallet-chip').hidden = true;
   document.getElementById('wallet-history').hidden = false;
   const reportError = error => {
-    const messages = { 4001: 'rejectedRequest', '-32002': 'pendingRequest', 4902: 'addNetworkFirst', ORIGIN: 'wrongOrigin', AUTH_REQUIRED: 'gateSignIn' };
+    const messages = { 4001: 'rejectedRequest', '-32002': 'pendingRequest', 4902: 'addNetworkFirst', ORIGIN: 'wrongOrigin', AUTH_REQUIRED: 'gateSignIn', DEPLOYMENT_UNAVAILABLE: health.chain_id === 31337 ? 'deploymentUnavailable' : undefined };
     const message = messages[error.code];
     renderWalletGate();
     controls.dataset.ready = 'false';

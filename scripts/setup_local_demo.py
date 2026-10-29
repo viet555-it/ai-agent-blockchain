@@ -5,11 +5,13 @@ from __future__ import annotations
 import argparse
 import json
 import os
+from contextlib import suppress
 from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import urlparse
 
 from web3 import Web3
+from web3.exceptions import TransactionNotFound
 
 from config.environment import load_project_env
 
@@ -45,7 +47,22 @@ def setup(rpc: str) -> dict:
             saved_abi = (
                 json.loads(abi_path.read_text(encoding="utf-8")) if abi_path.exists() else None
             )
-            if code_hash == saved.get("runtimeCodeHash") and saved_abi == artifact["abi"]:
+            # Matching bytecode alone can belong to another deployment after a reset.
+            # The wallet service also needs this exact receipt for its fingerprint.
+            receipt = None
+            if saved.get("transactionHash"):
+                with suppress(TransactionNotFound):
+                    receipt = w3.eth.get_transaction_receipt(saved["transactionHash"])
+            receipt_matches = (
+                receipt is not None
+                and receipt["status"] == 1
+                and str(receipt.get("contractAddress", "")).lower() == address.lower()
+            )
+            if (
+                code_hash == saved.get("runtimeCodeHash")
+                and saved_abi == artifact["abi"]
+                and receipt_matches
+            ):
                 return {"status": "reused", **saved}
     sender = w3.eth.accounts[0]
     factory = w3.eth.contract(abi=artifact["abi"], bytecode=artifact["bytecode"])

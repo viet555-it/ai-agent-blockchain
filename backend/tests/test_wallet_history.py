@@ -198,6 +198,28 @@ class WalletHistoryTests(unittest.TestCase):
         self.assertEqual(response.json()["token_address"], "0x" + "12" * 20)
         self.assertEqual(response.json()["token_balance"], "10")
 
+    def test_stale_deployment_gives_recovery_instructions_without_losing_history(self):
+        context, _, _ = self.login()
+        conversation = self.conversation(context)
+        manifest = self.chain.network_manager.load_deployment_manifest.return_value[1]
+        manifest["transactionHash"] = "0x" + "ab" * 32
+        self.chain.w3.eth.get_transaction_receipt.side_effect = TransactionNotFound("missing")
+        response = self.client.post("/api/wallet-contexts", json={"chain_id": 31337})
+        self.assertEqual(response.status_code, 503, response.text)
+        detail = response.json()["detail"]
+        self.assertEqual(detail["code"], "DEPLOYMENT_UNAVAILABLE")
+        self.assertIn("scripts.setup_local_demo", detail["message"])
+        self.assertEqual(self.client.get("/api/auth/me").status_code, 200)
+        history = self.client.get("/api/history/conversations").json()
+        self.assertIn(conversation, [item["id"] for item in history["items"]])
+
+    def test_missing_contract_code_gives_deployment_error(self):
+        self.login()
+        self.chain.network_manager.verify_contract_bytecode.side_effect = ValueError("no code")
+        response = self.client.post("/api/wallet-contexts", json={"chain_id": 31337})
+        self.assertEqual(response.status_code, 503, response.text)
+        self.assertEqual(response.json()["detail"]["code"], "DEPLOYMENT_UNAVAILABLE")
+
     def test_frontend_revalidates_assets_so_old_wallet_controls_are_not_cached(self):
         for path in ["/", "/app.js", "/styles.css"]:
             response = self.client.get(path)

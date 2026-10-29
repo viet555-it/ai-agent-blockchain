@@ -116,6 +116,7 @@
     "unknownHash": "chưa xác định"
   },
   "wallet": {
+    "deploymentUnavailable": "Contract chưa khớp với node Hardhat hiện tại. Giữ node chạy, chạy .\\.venv-phase3\\Scripts\\python.exe -m scripts.setup_local_demo, khởi động lại API rồi kết nối lại ví. Giữ nguyên database lịch sử.",
     "connect": "Kết nối ví",
     "signIn": "Xác nhận ví để sử dụng Agent.",
     "change": "Đổi tài khoản",

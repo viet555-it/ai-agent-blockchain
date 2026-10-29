@@ -90,6 +90,27 @@ lại API. HTTPS bắt buộc ngoài localhost. Triển khai SQLite chạy một
 Local test account chỉ dùng cho Hardhat; không dùng cùng khóa/seed này trên mạng có tài sản.
 App không có ô nhập private key/seed. Để gửi giao dịch, tài khoản phải có ETH trả gas.
 
+### Đăng nhập thành công nhưng `/api/wallet-contexts` trả 503
+
+Nếu log có `TransactionNotFound`, lỗi gọi contract hoặc `DEPLOYMENT_UNAVAILABLE`, manifest
+deploy đang không khớp node Hardhat hiện tại (thường sau khi node được khởi động lại).
+`/api/auth/verify` trả 200 nghĩa là chữ ký ví đã hợp lệ; cần khôi phục deployment local:
+
+1. Dừng API bằng **Ctrl+C** tại terminal chạy `backend.api.server`.
+2. Giữ terminal Hardhat chạy. Nếu chưa có node, chạy
+   `npm.cmd --prefix contracts run node -- --hostname 127.0.0.1` ở terminal riêng.
+3. Tại root repository, chạy:
+
+   ```powershell
+   .\.venv-phase3\Scripts\python.exe -m scripts.setup_local_demo
+   .\.venv-phase3\Scripts\python.exe -m backend.api.server
+   ```
+
+4. Mở `http://127.0.0.1:8000`, **Ctrl+F5**, chọn Hardhat Local trong MetaMask rồi bấm **Kết nối ví**.
+
+Không xóa database hoặc cài lại MetaMask để xử lý lỗi này. Script setup kiểm tra cả bytecode
+và receipt trước khi tái sử dụng deployment. Lịch sử của deployment cũ vẫn được giữ lại.
+
 ## Giao dịch
 
 - Các thao tác hỗ trợ: chuyển ETH, chuyển AGNT, nhận AGNT faucet.

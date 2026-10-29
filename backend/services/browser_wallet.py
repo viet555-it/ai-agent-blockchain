@@ -98,14 +98,23 @@ class BrowserWalletService:
             "runtime_hash": manifest.get("runtimeCodeHash"),
             "abi_hash": digest(abi),
         }
-        if manifest.get("transactionHash"):
-            deployment_receipt = self.blockchain.w3.eth.get_transaction_receipt(
-                manifest["transactionHash"]
-            )
-            details["deployment_tx"] = manifest["transactionHash"]
-            details["deployment_block_hash"] = hexdata(deployment_receipt["blockHash"])
         if self.blockchain.w3.eth.chain_id != self.blockchain.chain_id:
             fail(409, "CHAIN_CHANGED", "RPC network does not match the runtime.")
+        if manifest.get("transactionHash"):
+            try:
+                deployment_receipt = self.blockchain.w3.eth.get_transaction_receipt(
+                    manifest["transactionHash"]
+                )
+            except TransactionNotFound:
+                self.deployment_unavailable()
+            if (
+                number(deployment_receipt["status"]) != 1
+                or str(deployment_receipt.get("contractAddress", "")).lower()
+                != details["contract"].lower()
+            ):
+                self.deployment_unavailable()
+            details["deployment_tx"] = manifest["transactionHash"]
+            details["deployment_block_hash"] = hexdata(deployment_receipt["blockHash"])
         if self.blockchain.chain_id == 31337:
             metadata = self.blockchain.w3.provider.make_request("hardhat_metadata", [])
             instance = metadata.get("result", {}).get("instanceId")
@@ -113,9 +122,12 @@ class BrowserWalletService:
                 fail(503, "CHAIN_IDENTITY", "Cannot identify the local Hardhat instance.")
             details["instance_id"] = instance
         details["genesis"] = hexdata(self.blockchain.w3.eth.get_block(0)["hash"])
-        self.blockchain.network_manager.verify_contract_bytecode(
-            self.blockchain.w3, details["contract"], details["runtime_hash"]
-        )
+        try:
+            self.blockchain.network_manager.verify_contract_bytecode(
+                self.blockchain.w3, details["contract"], details["runtime_hash"]
+            )
+        except ValueError:
+            self.deployment_unavailable()
         fingerprint = digest(details)
         with self.db.transaction() as connection:
             found = one(
@@ -146,6 +158,18 @@ class BrowserWalletService:
                 )
             )
             return deployment_id
+
+    def deployment_unavailable(self):
+        if self.blockchain.chain_id == 31337:
+            message = (
+                "The saved deployment is unavailable on the current Hardhat node. "
+                "Keep the node running, run .\\.venv-phase3\\Scripts\\python.exe "
+                "-m scripts.setup_local_demo, then restart the API and reconnect. "
+                "Keep the history database."
+            )
+        else:
+            message = "The saved deployment does not match the current RPC. Check the deployment manifest and contract code."
+        fail(503, "DEPLOYMENT_UNAVAILABLE", message)
 
     def create_context(self, principal, chain_id):
         if chain_id != self.blockchain.chain_id:
