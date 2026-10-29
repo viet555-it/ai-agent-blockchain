@@ -13,6 +13,8 @@ dependencies = [
     "pydantic-settings>=2.0",
     "python-dotenv>=1.0",
     "filelock>=3.0",
+    "SQLAlchemy>=2.0,<2.2",
+    "alembic>=1.13,<2",
     "pyyaml>=6.0",
     # Token counting
     "tiktoken>=0.8",

@@ -68,3 +68,9 @@ data/rag/
 !.env.example
 .coverage
 htmlcov/
+data/*.db
+data/*.db-wal
+data/*.db-shm
+data/backups/
+frontend/test-results/
+frontend/playwright-report/

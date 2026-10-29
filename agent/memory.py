@@ -36,6 +36,7 @@ class ConversationMemory:
         self._counter = counter or TiktokenCounter()
         self._messages: list[dict[str, Any]] = []
         self._system_prompt: dict[str, Any] | None = None
+        self.observer = None
 
     def set_system_prompt(self, content: str) -> None:
         """Set (or replace) the system prompt. Always preserved."""
@@ -44,6 +45,8 @@ class ConversationMemory:
     def add_message(self, message: dict[str, Any]) -> None:
         """Add a message to history."""
         self._messages.append(message)
+        if self.observer is not None:
+            self.observer(message)
         self._trim()
 
     def add_user(self, content: str) -> None:

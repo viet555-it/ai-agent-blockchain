@@ -103,6 +103,14 @@ class AgentService:
         """Clear a session's conversation history."""
         self._sessions.pop(session_id, None)
 
+    def restore_session(self, session_id: str, messages: list[dict], observer=None) -> None:
+        """Hydrate persisted completed turns without replaying any tool."""
+        memory = ConversationMemory(max_tokens=self._settings.effective_token_budget)
+        for message in messages:
+            memory.add_message(message)
+        memory.observer = observer
+        self._sessions[session_id] = memory
+
     def list_sessions(self) -> list[str]:
         return list(self._sessions.keys())
 

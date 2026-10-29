@@ -1,0 +1,31 @@
+/** Same-origin authenticated requests. Session credentials never enter localStorage. */
+export class ApiError extends Error {
+  constructor(status, detail) {
+    super(typeof detail === 'string' ? detail : detail?.message || `HTTP ${status}`);
+    this.status = status;
+    this.code = detail?.code;
+  }
+}
+
+export async function api(path, { method = 'GET', body, signal } = {}) {
+  const csrf = document.cookie.split('; ').find(value => value.startsWith('ati_csrf='))?.split('=').slice(1).join('=') || '';
+  const response = await fetch(`/api${path}`, {
+    method, credentials: 'same-origin', signal,
+    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': decodeURIComponent(csrf) },
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new ApiError(response.status, data.detail);
+  return data;
+}
+
+export function transactionForProvider(transaction) {
+  const integers = new Set(['value', 'gas', 'gasPrice', 'maxFeePerGas', 'maxPriorityFeePerGas', 'nonce', 'chainId', 'type']);
+  return Object.fromEntries(Object.entries(transaction).map(([key, value]) => [key,
+    integers.has(key) ? `0x${BigInt(value).toString(16)}` : value]));
+}
+
+export function displayDecimal(value, places = 6) {
+  const [whole, fraction = ''] = String(value).split('.');
+  return fraction.length > places ? `${whole}.${fraction.slice(0, places)}…` : String(value);
+}

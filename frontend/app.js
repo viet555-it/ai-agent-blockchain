@@ -4,6 +4,9 @@
  * Dynamic Theming, and Reactive Internationalization (i18n).
  */
 import { icons } from './icons.js';
+import { api, displayDecimal } from './api.js';
+import { WalletController } from './wallet.js';
+import { HistoryView } from './history.js';
 import {
   t,
   getLanguage,
@@ -28,6 +31,11 @@ const state = {
   language: getLanguage(),
   lastTimelineSteps: null,
   lastBaseFeeGwei: null,
+  walletMode: false,
+  walletController: null,
+  historyView: null,
+  historyLoading: false,
+  followLatest: true,
 };
 
 // DOM Elements
@@ -213,6 +221,7 @@ function shortenAddress(addr) {
 
 function updateNetworkLabels() {
   if (!state.network) return;
+  elements.headerNetworkName.textContent = state.network.name;
   elements.modalNetwork.textContent = `${state.network.name} (${state.network.chain_id})`;
   document.getElementById('contract-network-label').textContent = t('network.smartContractOn', {
     network: state.network.name,
@@ -274,19 +283,22 @@ async function loadNetworkStatus() {
  * Fetch wallet balance and token info
  */
 async function loadWalletInfo() {
+  const generation = state.walletController?.generation;
+  const address = state.walletController?.address;
+  if (state.walletMode && !address) return;
   try {
-    const res = await fetch(`${API_BASE}/api/wallet/info`);
+    const res = await fetch(`${API_BASE}/api/wallet/info${state.walletMode ? `?address=${encodeURIComponent(address)}` : ''}`);
     if (!res.ok) throw new Error('Wallet info unreachable');
     const data = await res.json();
+    if (state.walletMode && !state.walletController.current(generation)) return;
     state.wallet = data;
 
     elements.headerWalletAddress.textContent = shortenAddress(data.address);
-    elements.valNativeBalance.textContent = parseFloat(data.native_balance || '0').toFixed(4);
+    elements.valNativeBalance.textContent = displayDecimal(data.native_balance || '0');
+    elements.valNativeBalance.title = data.native_balance || '0';
     elements.valNativeSymbol.textContent = data.native_symbol || 'ETH';
-    elements.valTokenBalance.textContent = parseFloat(data.token_balance || '0').toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 4,
-    });
+    elements.valTokenBalance.textContent = displayDecimal(data.token_balance || '0');
+    elements.valTokenBalance.title = data.token_balance || '0';
   } catch (err) {
     console.error('Failed to load wallet info:', err);
   }
@@ -354,6 +366,7 @@ function appendMessage(sender, text, extraHtml = '') {
   msgDiv.appendChild(bubble);
 
   elements.chatHistory.appendChild(msgDiv);
+  state.followLatest = true;
   elements.chatHistory.scrollTop = elements.chatHistory.scrollHeight;
   return bubble;
 }
@@ -499,6 +512,7 @@ function renderTimeline(timelineSteps) {
  * Open Transaction Review and Approval Modal
  */
 function openApprovalModal(approval, guardrailResult) {
+  document.getElementById('modal-sender').textContent = approval.parameters.sender || state.wallet?.address || '--';
   state.pendingApproval = approval;
   state.activeApprovalParameters = approval.parameters;
 
@@ -536,6 +550,26 @@ function closeApprovalModal() {
  */
 async function submitApprovalAction(action) {
   if (!state.pendingApproval) return;
+  if (state.walletMode) {
+    const wallet = state.walletController;
+    const generation = wallet.generation;
+    elements.btnModalApprove.disabled = true;
+    elements.btnModalReject.disabled = true;
+    try {
+      const result = await wallet.submit(state.pendingApproval, action);
+      if (!wallet.current(generation)) return;
+      closeApprovalModal();
+      appendMessage('agent', action === 'REJECT' ? t('modal.rejectedMsg') : t('wallet.sent', { hash: result.tx_hash }));
+      await state.historyView.refreshTransactions();
+      await loadWalletInfo();
+    } catch (error) {
+      if (!wallet.current(generation)) return;
+      closeApprovalModal();
+      appendMessage('agent', error.message);
+      await state.historyView.refreshTransactions().catch(() => {});
+    }
+    return;
+  }
 
   const approvalId = state.pendingApproval.approval_id;
   const params = state.activeApprovalParameters;
@@ -606,6 +640,15 @@ async function submitApprovalAction(action) {
  */
 async function handleSendMessage(query) {
   if (!query || !query.trim() || state.isProcessing) return;
+  const wallet = state.walletController;
+  const generation = wallet?.generation;
+  const conversation = wallet?.conversation;
+  const epoch = state.historyView?.epoch;
+  const current = () => !state.walletMode || (wallet.current(generation) && wallet.conversation === conversation && state.historyView.epoch === epoch);
+  if (state.walletMode && (!wallet.ready || !conversation || state.historyView.readOnly)) {
+    appendMessage('agent', t('wallet.loginRequired'));
+    return;
+  }
 
   state.isProcessing = true;
   elements.btnSendMessage.disabled = true;
@@ -616,24 +659,36 @@ async function handleSendMessage(query) {
   showTypingIndicator();
 
   try {
-    const res = await fetch(`${API_BASE}/api/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: query,
-        wallet_address: state.wallet ? state.wallet.address : null,
-        session_id: state.sessionId,
-      }),
-    });
+    let data;
+    if (state.walletMode) {
+      const context = wallet.context;
+      const requestId = crypto.randomUUID();
+      const result = await api(`/history/conversations/${conversation}/turns`, { method: 'POST', body: {
+        query, context_id: context.id, generation: context.generation, client_request_id: requestId,
+      } });
+      if (!current()) return;
+      data = result.response;
+      if (!data) throw new Error(t('wallet.turnStatus', { status: result.status }));
+    } else {
+      const res = await fetch(`${API_BASE}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: query,
+          wallet_address: state.wallet ? state.wallet.address : null,
+          session_id: state.sessionId,
+        }),
+      });
 
-    removeTypingIndicator();
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || 'Failed to communicate with AI Agent');
+      }
 
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      throw new Error(errData.detail || 'Failed to communicate with AI Agent');
+      data = await res.json();
     }
-
-    const data = await res.json();
+    if (!current()) return;
+    removeTypingIndicator();
 
     // Extra RAG citation card if returned
     let ragCitationHtml = '';
@@ -663,13 +718,17 @@ async function handleSendMessage(query) {
     }
 
   } catch (err) {
+    if (!current()) return;
+    if (state.walletMode && err.status === 401) wallet.invalidate('signIn');
     removeTypingIndicator();
     appendMessage('agent', `❌ An error occurred: ${err.message}`);
     console.error('Chat error:', err);
   } finally {
+    if (!current()) return;
     state.isProcessing = false;
-    elements.btnSendMessage.disabled = false;
+    elements.btnSendMessage.disabled = state.walletMode && !wallet.ready;
     elements.chatInput.focus();
+    renderWalletGate();
   }
 }
 
@@ -744,8 +803,177 @@ function greetUser() {
   appendMessage('agent', t('chat.welcomeGreeting'));
 }
 
+function clearWalletView() {
+  state.followLatest = true;
+  elements.chatHistory.replaceChildren();
+  closeApprovalModal();
+  state.isProcessing = false;
+  state.lastTimelineSteps = null;
+  elements.timelineList.replaceChildren();
+  elements.timelineList.style.display = 'none';
+  elements.timelineEmptyState.style.display = '';
+  elements.timelineStepCount.textContent = '0 / 9';
+  elements.btnSendMessage.disabled = state.walletMode && (!state.walletController.ready || state.historyView?.readOnly);
+  renderWalletGate();
+}
+
+function renderWalletGate() {
+  if (!state.walletMode) return;
+  const wallet = state.walletController;
+  const blocked = !wallet.ready || !wallet.conversation || state.historyView?.readOnly || state.historyLoading;
+  const busy = wallet.connecting || wallet.authenticating || state.historyLoading;
+  const gate = document.getElementById('wallet-chat-gate');
+  gate.hidden = !blocked;
+  let message = 'gateConnect', action = 'connectSignIn';
+  if (!wallet.providers.size) { message = 'noProvider'; action = 'detectWallet'; }
+  else if (wallet.status === 'wrongNetwork') { message = 'gateNetwork'; }
+  else if (wallet.address && !wallet.ready) { message = 'gateSignIn'; }
+  else if (wallet.ready) { message = state.historyLoading ? 'loadingChat' : state.historyView?.readOnly ? 'oldChat' : 'gateNewChat'; action = 'newChat'; }
+  document.getElementById('wallet-chat-guidance').textContent = t(`wallet.${message}`, { chain: wallet.expectedChain });
+  const button = document.getElementById('wallet-chat-action');
+  button.textContent = t(`wallet.${action}`);
+  button.disabled = busy;
+  elements.chatInput.disabled = blocked || state.isProcessing;
+  elements.btnSendMessage.disabled = blocked || state.isProcessing;
+  elements.promptChips.querySelectorAll('button').forEach(button => { button.disabled = blocked || state.isProcessing; });
+  for (const id of ['history-new', 'history-rename', 'history-archive', 'conversation-list']) {
+    document.getElementById(id).disabled = !wallet.ready || state.historyLoading;
+  }
+  const controls = document.getElementById('wallet-controls');
+  const agentReady = wallet.ready && wallet.conversation && !state.historyLoading && !state.historyView?.readOnly;
+  controls.dataset.ready = String(Boolean(agentReady));
+  if (wallet.ready) document.getElementById('wallet-status').textContent = t(`wallet.${state.historyLoading ? 'loadingChat' : agentReady ? 'ready' : 'gateNewChat'}`);
+}
+
+async function initializeWalletMode(health) {
+  state.walletMode = health.wallet_history_enabled;
+  if (!state.walletMode) return;
+  const wallet = new WalletController(health.chain_id);
+  state.walletController = wallet;
+  const controls = document.getElementById('wallet-controls');
+  controls.hidden = false;
+  document.getElementById('wallet-chip').hidden = true;
+  document.getElementById('wallet-history').hidden = false;
+  const reportError = error => {
+    const messages = { 4001: 'rejectedRequest', '-32002': 'pendingRequest', 4902: 'addNetworkFirst', ORIGIN: 'wrongOrigin', AUTH_REQUIRED: 'gateSignIn', DEPLOYMENT_UNAVAILABLE: health.chain_id === 31337 ? 'deploymentUnavailable' : undefined };
+    const message = messages[error.code];
+    renderWalletGate();
+    controls.dataset.ready = 'false';
+    document.getElementById('wallet-status').textContent = message ? t(`wallet.${message}`) : error.message;
+  };
+  const history = new HistoryView(wallet, { clear: clearWalletView, append: appendMessage,
+    timeline: renderTimeline, approval: openApprovalModal, error: reportError });
+  state.historyView = history;
+  let generation = -1;
+  let contextId = null;
+  const providerSelect = document.getElementById('wallet-provider');
+  const providers = () => {
+    const selected = providerSelect.value;
+    providerSelect.replaceChildren();
+    for (const [id, item] of wallet.providers) {
+      const option = document.createElement('option');
+      option.value = id;
+      option.textContent = item.name;
+      providerSelect.append(option);
+    }
+    if (wallet.providers.has(selected)) providerSelect.value = selected;
+    providerSelect.hidden = wallet.ready || wallet.providers.size <= 1;
+    renderWalletGate();
+  };
+  const update = () => {
+    if (generation !== wallet.generation) {
+      generation = wallet.generation;
+      document.getElementById('wallet-menu').open = false;
+      state.historyLoading = false;
+      contextId = null;
+      history.clear();
+      state.wallet = null;
+      elements.headerWalletAddress.textContent = wallet.address ? shortenAddress(wallet.address) : '--';
+      elements.valNativeBalance.textContent = '--';
+      elements.valTokenBalance.textContent = '--';
+    }
+    elements.headerWalletAddress.textContent = wallet.address ? shortenAddress(wallet.address) : '--';
+    document.getElementById('wallet-status').textContent = t(`wallet.${wallet.status}`);
+    document.getElementById('wallet-connect').disabled = wallet.connecting || wallet.authenticating || wallet.signing;
+    document.getElementById('wallet-switch').disabled = wallet.connecting || wallet.authenticating || wallet.signing;
+    document.getElementById('wallet-connect').hidden = wallet.ready;
+    document.getElementById('wallet-connect').textContent = t(`wallet.${wallet.connecting || wallet.authenticating ? 'confirmInWallet' : 'connectSignIn'}`);
+    document.getElementById('wallet-menu').hidden = !wallet.ready;
+    document.getElementById('wallet-menu-address').textContent = shortenAddress(wallet.address);
+    document.getElementById('wallet-switch').hidden = !wallet.address;
+    document.getElementById('wallet-disconnect').hidden = !wallet.address;
+    document.getElementById('wallet-provider').disabled = wallet.connecting || wallet.authenticating || wallet.signing;
+    document.getElementById('wallet-provider').hidden = wallet.ready || wallet.providers.size <= 1;
+    elements.btnSendMessage.disabled = !wallet.ready || state.isProcessing || history.readOnly;
+    if (wallet.ready && contextId !== wallet.context.id) {
+      contextId = wallet.context.id;
+      const expectedGeneration = wallet.generation;
+      state.historyLoading = true;
+      loadWalletInfo();
+      history.initialize().catch(error => { if (wallet.current(expectedGeneration)) reportError(error); }).finally(() => {
+        if (wallet.current(expectedGeneration)) { state.historyLoading = false; renderWalletGate(); }
+      });
+    }
+    renderWalletGate();
+  };
+  wallet.addEventListener('change', update);
+  wallet.addEventListener('error', event => reportError(event.detail));
+  wallet.addEventListener('providers', providers);
+  onLanguageChange(update);
+  document.getElementById('wallet-connect').addEventListener('click', () => wallet.connectAndSignIn(providerSelect.value).catch(reportError));
+  document.getElementById('wallet-switch').addEventListener('click', () => {
+    document.getElementById('wallet-menu').open = false;
+    wallet.connectAndSignIn(providerSelect.value, true).catch(reportError);
+  });
+  document.getElementById('wallet-disconnect').addEventListener('click', () => {
+    document.getElementById('wallet-menu').open = false;
+    wallet.disconnect().catch(reportError);
+  });
+  document.getElementById('wallet-copy').addEventListener('click', () => {
+    if (wallet.address) navigator.clipboard.writeText(wallet.address).catch(reportError);
+    document.getElementById('wallet-menu').open = false;
+  });
+  document.getElementById('wallet-chat-action').addEventListener('click', async () => {
+    try {
+      if (!wallet.providers.size) { wallet.surface.dispatchEvent(new Event('eip6963:requestProvider')); providers(); return; }
+      if (!wallet.ready) await wallet.connectAndSignIn(providerSelect.value);
+      else await history.create();
+    } catch (error) { reportError(error); }
+  });
+  wallet.discover();
+  providers();
+  update();
+  await wallet.restore();
+  await wallet.retryReports();
+}
+
 // Bootstrap
 async function bootstrap() {
+  const header = document.querySelector('.app-header');
+  const measureHeader = () => document.documentElement.style.setProperty('--app-header-height', `${header.getBoundingClientRect().height}px`);
+  new ResizeObserver(measureHeader).observe(header);
+  measureHeader();
+  let userScrolling = false;
+  let scrollTimer;
+  const markUserScroll = () => {
+    userScrolling = true;
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => { userScrolling = false; }, 300);
+  };
+  for (const event of ['wheel', 'touchmove', 'pointerdown']) {
+    elements.chatHistory.addEventListener(event, markUserScroll, { passive: true });
+  }
+  elements.chatHistory.addEventListener('keydown', event => {
+    if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'].includes(event.key)) markUserScroll();
+  });
+  elements.chatHistory.addEventListener('scroll', () => {
+    if (!userScrolling) return;
+    state.followLatest = elements.chatHistory.scrollHeight - elements.chatHistory.scrollTop - elements.chatHistory.clientHeight < 48;
+    markUserScroll();
+  });
+  new ResizeObserver(() => {
+    if (state.followLatest) elements.chatHistory.scrollTop = elements.chatHistory.scrollHeight;
+  }).observe(elements.chatHistory);
   await initializeI18n();
   // Apply persisted theme immediately
   applyTheme(state.theme);
@@ -755,6 +983,15 @@ async function bootstrap() {
   updateLanguageUI(state.language);
   setupEventListeners();
   greetUser();
+
+  try {
+    const health = await api('/health');
+    await initializeWalletMode(health);
+  } catch (error) {
+    elements.btnSendMessage.disabled = true;
+    appendMessage('agent', error.message);
+    return;
+  }
 
   await Promise.all([
     loadNetworkStatus(),
@@ -767,6 +1004,7 @@ async function bootstrap() {
     if (!state.isProcessing) {
       loadNetworkStatus();
       loadWalletInfo();
+      if (state.walletMode) state.historyView.refreshTransactions().catch(() => {});
     }
   }, 20000);
 }

@@ -5,6 +5,7 @@ import hashlib
 import json
 import uuid
 import os
+from contextlib import suppress
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Dict, Optional, Literal
@@ -66,7 +67,13 @@ def create_app(
     agent_settings: Any = None,
     enable_local_writes: bool | None = None,
     sepolia_execution: Any = None,
+    wallet_settings: Any = None,
 ) -> FastAPI:
+    history_enabled = wallet_settings is not None or (
+        profile != "unit" and os.environ.get("WALLET_HISTORY_ENABLED", "false").lower() == "true")
+    if history_enabled:
+        from backend.wallet_settings import WalletSettings
+        wallet_settings = wallet_settings or WalletSettings.from_environment()
     runtime_profile = RuntimeProfile.load(profile, allow_sepolia_write=sepolia_execution is not None)
     if sepolia_execution is not None and (runtime_profile.name != "sepolia_write" or agent_mode != "llm"):
         raise ValueError("Explicit Sepolia execution requires sepolia_write and llm mode")
@@ -90,6 +97,10 @@ def create_app(
         local_writes = flag == "true"
     if local_writes and (runtime_profile.name != "local_evm" or mode != "llm"):
         raise ValueError("Local writes require local_evm profile and llm agent mode")
+    if history_enabled and mode != "llm":
+        raise ValueError("Wallet history requires PHASE3_AGENT=llm")
+    if history_enabled and sepolia_execution is not None:
+        raise ValueError("Browser-wallet history cannot share the legacy Sepolia execution grant")
     DEMO_WALLET = wallet or os.environ.get("DEMO_WALLET_ADDRESS")
     if not DEMO_WALLET:
         if runtime_profile.chain_id == 31337:
@@ -113,7 +124,7 @@ def create_app(
             )
         if blockchain_service.chain_id != runtime_profile.chain_id:
             raise ValueError("Injected blockchain service does not match the runtime chain")
-        if local_writes:
+        if local_writes and not history_enabled:
             transactions = TransactionCoordinator(blockchain_service, policy_engine, DEMO_WALLET)
             network_config.default_contracts["AgentToken"] = transactions.contract_address
         elif sepolia_execution is not None:
@@ -127,6 +138,8 @@ def create_app(
         )
         app.state.agent = agent
         app.state.blockchain = blockchain_service
+        wallet_db = None
+        receipt_task = None
         owned_retriever = None
         owned_llm = None
         try:
@@ -178,8 +191,44 @@ def create_app(
                 read_agent = ReadAgentRuntime(blockchain=blockchain_service, retriever=selected_retriever,
                                              llm=selected_llm, settings=settings, transactions=transactions)
                 app.state.read_agent = read_agent
+                if history_enabled:
+                    from backend.db.store import Database
+                    from backend.services.browser_wallet import BrowserWalletService
+                    from backend.services.history_service import HistoryService
+                    from backend.services.wallet_auth import WalletAuth
+                    wallet_db = Database(wallet_settings.database_url)
+                    wallet_db.check_schema()
+                    app.state.wallet_db = wallet_db
+                    app.state.wallet_auth = WalletAuth(wallet_db, wallet_settings, runtime_profile.chain_id, blockchain_service)
+                    app.state.history = HistoryService(wallet_db)
+                    app.state.history.recover()
+                    browser = BrowserWalletService(wallet_db, wallet_settings, blockchain_service, policy_engine)
+                    network_config.default_contracts["AgentToken"] = browser.contract_address
+                    app.state.browser_wallet = browser
+                    app.state.history_runtime = ReadAgentRuntime(blockchain=blockchain_service, retriever=selected_retriever,
+                        llm=selected_llm, settings=settings, transactions=browser if wallet_settings.browser_writes else None)
+
+                    async def reconcile():
+                        while True:
+                            try:
+                                await asyncio.to_thread(browser.reconcile_batch)
+                                await asyncio.to_thread(app.state.history.recover)
+                            except asyncio.CancelledError:
+                                raise
+                            except HTTPException as error:
+                                logger.warning("Wallet receipt reconciliation deferred: %s", error.detail)
+                            except Exception:
+                                logger.warning("Wallet receipt reconciliation deferred; dependencies unavailable")
+                            await asyncio.sleep(15)
+                    receipt_task = asyncio.create_task(reconcile())
             yield
         finally:
+            if receipt_task:
+                receipt_task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await receipt_task
+            if wallet_db:
+                wallet_db.close()
             if owned_retriever is not None:
                 await owned_retriever.aclose()
             if owned_llm is not None and hasattr(owned_llm, "aclose"):
@@ -189,10 +238,43 @@ def create_app(
     app.state.profile = runtime_profile
     app.state.policy_engine = policy_engine
     app.state.network_manager = network_manager
+    app.state.history_enabled = history_enabled
     app.add_middleware(
         CORSMiddleware, allow_origins=["http://127.0.0.1:8000", "http://localhost:8000", "http://localhost:5173"],
         allow_credentials=True, allow_methods=["*"], allow_headers=["*"],
     )
+    if history_enabled:
+        from backend.api.wallet_routes import router
+        from sqlalchemy.exc import SQLAlchemyError
+        from fastapi.responses import JSONResponse
+        app.include_router(router)
+
+        @app.middleware("http")
+        async def private_wallet_responses(request, call_next):
+            request_id = uuid.uuid4().hex
+            try:
+                response = await call_next(request)
+            except Exception as error:
+                logger.warning("Wallet API request %s failed (%s)", request_id, type(error).__name__)
+                response = JSONResponse(status_code=503, content={"detail": {"code": "DEPENDENCY_UNAVAILABLE", "message": "A required service is unavailable. Check the existing request before retrying.", "request_id": request_id}})
+            if request.url.path.startswith("/api/"):
+                response.headers["Cache-Control"] = "no-store"
+                response.headers["X-Request-ID"] = request_id
+            elif request.url.path in {"/", "/index.html"} or request.url.path.endswith((".js", ".css", ".json")):
+                response.headers["Cache-Control"] = "no-cache"
+            return response
+
+        @app.exception_handler(SQLAlchemyError)
+        async def storage_unavailable(request, error):
+            return JSONResponse(status_code=503, content={"detail": {"code": "STORAGE_UNAVAILABLE", "message": "Storage is unavailable. Check the existing request before retrying."}})
+
+        @app.exception_handler(TransactionError)
+        async def transaction_unavailable(request, error):
+            return JSONResponse(status_code=error.status_code, content={"detail": {"code": "TRANSACTION", "message": str(error)}})
+
+    def legacy_only():
+        if history_enabled:
+            raise HTTPException(status_code=403, detail="Legacy demo endpoints are disabled in wallet-history mode")
 
     @app.get("/api/health")
     def get_health():
@@ -202,7 +284,9 @@ def create_app(
             "chain_id": network_manager.active_chain_id,
             "active_wallet": DEMO_WALLET,
             "agent_mode": mode,
-            "local_writes_enabled": bool(local_writes),
+            "local_writes_enabled": bool(local_writes and not history_enabled),
+            "wallet_history_enabled": history_enabled,
+            "browser_wallet_writes": bool(history_enabled and wallet_settings.browser_writes),
         }
 
 
@@ -300,11 +384,13 @@ def create_app(
 
     @app.get("/api/guardrail/audits")
     def get_audit_logs(limit: int = 30):
+        legacy_only()
         return policy_engine.list_audit_events(limit=limit)
 
 
     @app.post("/api/chat", response_model=AgentResponse)
     async def handle_chat(req: ChatRequest):
+        legacy_only()
         try:
             wallet = req.wallet_address or DEMO_WALLET
             if read_agent is not None:
@@ -319,6 +405,7 @@ def create_app(
 
     @app.get("/api/approval/{approval_id}")
     def get_approval(approval_id: str, session_id: str | None = Header(default=None, alias="X-Session-ID")):
+        legacy_only()
         if transactions is not None:
             try:
                 return transactions.get(approval_id, session_id or "")
@@ -332,6 +419,7 @@ def create_app(
 
     @app.post("/api/approval/action")
     async def handle_approval_action(req: ApprovalActionRequest):
+        legacy_only()
         if transactions is not None:
             try:
                 return await asyncio.to_thread(transactions.review, req.approval_id,
@@ -353,6 +441,7 @@ def create_app(
 
     @app.post("/api/transactions/propose")
     async def propose_transaction(req: ProposalRequest):
+        legacy_only()
         if transactions is None:
             raise HTTPException(status_code=403, detail="Local transaction mode is disabled")
         try:

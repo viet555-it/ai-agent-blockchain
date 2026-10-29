@@ -1,5 +1,0 @@
-# Install into .venv-phase3; leave the standalone RAG environment unchanged.
--r requirements-phase3-constraints.txt
--r backend/requirements.txt
-google-genai>=2.33,<3
--e .[dev]
