@@ -33,7 +33,7 @@ Chạy các lệnh từ root repository. Đã cài dependency Python và fronten
 Máy mới dùng dependency đã khóa:
 
 ```powershell
-.venv-phase3/Scripts/python.exe -m pip install -r requirements-phase3.lock.txt
+.venv-phase3/Scripts/python.exe -m pip install -r requirements.txt
 npm.cmd --prefix frontend ci
 ```
 

@@ -1,4 +1,4 @@
-# Windows x64 / Python 3.12.10; G3.0 integration environment.
+# Project dependencies pinned for Windows x64 / Python 3.12.10 (CPU).
 --extra-index-url https://download.pytorch.org/whl/cpu
 aiohappyeyeballs==2.7.1
 aiohttp==3.14.5

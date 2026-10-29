@@ -23,22 +23,20 @@ Server CLI chỉ bind `127.0.0.1`; frontend vẫn được phục vụ cùng API
 
 - Python đã kiểm tra trên máy: 3.12.10, Windows x64; Node 22.20.0.
 - `.venv-phase3/`: môi trường tích hợp riêng, không sửa hai môi trường cũ.
-- `requirements-phase3.in`: đầu vào dependency.
-- `requirements-phase3-constraints.txt`: giữ pins RAG, điều chỉnh `websockets`
-  sang 15.0.1 cho Web3 7 và `tenacity <9.2` cho Google GenAI SDK.
+- `requirements.txt`: dependency đã khóa cho toàn bộ ứng dụng, thay bộ file
+  dependency Phase 3 trước đây. Giữ các phiên bản đã kiểm thử của RAG, Web3 và LLM.
 - `requirements-rag.lock.txt`, corpus, model revision và evaluator lock không đổi.
-- `requirements-phase3.lock.txt`: phiên bản thực cài, xuất sau khi pip check/test đạt.
 
 Lần cài đầu:
 
 ```powershell
 # Tại repo root, dùng Python 3.12
 python -m venv .venv-phase3
-.venv-phase3/Scripts/python.exe -m pip install -r requirements-phase3.in
+.venv-phase3/Scripts/python.exe -m pip install -r requirements.txt
 .venv-phase3/Scripts/python.exe -m pip check
 ```
 
-Sau khi có lock, dùng `pip install -r requirements-phase3.lock.txt` để tái lập
+Sử dụng `pip install -r requirements.txt` để tái lập
 phiên bản của lần kiểm thử này. Cài dependency có thể cần mạng. Cache embedding
 model dùng lại `.cache/rag/huggingface`; query không tự tải model khác revision.
 

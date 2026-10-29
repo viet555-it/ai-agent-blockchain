@@ -38,7 +38,7 @@ python --version
 node --version
 
 python -m venv .venv-phase3
-.venv-phase3/Scripts/python.exe -m pip install -r requirements-phase3.lock.txt
+.venv-phase3/Scripts/python.exe -m pip install -r requirements.txt
 .venv-phase3/Scripts/python.exe -m pip check
 
 # Chỉ chạy lần đầu khi checkout chưa có .env:
