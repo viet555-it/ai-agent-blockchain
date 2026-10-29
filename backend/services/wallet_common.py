@@ -3,18 +3,15 @@
 import time
 from dataclasses import dataclass
 
-from fastapi import HTTPException
 from sqlalchemy import select, update
 
 from backend.db.rows import one as one
 from backend.db.schema_v1 import attempts, audit, contexts, proposals, sessions
+from backend.wallet_errors import WalletErrorKind as ErrorKind
+from backend.wallet_errors import fail as fail
 from backend.wallet_values import hashed as hashed
 from backend.wallet_values import token as token
 from backend.wallet_values import uid as uid
-
-
-def fail(status, code, message):
-    raise HTTPException(status, detail={"code": code, "message": message})
 
 
 def record_audit(connection, wallet_id, event_type, proposal_id=None, **data):
@@ -84,5 +81,9 @@ def require_context(connection, principal, context_id, generation, deployment_id
         ),
     )
     if not context:
-        fail(409, "STALE_CONTEXT", "Wallet context changed. Reconnect before continuing.")
+        fail(
+            ErrorKind.CONFLICT,
+            "STALE_CONTEXT",
+            "Wallet context changed. Reconnect before continuing.",
+        )
     return context

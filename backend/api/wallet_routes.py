@@ -9,6 +9,7 @@ from sqlalchemy.exc import IntegrityError
 
 from backend.services.browser_wallet import proposal_scope
 from backend.services.wallet_common import fail, require_context, revoke_contexts
+from backend.wallet_errors import WalletErrorKind as ErrorKind
 
 router = APIRouter(prefix="/api")
 
@@ -266,7 +267,11 @@ def report(submission_id: str, body: Report, request: Request):
             submission_id, body.report_token, body.tx_hash, body.rejected
         )
     except IntegrityError:
-        fail(409, "TX_HASH", "This transaction is already associated with another submission.")
+        fail(
+            ErrorKind.CONFLICT,
+            "TX_HASH",
+            "This transaction is already associated with another submission.",
+        )
 
 
 @router.get("/history/transactions")
@@ -279,7 +284,11 @@ def recover_hash(submission_id: str, body: RecoverHash, request: Request, identi
     try:
         return request.app.state.browser_wallet.recover_hash(identity, submission_id, body.tx_hash)
     except IntegrityError:
-        fail(409, "TX_HASH", "This transaction is already associated with another submission.")
+        fail(
+            ErrorKind.CONFLICT,
+            "TX_HASH",
+            "This transaction is already associated with another submission.",
+        )
 
 
 @router.get("/history/transactions/{proposal_id}")

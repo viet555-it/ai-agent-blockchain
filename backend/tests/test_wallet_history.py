@@ -231,6 +231,50 @@ class WalletHistoryTests(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.headers["cache-control"], "no-cache")
 
+    def test_contract_wallet_rejection_is_not_masked_as_rpc_unavailability(self):
+        challenge = self.client.post(
+            "/api/auth/challenge", json={"address": self.a.address, "chain_id": 31337}
+        ).json()
+        signature = Account.sign_message(
+            encode_defunct(text=challenge["message"]), self.a.key
+        ).signature.hex()
+        self.chain.w3.eth.get_code.return_value = b"\x60\x00"
+        response = self.client.post(
+            "/api/auth/verify",
+            json={"challenge_id": challenge["challenge_id"], "signature": signature},
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(),
+            {"detail": {
+                "code": "UNSUPPORTED_WALLET",
+                "message": "Contract wallets are not supported in this version.",
+            }},
+        )
+
+    def test_wallet_type_rpc_failure_keeps_challenge_available_for_retry(self):
+        challenge = self.client.post(
+            "/api/auth/challenge", json={"address": self.a.address, "chain_id": 31337}
+        ).json()
+        signature = Account.sign_message(
+            encode_defunct(text=challenge["message"]), self.a.key
+        ).signature.hex()
+        body = {"challenge_id": challenge["challenge_id"], "signature": signature}
+        self.chain.w3.eth.get_code.side_effect = ConnectionError("private-provider-credential")
+        response = self.client.post("/api/auth/verify", json=body)
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(
+            response.json(),
+            {"detail": {"code": "RPC", "message": "Cannot verify wallet type right now."}},
+        )
+        with self.app.state.wallet_db.transaction() as connection:
+            consumed = connection.execute(
+                select(challenges.c.consumed_at).where(challenges.c.id == challenge["challenge_id"])
+            ).scalar_one()
+            self.assertIsNone(consumed)
+        self.chain.w3.eth.get_code.side_effect = None
+        self.assertEqual(self.client.post("/api/auth/verify", json=body).status_code, 200)
+
     def test_invalid_signature_and_expired_challenge(self):
         challenge = self.client.post(
             "/api/auth/challenge", json={"address": self.a.address, "chain_id": 31337}

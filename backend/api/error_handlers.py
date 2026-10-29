@@ -8,11 +8,29 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.exc import SQLAlchemyError
 
 from backend.services.transaction_coordinator import TransactionError
+from backend.wallet_errors import WalletError, WalletErrorKind
 
 logger = logging.getLogger("backend.api")
 
+WALLET_ERROR_STATUS = {
+    WalletErrorKind.INVALID_INPUT: 400,
+    WalletErrorKind.AUTHENTICATION_REQUIRED: 401,
+    WalletErrorKind.PERMISSION_DENIED: 403,
+    WalletErrorKind.NOT_FOUND: 404,
+    WalletErrorKind.CONFLICT: 409,
+    WalletErrorKind.RATE_LIMITED: 429,
+    WalletErrorKind.DEPENDENCY_UNAVAILABLE: 503,
+}
+
 
 def install_wallet_handlers(app: FastAPI) -> None:
+    @app.exception_handler(WalletError)
+    async def wallet_failure(request, error: WalletError):
+        return JSONResponse(
+            status_code=WALLET_ERROR_STATUS[error.kind],
+            content={"detail": {"code": error.code, "message": error.message}},
+        )
+
     @app.middleware("http")
     async def private_wallet_responses(request, call_next):
         request_id = uuid.uuid4().hex

@@ -98,8 +98,24 @@ transitions giữ nguyên.
 `backend/db/rows.py` và `pagination.py` chứa row materialization/keyset pagination;
 `backend/wallet_values.py` chứa ID, capability hash/token và chuyển RPC scalar.
 Các import cũ qua `wallet_common`, `history_service` và `browser_wallet` tiếp tục
-trỏ đến cùng helper/ContextVar. HTTP error mapping hiện vẫn giữ cách xử lý cũ;
-việc chuyển sang domain errors được tách thành bước tiếp theo.
+trỏ đến cùng helper/ContextVar.
+
+## Wallet domain errors và HTTP adapter
+
+`backend/wallet_errors.py` định nghĩa `WalletError`, `WalletErrorKind` và `fail()`
+bằng thư viện chuẩn. Lỗi nghiệp vụ chứa kind, code và message; không chứa HTTP
+status hoặc phụ thuộc FastAPI. Workflow, auth, pagination và worker dùng cùng
+classification. `fail()` vẫn được re-export qua `wallet_common`; callers truyền
+kind như `INVALID_INPUT` hoặc `CONFLICT` thay cho số HTTP status.
+
+`backend/api/error_handlers.py` là nơi duy nhất map kind sang HTTP status. Phản hồi
+vẫn có dạng `{"detail": {"code": "...", "message": "..."}}`, kèm cache policy và
+request ID như trước. Cùng code `TX_HASH` có thể map sang 400 cho input lỗi hoặc
+409 cho xung đột, dựa trên kind thay vì suy luận từ code/message.
+
+Auth phân biệt domain rejection với RPC failure khi kiểm tra loại ví; worker log
+code/message và tiếp tục lịch retry 15 giây khi gặp domain error. Các lỗi validation
+request của FastAPI, lỗi storage và `TransactionError` vẫn giữ adapter hiện có.
 
 ## 1. Tổng quan
 

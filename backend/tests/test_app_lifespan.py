@@ -5,6 +5,8 @@ import unittest
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from backend.api.server import create_app
+from backend.bootstrap.lifespan import reconcile_wallet
+from backend.wallet_errors import WalletError, WalletErrorKind
 from backend.wallet_settings import WalletSettings
 from config.settings import Settings
 from rag.models import DeploymentScope
@@ -43,6 +45,27 @@ class AppLifespanTests(unittest.IsolatedAsyncioTestCase):
             self.retriever.aclose.assert_not_awaited()
         self.llm.aclose.assert_awaited_once()
         self.retriever.aclose.assert_awaited_once()
+
+    async def test_receipt_worker_logs_domain_failure_and_schedules_retry(self):
+        browser, history = MagicMock(), MagicMock()
+        browser.reconcile_batch.side_effect = WalletError(
+            WalletErrorKind.DEPENDENCY_UNAVAILABLE,
+            "DEPLOYMENT_UNAVAILABLE",
+            "Deployment is temporarily unavailable.",
+        )
+        with (
+            patch(
+                "backend.bootstrap.lifespan.asyncio.sleep",
+                new=AsyncMock(side_effect=asyncio.CancelledError),
+            ) as sleep,
+            self.assertLogs("backend.api", level="WARNING") as logs,
+            self.assertRaises(asyncio.CancelledError),
+        ):
+            await reconcile_wallet(browser, history)
+        browser.reconcile_batch.assert_called_once()
+        history.recover.assert_not_called()
+        sleep.assert_awaited_once_with(15)
+        self.assertIn("DEPLOYMENT_UNAVAILABLE", logs.output[0])
 
     async def test_invalid_scope_closes_resources_acquired_before_startup_failure(self):
         self.own_resources()

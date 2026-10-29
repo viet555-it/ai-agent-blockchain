@@ -9,6 +9,7 @@ from backend.services.transactions.preparation import BrowserPreparer
 from backend.services.transactions.serialization import digest
 from backend.services.wallet.scope import proposal_scope
 from backend.services.wallet_common import fail, record_audit, require_context
+from backend.wallet_errors import WalletErrorKind as ErrorKind
 
 
 class WalletProposals:
@@ -50,7 +51,11 @@ class WalletProposals:
 
     def prepare(self, scope, operation, amount, recipient=None, token_address=None):
         if not self.settings.browser_writes:
-            fail(403, "WRITES_DISABLED", "Browser-wallet transactions are disabled.")
+            fail(
+                ErrorKind.PERMISSION_DENIED,
+                "WRITES_DISABLED",
+                "Browser-wallet transactions are disabled.",
+            )
         principal = scope["principal"]
         deployment_id = self.deployment_service.deployment()
         with self.db.transaction() as connection:
@@ -61,7 +66,11 @@ class WalletProposals:
                 connection, deployment_id, principal, scope
             )
             if not conversation:
-                fail(409, "CONVERSATION_CONTEXT", "Start a conversation on the current deployment.")
+                fail(
+                    ErrorKind.CONFLICT,
+                    "CONVERSATION_CONTEXT",
+                    "Start a conversation on the current deployment.",
+                )
         preparer = BrowserPreparer(
             self.blockchain, self.policy_for(principal.address, operation), principal.address
         )
@@ -102,7 +111,7 @@ class WalletProposals:
             if scope.get("turn_id"):
                 active_turn = repository.find_processing_turn(connection, scope)
                 if not active_turn:
-                    fail(409, "CHAT_INTERRUPTED", "Chat turn is no longer active.")
+                    fail(ErrorKind.CONFLICT, "CHAT_INTERRUPTED", "Chat turn is no longer active.")
             repository.insert_proposal(
                 connection,
                 decision=decision,
@@ -128,7 +137,7 @@ class WalletProposals:
     def owned(self, connection, principal, proposal_id):
         proposal = repository.find_owned_proposal(connection, principal, proposal_id)
         if not proposal:
-            fail(404, "NOT_FOUND", "Proposal not found.")
+            fail(ErrorKind.NOT_FOUND, "NOT_FOUND", "Proposal not found.")
         return proposal
 
     def get(self, principal, proposal_id):
@@ -152,12 +161,16 @@ class WalletProposals:
         with self.db.transaction() as connection:
             proposal = self.owned(connection, principal, proposal_id)
             if proposal["parameter_hash"] != parameter_hash:
-                fail(409, "PAYLOAD_CHANGED", "Proposal payload does not match.")
+                fail(ErrorKind.CONFLICT, "PAYLOAD_CHANGED", "Proposal payload does not match.")
             if proposal["status"] == "REJECTED":
                 return {"status": "REJECTED"}
             changed = repository.reject_pending_proposal(connection, proposal_id)
             if changed.rowcount != 1:
-                fail(409, "PROPOSAL_STATE", "Proposal can no longer be rejected before signing.")
+                fail(
+                    ErrorKind.CONFLICT,
+                    "PROPOSAL_STATE",
+                    "Proposal can no longer be rejected before signing.",
+                )
             repository.insert_rejection(connection, parameter_hash, principal, proposal_id)
             record_audit(connection, principal.wallet_id, "PROPOSAL_REJECTED", proposal_id)
         return {"status": "REJECTED"}

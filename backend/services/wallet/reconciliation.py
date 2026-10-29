@@ -8,6 +8,7 @@ from web3.exceptions import TransactionNotFound
 from backend.db.repositories import reconciliation as repository
 from backend.services.transactions.serialization import json_safe
 from backend.services.wallet_common import fail, record_audit
+from backend.wallet_errors import WalletErrorKind as ErrorKind
 from backend.wallet_values import hexdata, number, uid
 
 
@@ -149,7 +150,7 @@ class WalletReconciler:
                 return
             # A report arriving during RPC work must not have its new hash overwritten.
             if current["tx_hash"] and tx_hash and (current["tx_hash"] != tx_hash):
-                fail(409, "TX_HASH", "Concurrent report needs reconciliation.")
+                fail(ErrorKind.CONFLICT, "TX_HASH", "Concurrent report needs reconciliation.")
             repository.update_observation(
                 connection, attempt, current, status, tx_hash, verification
             )

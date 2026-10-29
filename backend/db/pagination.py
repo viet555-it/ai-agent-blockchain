@@ -4,7 +4,8 @@ import base64
 
 from sqlalchemy import and_, or_
 
-from backend.services.wallet_common import fail
+from backend.wallet_errors import WalletErrorKind as ErrorKind
+from backend.wallet_errors import fail
 
 
 def encode_cursor(timestamp, record_id):
@@ -17,7 +18,7 @@ def page(connection, statement, table, timestamp, cursor=None, limit=30):
             value, record_id = base64.urlsafe_b64decode(cursor.encode()).decode().split("|", 1)
             value = float(value)
         except Exception:
-            fail(400, "CURSOR", "Invalid history cursor.")
+            fail(ErrorKind.INVALID_INPUT, "CURSOR", "Invalid history cursor.")
         statement = statement.where(
             or_(timestamp < value, and_(timestamp == value, table.c.id < record_id))
         )

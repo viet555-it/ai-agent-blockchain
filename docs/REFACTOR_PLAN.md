@@ -313,5 +313,15 @@ Phần còn lại sau commit đầu: tách runtime assembly/lifespan, bổ sung 
 - Unit suite: 309 passed, 3 skipped, 1 deselected, 75 subtests passed. Ruff và kiểm tra format các module mới đạt.
 - Integration: 13/13 local-EVM/API tests passed, gồm RAG thật từ index/cache local; 10/10 Playwright wallet E2E passed. Mỗi runner dùng Hardhat cổng riêng và dữ liệu test tạm, không dùng node demo.
 
-Tiếp theo: PR 4b tách domain error khỏi HTTP trước PR 5 (agent integration/guardrail). Ma trận/hợp đồng đầy đủ của các profile ở PR 0 vẫn cần bổ sung; chưa đo coverage mới.
+### PR 4b — tách wallet domain error khỏi HTTP
+
+- Thêm `backend/wallet_errors.py`: `WalletError`, semantic `WalletErrorKind` và `fail()`, không phụ thuộc framework và không mang HTTP status.
+- Chuyển 51 failure declarations sang semantic kind. `wallet_common.fail` giữ re-export; pagination import lỗi trực tiếp từ domain module, không còn phụ thuộc wallet service helpers.
+- HTTP status chỉ được chọn tại API error handler. Giữ nguyên code/message/response shape, cache headers và request ID, kể cả hai nhóm lỗi `TX_HASH` trước đây trả 400/409 khác nhau.
+- Wallet auth và receipt worker bắt domain error thay `HTTPException`; lỗi contract wallet không bị biến thành lỗi RPC, còn lỗi RPC không làm challenge bị consumed.
+- Đối chiếu 51 declarations sau mapping và OpenAPI wallet trước/sau khớp nhau. Chuẩn hóa AST theo error kind cho thấy logic auth, history, pagination và wallet workflows không đổi ngoài classification.
+- Thêm 5 test cho rate limiter ngoài HTTP, mapping đủ 7 nhóm lỗi qua HTTP, worker log/retry và hai nhánh lỗi xác minh loại ví.
+- Kiểm chứng: 314 unit tests passed, 3 skipped, 1 deselected, 82 subtests passed; 10/10 wallet Playwright E2E passed. Ruff đạt. Không có import FastAPI/Starlette trong `backend/services/` hoặc `backend/db/`.
+
+Tiếp theo: PR 5 — làm mỏng agent integration và guardrail. Ma trận/hợp đồng đầy đủ của các profile ở PR 0 vẫn cần bổ sung; chưa đo coverage mới.
 

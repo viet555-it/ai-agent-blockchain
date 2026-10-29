@@ -5,6 +5,7 @@ from web3.exceptions import TransactionNotFound
 from backend.db.repositories import deployments as repository
 from backend.services.transactions.serialization import digest
 from backend.services.wallet_common import fail
+from backend.wallet_errors import WalletErrorKind as ErrorKind
 from backend.wallet_values import hexdata, number, uid
 
 
@@ -31,7 +32,7 @@ class WalletDeployments:
             "abi_hash": digest(abi),
         }
         if self.blockchain.w3.eth.chain_id != self.blockchain.chain_id:
-            fail(409, "CHAIN_CHANGED", "RPC network does not match the runtime.")
+            fail(ErrorKind.CONFLICT, "CHAIN_CHANGED", "RPC network does not match the runtime.")
         if manifest.get("transactionHash"):
             try:
                 deployment_receipt = self.blockchain.w3.eth.get_transaction_receipt(
@@ -51,7 +52,11 @@ class WalletDeployments:
             metadata = self.blockchain.w3.provider.make_request("hardhat_metadata", [])
             instance = metadata.get("result", {}).get("instanceId")
             if not isinstance(instance, str) or not instance:
-                fail(503, "CHAIN_IDENTITY", "Cannot identify the local Hardhat instance.")
+                fail(
+                    ErrorKind.DEPENDENCY_UNAVAILABLE,
+                    "CHAIN_IDENTITY",
+                    "Cannot identify the local Hardhat instance.",
+                )
             details["instance_id"] = instance
         details["genesis"] = hexdata(self.blockchain.w3.eth.get_block(0)["hash"])
         try:
@@ -80,4 +85,4 @@ class WalletDeployments:
             message = "The saved deployment is unavailable on the current Hardhat node. Keep the node running, run .\\.venv-phase3\\Scripts\\python.exe -m scripts.setup_local_demo, then restart the API and reconnect. Keep the history database."
         else:
             message = "The saved deployment does not match the current RPC. Check the deployment manifest and contract code."
-        fail(503, "DEPLOYMENT_UNAVAILABLE", message)
+        fail(ErrorKind.DEPENDENCY_UNAVAILABLE, "DEPLOYMENT_UNAVAILABLE", message)

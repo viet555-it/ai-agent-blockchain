@@ -7,12 +7,13 @@ from contextlib import AsyncExitStack, asynccontextmanager, suppress
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 
 from backend.agent.agent_service import BlockchainAgent
 from backend.bootstrap.runtime import ApplicationRuntime
 from backend.services.blockchain_service import BlockchainService
 from backend.services.transaction_coordinator import TransactionCoordinator
+from backend.wallet_errors import WalletError
 
 logger = logging.getLogger("backend.api")
 
@@ -24,8 +25,11 @@ async def reconcile_wallet(browser: Any, history: Any) -> None:
             await asyncio.to_thread(history.recover)
         except asyncio.CancelledError:
             raise
-        except HTTPException as error:
-            logger.warning("Wallet receipt reconciliation deferred: %s", error.detail)
+        except WalletError as error:
+            logger.warning(
+                "Wallet receipt reconciliation deferred: %s",
+                {"code": error.code, "message": error.message},
+            )
         except Exception:
             logger.warning("Wallet receipt reconciliation deferred; dependencies unavailable")
         await asyncio.sleep(15)
