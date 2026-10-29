@@ -5,7 +5,7 @@ import logging
 
 from fastapi import APIRouter, HTTPException, Request
 
-from backend.agent.agent_service import AgentResponse
+from backend.agent.models import AgentResponse
 from backend.api.dependencies import legacy_only
 from backend.api.schemas import ChatRequest
 

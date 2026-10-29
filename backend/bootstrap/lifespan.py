@@ -125,7 +125,7 @@ def build_lifespan(
         app.state.blockchain = blockchain
         async with AsyncExitStack() as resources:
             if runtime.agent_mode == "llm":
-                from agent.service import _create_llm
+                from agent.service import create_llm
                 from backend.agent.read_runtime import ReadAgentRuntime
                 from backend.bootstrap.retrieval import create_retriever, validate_retriever
                 from config.settings import Settings
@@ -144,7 +144,7 @@ def build_lifespan(
                     raise ValueError(
                         "Set an explicit active LLM_MODEL before enabling a real provider"
                     )
-                selected_llm = llm if llm is not None else _create_llm(settings)
+                selected_llm = llm if llm is not None else create_llm(settings)
                 if llm is None and hasattr(selected_llm, "aclose"):
                     resources.push_async_callback(selected_llm.aclose)
                 selected_retriever = retriever

@@ -117,6 +117,35 @@ Auth phân biệt domain rejection với RPC failure khi kiểm tra loại ví; 
 code/message và tiếp tục lịch retry 15 giây khi gặp domain error. Các lỗi validation
 request của FastAPI, lỗi storage và `TransactionError` vẫn giữ adapter hiện có.
 
+## Agent integration và guardrail boundaries
+
+`backend/agent/models.py` chứa `AgentResponse` và `TimelineStep`; model imports không
+kéo theo legacy runtime hoặc mutable policy engine. Các import qua module/package
+cũ vẫn trả về cùng model class. Legacy runtime giữ orchestration trong
+`agent_service.py`, dùng các helper intent, validation, reads và replies trong `legacy/`.
+
+`ReadAgentRuntime` điều phối retrieval, session lock, context, agent loop và response:
+
+| Module | Trách nhiệm |
+|---|---|
+| `read_tools.py` | Backend READ adapters và registry riêng, chỉ thêm proposal tools khi được cấu hình |
+| `query_rules.py` | Chuẩn hóa query retrieval và yêu cầu làm rõ amount mơ hồ |
+| `retrieval_context.py` | Tạo RAG context theo token budget của conversation |
+| `prompts.py` | System prompt cho READ hoặc proposal-only mode |
+| `response_mapper.py` | Timeline, provider diagnostics, authoritative RPC balances và response; bỏ thought events |
+
+Agent integration dùng `AgentService.get_session()`, `ConversationMemory.count_tokens()`
+và public `create_llm()`; provider factory nằm trong `agent/llm/factory.py`. Private
+factory alias cũ tiếp tục hỗ trợ injection hook trong test/caller hiện có. History
+routes gọi `ReadAgentRuntime.clear_session()` để giải phóng memory và session lock.
+
+`backend/guardrail/models.py` chứa config/decision/approval/audit models.
+`rules.py` chứa operation sets, address/amount/simulation checks, parameter hashing
+và description formatting. `PolicyEngine` tiếp tục sở hữu `RLock`, normalized
+whitelist, pending approvals và audit log. Các check thuần vẫn chạy trong lock của
+engine; review, expiration, tamper checks, state mutation và audit không bị tách
+sang owner khác. `security/policy.py` của agent core vẫn là implementation riêng.
+
 ## 1. Tổng quan
 
 ```mermaid

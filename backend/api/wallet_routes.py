@@ -206,8 +206,7 @@ async def chat(conversation_id: str, body: Turn, request: Request, identity=AUTH
         response["error"] = "CHAT_FAILED"
     finally:
         proposal_scope.reset(scope)
-        runtime.service.clear_session(conversation_id)
-        runtime._locks.pop(conversation_id, None)
+        runtime.clear_session(conversation_id)
         await asyncio.to_thread(
             state.history.finish,
             identity,

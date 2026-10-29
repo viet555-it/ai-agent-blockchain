@@ -1,12 +1,13 @@
 """Comprehensive unit & security tests for Guardrail Policy Engine."""
+
 import time
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal
+
 from backend.guardrail.policy_engine import (
-    PolicyEngine,
     PolicyConfig,
-    GuardrailResult,
-    PendingApproval,
+    PolicyEngine,
 )
 
 
@@ -33,6 +34,27 @@ class GuardrailPolicyEngineTests(unittest.TestCase):
         self.assertFalse(res.requires_approval)
         self.assertEqual(res.operation_type, "READ")
         self.assertEqual(len(res.violations), 0)
+
+    def test_concurrent_reviews_mutate_an_approval_only_once(self):
+        decision = self.engine.evaluate_request(
+            "native_transfer", {"recipient": self.whitelisted_addr, "amount": "0.1"}
+        )
+        pending = decision.pending_approval
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            results = list(
+                executor.map(
+                    lambda _: self.engine.review_approval(
+                        pending.approval_id, "APPROVE", pending.parameters
+                    ),
+                    range(2),
+                )
+            )
+        self.assertEqual(sorted(result[0] for result in results), [False, True])
+        self.assertEqual(pending.status, "APPROVED")
+        approvals = [
+            event for event in self.engine.list_audit_events() if event["status"] == "APPROVED"
+        ]
+        self.assertEqual(len(approvals), 1)
 
     def test_whitelist_allows_authorized_recipient(self):
         res = self.engine.evaluate_request(

@@ -13,8 +13,9 @@ from datetime import UTC, datetime
 from typing import Any, Literal
 
 from agent.core import AgentLoop
+from agent.llm.factory import create_llm as _create_llm
 from agent.memory import ConversationMemory
-from config.settings import LLMProviderName, Settings, get_settings
+from config.settings import Settings, get_settings
 from tools.registry import ToolRegistry, get_registry
 
 logger = logging.getLogger(__name__)
@@ -59,7 +60,7 @@ class AgentService:
         settings = settings or get_settings()
         registry = get_registry()
         blockchain = _create_blockchain(settings)
-        llm = _create_llm(settings)
+        llm = create_llm(settings)
         return cls(settings=settings, registry=registry, blockchain=blockchain, llm_provider=llm)
 
     def _get_or_create_session(self, session_id: str) -> ConversationMemory:
@@ -69,11 +70,21 @@ class AgentService:
             )
         return self._sessions[session_id]
 
-    async def chat(self, session_id: str, message: str, *, retrieval_context: str = "",
-                   system_prompt: str | None = None,
-                   request_context: dict[str, Any] | None = None) -> list[AgentEvent]:
+    def get_session(self, session_id: str) -> ConversationMemory:
+        """Return this service's memory for one session, creating it when needed."""
+        return self._get_or_create_session(session_id)
+
+    async def chat(
+        self,
+        session_id: str,
+        message: str,
+        *,
+        retrieval_context: str = "",
+        system_prompt: str | None = None,
+        request_context: dict[str, Any] | None = None,
+    ) -> list[AgentEvent]:
         """Process a user message and return all events."""
-        memory = self._get_or_create_session(session_id)
+        memory = self.get_session(session_id)
 
         loop = AgentLoop(
             llm=self._llm,
@@ -89,9 +100,7 @@ class AgentService:
         raw_events = await loop.run(message)
         return [AgentEvent(type=e["type"], data=e["data"]) for e in raw_events]
 
-    async def chat_stream(
-        self, session_id: str, message: str
-    ) -> AsyncIterator[AgentEvent]:
+    async def chat_stream(self, session_id: str, message: str) -> AsyncIterator[AgentEvent]:
         """Process a user message and yield events as they happen."""
         # For now, run the full loop and yield events sequentially.
         # Future: true streaming with async generators in the loop.
@@ -131,34 +140,6 @@ def _create_blockchain(settings: Settings) -> Any:
     )
 
 
-def _create_llm(settings: Settings) -> Any:
-    """Create the appropriate LLMProvider based on settings."""
-    match settings.llm_provider:
-        case LLMProviderName.GEMINI:
-            from agent.llm.gemini import GeminiProvider
-
-            if not settings.gemini_api_key:
-                raise ValueError("GEMINI_API_KEY is required when LLM_PROVIDER=gemini")
-            return GeminiProvider(api_key=settings.gemini_api_key, model=settings.llm_model)
-
-        case LLMProviderName.ANTHROPIC:
-            from agent.llm.anthropic import AnthropicProvider
-
-            if not settings.anthropic_api_key:
-                raise ValueError("ANTHROPIC_API_KEY is required when LLM_PROVIDER=anthropic")
-            return AnthropicProvider(api_key=settings.anthropic_api_key, model=settings.llm_model)
-
-        case LLMProviderName.OPENAI:
-            from agent.llm.openai_adapter import OpenAIProvider
-
-            if not settings.openai_api_key:
-                raise ValueError("OPENAI_API_KEY is required when LLM_PROVIDER=openai")
-            return OpenAIProvider(api_key=settings.openai_api_key, model=settings.llm_model)
-
-        case LLMProviderName.FAKE:
-            from agent.llm.fake import FakeLLMProvider
-
-            return FakeLLMProvider()
-
-        case _:
-            raise ValueError(f"Unknown LLM provider: {settings.llm_provider}")
+def create_llm(settings: Settings) -> Any:
+    """Public provider factory; preserve the legacy injection hook while callers migrate."""
+    return _create_llm(settings)

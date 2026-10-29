@@ -323,5 +323,17 @@ Phần còn lại sau commit đầu: tách runtime assembly/lifespan, bổ sung 
 - Thêm 5 test cho rate limiter ngoài HTTP, mapping đủ 7 nhóm lỗi qua HTTP, worker log/retry và hai nhánh lỗi xác minh loại ví.
 - Kiểm chứng: 314 unit tests passed, 3 skipped, 1 deselected, 82 subtests passed; 10/10 wallet Playwright E2E passed. Ruff đạt. Không có import FastAPI/Starlette trong `backend/services/` hoặc `backend/db/`.
 
-Tiếp theo: PR 5 — làm mỏng agent integration và guardrail. Ma trận/hợp đồng đầy đủ của các profile ở PR 0 vẫn cần bổ sung; chưa đo coverage mới.
+### PR 5 — làm mỏng agent integration và guardrail
+
+- Tách `AgentResponse`/`TimelineStep` sang models trung lập; import qua legacy module/package vẫn tương thích. Package exports tải runtime/engine khi cần, nên import models không kéo theo mutable runtime.
+- Tách READ adapters/registry, query guards, RAG context builder, system prompt và response mapper. `ReadAgentRuntime` giảm từ 371 xuống 149 dòng, giữ session lock và thứ tự thực thi.
+- Bổ sung public `AgentService.get_session()`, `ConversationMemory.count_tokens()` và `create_llm()`; provider factory ở `agent/llm/factory.py`. Giữ private factory hook cũ cho compatibility/injection, không còn import private factory từ bootstrap.
+- History routes dùng `ReadAgentRuntime.clear_session()` thay truy cập `_locks` trực tiếp.
+- Tách legacy intent/validation/reads/replies; `agent_service.py` giảm từ 531 xuống 338 dòng và giữ nguyên orchestration, facade methods và legacy mode.
+- Tách guardrail models và rules thuần. `policy_engine.py` giảm từ 470 xuống 336 dòng; cùng engine tiếp tục giữ lock, whitelist, approvals và audit. Không hợp nhất với `security/policy.py`.
+- Kiểm tra hai OpenAPI schemas (unit và wallet) không đổi; model aliases cùng object. Hai system prompts và AST response mapping khớp baseline; 24 policy decision cases khớp baseline.
+- Thêm 5 test cho tokenizer riêng của conversation, context không chứa được tài liệu, policy input/config isolation, cleanup 101 session và review approval đồng thời chỉ thành công một lần.
+- Kiểm chứng: 319 unit tests passed, 3 skipped, 1 deselected, 82 subtests passed; 13/13 local-EVM integration passed; 10/10 Playwright wallet E2E passed. Các runner dùng FakeLLM và Hardhat/data tạm, RAG integration dùng index/cache local.
+
+Tiếp theo: PR 6 — tách blockchain service, RAG retriever/eval và hoàn thiện tài liệu/packaging. Ma trận/hợp đồng đầy đủ của các profile ở PR 0 vẫn cần bổ sung; chưa đo coverage mới.
 

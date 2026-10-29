@@ -3,34 +3,29 @@
 Provides transaction limits, recipient address whitelisting, dry-run simulation validation,
 parameter-bound human approvals, and tamper-proof execution tokens.
 """
-import hashlib
-import json
+
 import logging
-import time
-import uuid
-import re
 import threading
+import time
 from functools import wraps
-from decimal import Decimal
-from typing import Any, Dict, List, Optional, Set, Tuple
-from pydantic import BaseModel, Field
+from typing import Any
+
 from web3 import Web3
 
-logger = logging.getLogger("guardrail.policy_engine")
+from backend.guardrail.models import AuditEvent as AuditEvent
+from backend.guardrail.models import GuardrailResult as GuardrailResult
+from backend.guardrail.models import PendingApproval as PendingApproval
+from backend.guardrail.models import PolicyConfig as PolicyConfig
+from backend.guardrail.rules import READ_OPERATIONS as READ_OPERATIONS
+from backend.guardrail.rules import WRITE_OPERATIONS as WRITE_OPERATIONS
+from backend.guardrail.rules import (
+    check_write_request,
+    compute_parameter_hash,
+    format_description,
+    validate_address,
+)
 
-# Operation classifications
-READ_OPERATIONS = {
-    "get_block", "get_recent_transactions", "get_erc20_balance",
-    "get_native_balance",
-    "get_token_balance",
-    "get_token_info",
-    "get_allowance",
-    "get_transaction",
-    "get_transaction_receipt",
-    "get_gas_price",
-    "read_contract",
-    "simulate_transfer",
-}
+logger = logging.getLogger("guardrail.policy_engine")
 
 
 def synchronized(method):
@@ -38,90 +33,8 @@ def synchronized(method):
     def wrapped(self, *args, **kwargs):
         with self._lock:
             return method(self, *args, **kwargs)
+
     return wrapped
-
-WRITE_OPERATIONS = {
-    "native_transfer",
-    "erc20_transfer",
-    "erc20_approve",
-    "faucet_claim",
-}
-
-
-class PolicyConfig(BaseModel):
-    """Configurable security policy for blockchain operations."""
-    max_native_transfer_limit: Decimal = Field(
-        default=Decimal("0.5"),
-        description="Maximum native ETH allowed per transaction in ether units"
-    )
-    max_token_transfer_limit: Decimal = Field(
-        default=Decimal("500.0"),
-        description="Maximum ERC20 token allowed per transaction"
-    )
-    recipient_whitelist: List[str] = Field(
-        default_factory=lambda: [
-            "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-            "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
-            "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
-            "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
-            "0x9965507D1a55bcC2695C58ba16FB37d819B0A4df",
-            "0x59c6f777551a5Bd19d73d8a47499F21fb53dCbe5", # Sepolia deployed deployer
-            "0xeF9F53B00B069782256fC20697E7cf6a3136F9BC", # Deployer address
-        ],
-        description="List of whitelisted recipient Ethereum addresses"
-    )
-    enforce_whitelist: bool = Field(
-        default=True,
-        description="Whether to block non-whitelisted recipient addresses"
-    )
-    require_human_approval_for_writes: bool = Field(
-        default=True,
-        description="Whether write operations strictly require explicit human approval"
-    )
-    approval_timeout_seconds: int = Field(
-        default=600,
-        description="Time-to-live in seconds before a pending approval expires (default 10 minutes)"
-    )
-
-
-class AuditEvent(BaseModel):
-    """Audit log entry for security and regulatory compliance."""
-    event_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    timestamp: float = Field(default_factory=time.time)
-    operation: str
-    status: str  # VALIDATED, BLOCKED, PENDING_APPROVAL, APPROVED, REJECTED, EXECUTED, FAILED
-    actor: str = "ai_agent"
-    sanitized_parameters: Dict[str, Any]
-    policy_checks: List[Dict[str, Any]]
-    details: Optional[str] = None
-
-
-class PendingApproval(BaseModel):
-    """Represents a write transaction pending explicit human approval."""
-    approval_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    operation: str
-    created_at: float = Field(default_factory=time.time)
-    expires_at: float
-    parameters: Dict[str, Any]
-    parameter_hash: str
-    description: str
-    status: str = "PENDING"  # PENDING, APPROVED, REJECTED, EXPIRED, EXECUTED
-    reviewed_at: Optional[float] = None
-    reviewer_comment: Optional[str] = None
-    tx_hash: Optional[str] = None
-
-
-class GuardrailResult(BaseModel):
-    """Structured response returned to caller/frontend on policy evaluation."""
-    is_allowed: bool
-    requires_approval: bool
-    operation: str
-    operation_type: str  # "READ" or "WRITE"
-    violations: List[str] = Field(default_factory=list)
-    warnings: List[str] = Field(default_factory=list)
-    pending_approval: Optional[PendingApproval] = None
-    simulation_result: Optional[Dict[str, Any]] = None
-    sanitized_parameters: Dict[str, Any] = Field(default_factory=dict)
 
 
 class PolicyEngine:
@@ -136,13 +49,13 @@ class PolicyEngine:
     - Zero exposure of private keys or secrets in logs/audit events.
     """
 
-    def __init__(self, policy_config: Optional[PolicyConfig] = None):
+    def __init__(self, policy_config: PolicyConfig | None = None):
         self._lock = threading.RLock()
         self.config = policy_config or PolicyConfig()
-        self._pending_approvals: Dict[str, PendingApproval] = {}
-        self._audit_log: List[AuditEvent] = []
+        self._pending_approvals: dict[str, PendingApproval] = {}
+        self._audit_log: list[AuditEvent] = []
         # Pre-normalize whitelist addresses
-        self._normalized_whitelist: Set[str] = set()
+        self._normalized_whitelist: set[str] = set()
         self._refresh_whitelist()
 
     def _refresh_whitelist(self):
@@ -155,42 +68,40 @@ class PolicyEngine:
                 logger.warning(f"Invalid address in whitelist skipped: {addr} ({e})")
 
     @staticmethod
-    def compute_parameter_hash(operation: str, parameters: Dict[str, Any]) -> str:
-        """Deterministically hash parameters to prevent parameter tampering."""
-        # Sanitize and sort keys
-        serialized = json.dumps({"op": operation, "params": parameters}, sort_keys=True,
-                                separators=(",", ":"), allow_nan=False)
-        return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
+    def compute_parameter_hash(operation: str, parameters: dict[str, Any]) -> str:
+        return compute_parameter_hash(operation, parameters)
 
-    def validate_address(self, address: str, field_name: str = "address") -> Tuple[bool, Optional[str], Optional[str]]:
-        """Validate EVM address and return checksummed form."""
-        if not address or not isinstance(address, str):
-            return False, None, f"{field_name} must be a non-empty string"
-        if not Web3.is_address(address):
-            return False, None, f"Invalid EVM address format for {field_name}: '{address}'"
-        checksummed = Web3.to_checksum_address(address)
-        return True, checksummed, None
+    def validate_address(
+        self, address: str, field_name: str = "address"
+    ) -> tuple[bool, str | None, str | None]:
+        return validate_address(address, field_name)
 
     @synchronized
     def evaluate_request(
         self,
         operation: str,
-        parameters: Dict[str, Any],
-        simulation_data: Optional[Dict[str, Any]] = None,
-        *, create_approval: bool = True,
+        parameters: dict[str, Any],
+        simulation_data: dict[str, Any] | None = None,
+        *,
+        create_approval: bool = True,
     ) -> GuardrailResult:
         """Main guardrail entrypoint to validate any blockchain operation before execution."""
-        violations: List[str] = []
-        warnings: List[str] = []
+        violations: list[str] = []
+        warnings: list[str] = []
         sanitized_params = dict(parameters)
 
         # 1. Classify operation
         is_write = operation in WRITE_OPERATIONS
         op_type = "WRITE" if is_write else "READ"
         if operation not in READ_OPERATIONS | WRITE_OPERATIONS:
-            return GuardrailResult(is_allowed=False, requires_approval=False, operation=operation,
-                                   operation_type="UNKNOWN", violations=["Unsupported operation"],
-                                   sanitized_parameters=sanitized_params)
+            return GuardrailResult(
+                is_allowed=False,
+                requires_approval=False,
+                operation=operation,
+                operation_type="UNKNOWN",
+                violations=["Unsupported operation"],
+                sanitized_parameters=sanitized_params,
+            )
 
         # 2. If it's a read-only operation, validate and allow immediately
         if not is_write:
@@ -211,58 +122,14 @@ class PolicyEngine:
                 sanitized_parameters=sanitized_params,
             )
 
-        # 3. For WRITE operations: Validate parameters
-        recipient_addr = parameters.get("recipient") or parameters.get("to") or parameters.get("to_address")
-        amount_raw = next((parameters[k] for k in ("amount", "amount_eth", "amount_token")
-                           if k in parameters and parameters[k] is not None), None)
-
-        if not recipient_addr:
-            violations.append("Recipient address is required.")
-        if amount_raw is None:
-            violations.append("Transaction amount is required.")
-
-        if recipient_addr:
-            is_valid_addr, checksum_recipient, err = self.validate_address(recipient_addr, "recipient")
-            if not is_valid_addr:
-                violations.append(err or "Invalid recipient address")
-            else:
-                sanitized_params["recipient"] = checksum_recipient
-                if int(checksum_recipient, 16) == 0:
-                    violations.append("Zero recipient address is not permitted.")
-                # Whitelist Check
-                if self.config.enforce_whitelist:
-                    if checksum_recipient not in self._normalized_whitelist:
-                        violations.append(
-                            f"Recipient address {checksum_recipient} is NOT in the authorized whitelist."
-                        )
-
-        # 4. Amount limits check
-        if amount_raw is not None:
-            try:
-                if type(amount_raw) not in (str, int) or not re.fullmatch(r"[0-9]+(?:\.[0-9]+)?", str(amount_raw)):
-                    raise ValueError("Use a finite non-negative decimal string or integer")
-                amount_dec = Decimal(str(amount_raw))
-                if not amount_dec.is_finite() or amount_dec <= 0:
-                    violations.append("Transaction amount must be strictly greater than 0.")
-                else:
-                    if operation == "native_transfer":
-                        if amount_dec > self.config.max_native_transfer_limit:
-                            violations.append(
-                                f"Amount {amount_dec} ETH exceeds native transfer limit of {self.config.max_native_transfer_limit} ETH."
-                            )
-                    elif operation in ("erc20_transfer", "erc20_approve", "faucet_claim"):
-                        if amount_dec > self.config.max_token_transfer_limit:
-                            violations.append(
-                                f"Amount {amount_dec} tokens exceeds token policy limit of {self.config.max_token_transfer_limit} tokens."
-                            )
-            except Exception as e:
-                violations.append(f"Invalid numerical amount '{amount_raw}': {e}")
-
-        # 5. Contract dry-run simulation checks (if provided)
-        if simulation_data is not None:
-            if simulation_data.get("isValid") is not True:
-                reason = simulation_data.get("reason", "Simulation failed on-chain")
-                violations.append(f"On-chain pre-flight simulation reverted: {reason}")
+        sanitized_params, violations = check_write_request(
+            operation,
+            parameters,
+            simulation_data,
+            self.config,
+            self._normalized_whitelist,
+            address_validator=self.validate_address,
+        )
 
         # 6. Evaluate approval requirements
         if violations:
@@ -335,9 +202,9 @@ class PolicyEngine:
         self,
         approval_id: str,
         action: str,  # "APPROVE" or "REJECT"
-        submitted_parameters: Dict[str, Any],
-        reviewer_comment: Optional[str] = None,
-    ) -> Tuple[bool, str, Optional[PendingApproval]]:
+        submitted_parameters: dict[str, Any],
+        reviewer_comment: str | None = None,
+    ) -> tuple[bool, str, PendingApproval | None]:
         """Human approval action handler with tamper-proof verification."""
         if action.upper() not in {"APPROVE", "REJECT"}:
             return False, "Unknown approval action.", None
@@ -359,7 +226,11 @@ class PolicyEngine:
             return False, "Approval request has expired.", pending
 
         if pending.status != "PENDING":
-            return False, f"Approval request is no longer pending (current state: {pending.status}).", pending
+            return (
+                False,
+                f"Approval request is no longer pending (current state: {pending.status}).",
+                pending,
+            )
 
         # Tamper check: Compare submitted parameters with initial approval parameters
         submitted_hash = self.compute_parameter_hash(pending.operation, submitted_parameters)
@@ -372,7 +243,11 @@ class PolicyEngine:
                 checks=[{"check": "tamper_protection", "passed": False}],
                 details="Parameter tampering detected during approval submission. Request rejected.",
             )
-            return False, "Security Alert: Parameters have changed since the approval request was created.", pending
+            return (
+                False,
+                "Security Alert: Parameters have changed since the approval request was created.",
+                pending,
+            )
 
         if action.upper() == "APPROVE":
             pending.status = "APPROVED"
@@ -400,7 +275,9 @@ class PolicyEngine:
             return True, "Operation rejected.", pending
 
     @synchronized
-    def mark_executed(self, approval_id: str, tx_hash: Optional[str] = None, error: Optional[str] = None) -> bool:
+    def mark_executed(
+        self, approval_id: str, tx_hash: str | None = None, error: str | None = None
+    ) -> bool:
         """Mark an approved transaction as executed or failed."""
         pending = self._pending_approvals.get(approval_id)
         if not pending:
@@ -428,22 +305,24 @@ class PolicyEngine:
             )
         return True
 
-    def get_pending_approval(self, approval_id: str) -> Optional[PendingApproval]:
+    def get_pending_approval(self, approval_id: str) -> PendingApproval | None:
         return self._pending_approvals.get(approval_id)
 
-    def list_audit_events(self, limit: int = 50) -> List[Dict[str, Any]]:
+    def list_audit_events(self, limit: int = 50) -> list[dict[str, Any]]:
         return [event.model_dump() for event in reversed(self._audit_log[-limit:])]
 
     def _record_audit(
         self,
         operation: str,
         status: str,
-        params: Dict[str, Any],
-        checks: List[Dict[str, Any]],
-        details: Optional[str] = None,
+        params: dict[str, Any],
+        checks: list[dict[str, Any]],
+        details: str | None = None,
     ):
         # Scrub any private keys or sensitive credentials
-        safe_params = {k: v for k, v in params.items() if "key" not in k.lower() and "secret" not in k.lower()}
+        safe_params = {
+            k: v for k, v in params.items() if "key" not in k.lower() and "secret" not in k.lower()
+        }
         event = AuditEvent(
             operation=operation,
             status=status,
@@ -453,18 +332,5 @@ class PolicyEngine:
         )
         self._audit_log.append(event)
 
-    def _format_description(self, operation: str, params: Dict[str, Any]) -> str:
-        recipient = params.get("recipient", "N/A")
-        amount = params.get("amount", params.get("amount_eth", params.get("amount_token", "N/A")))
-        if operation == "native_transfer":
-            return f"Send {amount} ETH to {recipient}"
-        elif operation == "erc20_transfer":
-            token_symbol = params.get("token_symbol", "AGNT")
-            return f"Transfer {amount} {token_symbol} to {recipient}"
-        elif operation == "erc20_approve":
-            spender = params.get("spender", "N/A")
-            token_symbol = params.get("token_symbol", "AGNT")
-            return f"Approve spender {spender} for {amount} {token_symbol}"
-        elif operation == "faucet_claim":
-            return f"Claim {amount} AGNT testnet tokens for {recipient}"
-        return f"{operation} with amount {amount}"
+    def _format_description(self, operation: str, params: dict[str, Any]) -> str:
+        return format_description(operation, params)
