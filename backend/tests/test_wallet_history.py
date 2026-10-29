@@ -221,7 +221,7 @@ class WalletHistoryTests(unittest.TestCase):
         self.assertEqual(response.json()["detail"]["code"], "DEPLOYMENT_UNAVAILABLE")
 
     def test_frontend_revalidates_assets_so_old_wallet_controls_are_not_cached(self):
-        for path in ["/", "/app.js", "/styles.css"]:
+        for path in ["/", "/app.js", "/styles.css", "/ui/chat.js", "/styles/chat.css"]:
             response = self.client.get(path)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.headers["cache-control"], "no-cache")

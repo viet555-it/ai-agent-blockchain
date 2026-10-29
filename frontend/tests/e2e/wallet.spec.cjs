@@ -45,6 +45,46 @@ async function signIn(page) {
   await expect(page.locator('#chat-input')).toBeEnabled();
 }
 
+test('legacy chat, timeline, approval and theme work with native browser modules', async ({ page }) => {
+  await page.route(/https:\/\/fonts\.(googleapis|gstatic)\.com\//, route => route.abort());
+  await page.route('**/api/health', route => route.fulfill({ json: {
+    chain_id: 31337, wallet_history_enabled: false,
+  } }));
+  const parameters = { sender: '0x' + '11'.repeat(20), recipient: '0x' + '22'.repeat(20), amount: '1', chain_id: 31337 };
+  await page.route('**/api/chat', route => route.fulfill({ json: {
+    reply: 'Legacy proposal ready',
+    timeline: [{ step_number: 1, name: 'Request received', status: 'SUCCESS', result: { operation: 'native_transfer' } }],
+    requires_approval: true,
+    guardrail_result: { pending_approval: { approval_id: 'legacy-approval', operation: 'native_transfer', parameters } },
+  } }));
+  let reviews = 0;
+  await page.route('**/api/approval/action', route => {
+    reviews++;
+    const body = route.request().postDataJSON();
+    expect(body.approval_id).toBe('legacy-approval');
+    expect(body.action).toBe('APPROVE');
+    expect(body.parameters).toEqual(parameters);
+    expect(body.session_id).toBeTruthy();
+    return route.fulfill({ json: { status: 'CONFIRMED', tx_hash: '0x123' } });
+  });
+  await page.goto('/');
+  await expect(page.locator('#chat-history')).not.toBeEmpty();
+  const theme = await page.locator('html').getAttribute('data-theme');
+  await page.locator('#btn-toggle-theme').click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', theme === 'dark' ? 'light' : 'dark');
+  await page.locator('#chat-input').fill('Prepare a transfer');
+  await page.locator('#chat-form').evaluate(form => form.requestSubmit());
+  await expect(page.locator('#chat-history')).toContainText('Legacy proposal ready');
+  await expect(page.locator('.step-num-badge')).toHaveText('1');
+  await expect(page.locator('#approval-modal')).toHaveClass(/open/);
+  await page.locator('#btn-modal-approve').click();
+  await expect(page.locator('#approval-modal')).not.toHaveClass(/open/);
+  await expect(page.locator('#chat-history')).toContainText('0x123');
+  await page.locator('.step-details-toggle').click();
+  await expect(page.locator('.step-details-box')).toHaveClass(/open/);
+  expect(reviews).toBe(1);
+});
+
 test('A/B histories remain separate and reload restores the conversation', async ({ page }) => {
   await installWallet(page);
   await page.goto('/');

@@ -1,0 +1,183 @@
+/* ==========================================================================
+   Modal: Human-In-The-Loop Approval
+   ========================================================================== */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--modal-backdrop);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-normal);
+}
+
+.modal-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-dialog {
+  width: 100%;
+  max-width: 580px;
+  background: var(--bg-modal);
+  border: 1px solid var(--primary-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4), 0 0 24px var(--primary-glow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.95);
+  transition: transform var(--transition-normal), background-color var(--transition-normal);
+}
+
+.modal-backdrop.open .modal-dialog {
+  transform: scale(1);
+}
+
+.modal-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-modal-header);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background-color var(--transition-normal);
+}
+
+.modal-title {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.modal-intro-text {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.review-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+
+.review-item {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  transition: background-color var(--transition-normal);
+}
+
+.review-item.full-width {
+  grid-column: span 2;
+}
+
+.review-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.review-val {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  word-break: break-all;
+}
+
+.review-val.primary-val {
+  color: var(--primary);
+}
+
+.guardrail-check-banner {
+  padding: 0.85rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--success-border);
+  background: var(--success-subtle);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  transition: background-color var(--transition-normal);
+}
+
+.guardrail-check-banner.danger {
+  border-color: var(--danger-border);
+  background: var(--danger-subtle);
+}
+
+.modal-footer {
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-modal-footer);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.85rem;
+  transition: background-color var(--transition-normal);
+}
+
+.btn-reject {
+  background: transparent;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-reject:hover:not(:disabled) {
+  background: var(--danger-subtle);
+}
+
+.btn-approve {
+  background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+  border: none;
+  color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all var(--transition-fast);
+  box-shadow: 0 4px 16px var(--success-glow);
+}
+
+.btn-approve:hover:not(:disabled) {
+  opacity: 0.92;
+  box-shadow: 0 4px 20px var(--success-glow);
+}
+
+.btn-reject:disabled, .btn-approve:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+

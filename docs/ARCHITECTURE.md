@@ -28,6 +28,24 @@ cleanup lỗi, các thao tác cleanup còn lại vẫn được thực hiện.
 Các phần dưới mô tả agent core và lớp công cụ ban đầu; flow wallet history và
 database xem thêm `WALLET_HISTORY_RUNBOOK.md` và `WALLET_HISTORY_DATABASE_PLAN.md`.
 
+## Frontend composition hiện tại
+
+`frontend/app.js` lắp các view/controller và khởi động dashboard. `state.js` tạo
+state cho từng dashboard; dependency được truyền vào factory thay vì view import
+state toàn cục. `controllers/` quản lý chat, approval, tải assets và wallet session;
+`ui/` render DOM, theme/ngôn ngữ, timeline, modal và bố cục. HTTP của dashboard đi
+qua `dashboardApi` trong `api.js`; `WalletController` và `HistoryView` tiếp tục
+quản lý tương tác với provider và dữ liệu lịch sử.
+
+Controller chat kiểm tra đồng thời wallet generation, conversation và history
+epoch trước khi render response. Tải số dư giữ generation guard; receipt polling
+legacy chỉ gọi endpoint đọc trạng thái sau lần review đầu tiên.
+
+`styles.css` là entry point import các file trong `styles/` theo thứ tự cascade
+hiện tại. Browser có thể tải trực tiếp các ES module/CSS qua FastAPI; Vite gộp
+cùng nguồn này khi build production. Các module và stylesheet vẫn được revalidate
+qua `Cache-Control: no-cache` trong chế độ wallet history.
+
 ## 1. Tổng quan
 
 ```mermaid

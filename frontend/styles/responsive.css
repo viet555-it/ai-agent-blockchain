@@ -1,0 +1,111 @@
+/* ==========================================================================
+   Responsive workspace: header uses its actual height, chat never shares its row
+   with the timeline on compact screens.
+   ========================================================================== */
+
+:root { --app-header-height: 100px; }
+body { display: flex; flex-direction: column; height: 100dvh; min-width: 0; overflow: hidden; }
+.app-header {
+  position: relative; flex: none; display: grid;
+  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr) auto;
+  align-items: center; gap: .7rem 1.2rem; padding: .9rem 1.25rem;
+}
+.brand-group { min-width: 0; gap: .7rem; flex-wrap: wrap; }
+.brand-group > div { min-width: 0; }
+.brand-title { font-size: clamp(.95rem, 1.2vw, 1.1rem); }
+.brand-tag { white-space: nowrap; font-size: .55rem; }
+.header-status-group { min-width: 0; flex-wrap: wrap; justify-content: center; gap: .5rem; }
+.status-chip { white-space: nowrap; flex: none; font-size: .75rem; }
+.action-pill-btn { white-space: nowrap; flex-shrink: 0; }
+.header-actions { flex: none; }
+.wallet-controls { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: .5rem; max-width: 320px; min-width: 0; }
+.wallet-controls select { max-width: 150px; min-width: 0; }
+.wallet-primary { background: var(--primary); color: var(--primary-contrast); border-color: var(--primary); font-weight: 700; padding: .65rem .9rem; }
+#wallet-status { flex-basis: 100%; text-align: right; font-size: .72rem; overflow-wrap: anywhere; max-width: 320px; }
+.wallet-controls[data-ready="true"] #wallet-status {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+.wallet-menu { position: relative; }
+.wallet-menu summary { display: flex; align-items: center; gap: .55rem; padding: .6rem .8rem; border: 1px solid var(--success-border); background: var(--bg-card); border-radius: var(--radius-full); font-size: .8rem; cursor: pointer; list-style: none; white-space: nowrap; }
+.wallet-menu summary::-webkit-details-marker { display: none; }
+.wallet-ready-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
+.wallet-menu-items { position: absolute; top: calc(100% + .5rem); right: 0; z-index: 60; min-width: 190px; padding: .35rem; border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: var(--bg-modal); box-shadow: var(--panel-shadow); }
+.wallet-menu-items button { display: block; width: 100%; padding: .7rem .8rem; text-align: left; background: transparent; color: var(--text-main); border: 0; border-radius: var(--radius-sm); font: inherit; font-size: .8rem; cursor: pointer; }
+.wallet-menu-items button:hover { background: var(--bg-surface-hover); }
+.wallet-menu-items #wallet-disconnect { color: var(--danger); }
+.app-container {
+  flex: 1 1 0; min-height: 0; width: 100%; height: auto; overflow: hidden;
+  grid-template-columns: minmax(240px, 280px) minmax(0, 1fr) minmax(270px, 320px);
+  grid-template-rows: minmax(0, 1fr); gap: 1rem; padding: 1rem;
+}
+.glass-panel { min-width: 0; min-height: 0; height: 100%; }
+.panel-header, .panel-body, .chat-history, .chat-composer, .composer-input-wrapper { min-width: 0; min-height: 0; }
+.panel-header { gap: .65rem; flex-shrink: 0; }
+.panel-title { min-width: 0; }
+.panel-title .panel-icon { flex-shrink: 0; }
+.panel-badge { flex-shrink: 0; max-width: 45%; overflow-wrap: anywhere; }
+.info-mono, .review-val { overflow-wrap: anywhere; }
+.info-value-row { flex-wrap: wrap; gap: .4rem; }
+.info-value-row > div:first-child { flex: 1 1 100%; min-width: 0; }
+.info-main-val { white-space: nowrap; }
+.chat-history { flex: 1 1 0; }
+.chat-message { flex-shrink: 0; }
+.chat-composer, .prompt-chips { flex-shrink: 0; }
+.prompt-chips { max-height: 84px; overflow-y: auto; padding-top: .6rem; border-top: 1px solid var(--border-subtle); background: var(--bg-card); }
+.wallet-chat-gate { margin: 1rem 1rem 0; padding: .85rem 1rem; border: 1px solid var(--primary-border); border-radius: var(--radius-md); background: var(--primary-subtle); font-size: .85rem; flex-shrink: 0; }
+.wallet-chat-gate p { margin-bottom: .6rem; overflow-wrap: anywhere; }
+.wallet-chat-gate button { background: var(--primary); color: var(--primary-contrast); font-weight: 700; white-space: normal; }
+.modal-dialog { max-height: calc(100dvh - 32px); min-height: 0; }
+.modal-body { overflow-y: auto; min-height: 0; }
+.modal-header, .modal-footer { flex-shrink: 0; gap: .75rem; flex-wrap: wrap; }
+.review-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+@media (max-width: 1399px) {
+  body { height: auto; overflow-y: auto; }
+  .app-header { grid-template-columns: minmax(200px, 1fr) auto; }
+  .header-status-group { justify-content: flex-end; }
+  .wallet-controls { grid-column: 1 / -1; max-width: none; width: 100%; }
+  .app-container {
+    flex: none; overflow: visible; grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+    grid-template-rows: minmax(420px, calc(100dvh - var(--app-header-height) - 32px)) 360px;
+  }
+  #panel-activity { grid-column: 1 / -1; }
+}
+@media (min-width: 1400px) and (max-height: 650px) {
+  body { height: auto; overflow-y: auto; }
+  .app-container { flex: none; height: 480px; }
+}
+@media (max-width: 900px) {
+  body { background-attachment: scroll; }
+  .glass-panel, .app-header { backdrop-filter: none; }
+  .app-container { display: flex; flex-direction: column; gap: .85rem; padding: .75rem; }
+  .glass-panel { flex: none; }
+  #panel-chat { order: -1; height: max(420px, calc(100dvh - var(--app-header-height) - 24px)); }
+  #panel-blockchain { height: 660px; }
+  #panel-activity { height: 380px; }
+  #agent-mode-badge { display: none; }
+  .panel-header, .panel-body { padding: .85rem; }
+  .chat-history { padding: .85rem; }
+  .chat-message { max-width: 100%; gap: .5rem; }
+  .chat-composer { padding: .75rem; gap: .5rem; }
+  .prompt-chips { padding: .5rem .75rem; max-height: 72px; }
+}
+@media (max-width: 700px) {
+  .app-header { grid-template-columns: minmax(0, 1fr); padding: .75rem; gap: .6rem; }
+  .brand-group { flex-wrap: nowrap; }
+  .brand-title { font-size: .95rem; }
+  .brand-icon { width: 32px; height: 32px; }
+  .brand-tag, #rpc-chip { display: none; }
+  .header-status-group { justify-content: space-between; gap: .35rem; }
+  .status-chip { padding: .3rem .5rem; font-size: .7rem; }
+  .header-actions { margin-left: auto; }
+  .wallet-controls { justify-content: flex-start; }
+  #wallet-status { text-align: left; max-width: none; }
+  .wallet-menu-items { right: auto; left: 0; }
+  .wallet-menu summary, .wallet-primary { min-height: 40px; }
+  .modal-backdrop { padding: .6rem; }
+  .modal-dialog { max-height: calc(100dvh - 20px); }
+  .modal-header, .modal-body, .modal-footer { padding: .85rem; }
+  .review-grid { grid-template-columns: minmax(0, 1fr); }
+  .review-item.full-width { grid-column: 1; }
+}

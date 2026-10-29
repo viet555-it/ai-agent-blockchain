@@ -280,5 +280,16 @@ Phần còn lại sau commit đầu: tách runtime assembly/lifespan, bổ sung 
 - Wallet Playwright E2E: 9 passed, không skip/flaky; runner tạo Hardhat, API và database riêng và thoát với mã 0.
 - Cập nhật `docs/ARCHITECTURE.md` về API composition và thứ tự giải phóng tài nguyên.
 
-Tiếp theo trong lộ trình: PR 2 — tách frontend theo tính năng. Ma trận/hợp đồng đầy đủ của các profile ở PR 0 vẫn cần bổ sung; chưa đo coverage mới.
+### PR 2 — tách frontend theo tính năng
+
+- `app.js` giảm từ 1.016 xuống 91 dòng, tập trung lắp view/controller và bootstrap.
+- `controllers/` chia theo assets, chat, approval và wallet session. `ui/` chứa render chat/RAG citation, timeline, modal, wallet gate, theme/ngôn ngữ, DOM bindings và layout observers.
+- `state.js` tạo state theo dashboard; mỗi factory nhận state/dependency trực tiếp. Giữ các module `WalletController`, `HistoryView` và i18n hiện có.
+- Dashboard HTTP dùng client trong `api.js`, có custom header để giữ session binding của approval polling.
+- `styles.css` chỉ import các stylesheet theo khu vực. Ghép các phần lại khớp nguyên nội dung/thứ tự CSS ban đầu; Vite build cho cùng CSS asset `index-2KmgZ_kE.css` trước/sau refactor.
+- Thêm 4 test Node cho phản hồi số dư sau đổi ví, chat trả muộn từ hội thoại cũ, receipt polling không submit lại và session header của status request.
+- Thêm Playwright test cho legacy chat/timeline/approval và theme; mở rộng backend test kiểm tra serving/cache của `/ui/chat.js` và `/styles/chat.css`.
+- Kiểm chứng: 11/11 Node tests, Vite build, 10/10 Playwright E2E, 21/21 backend wallet/history tests. Kiểm tra ảnh mobile tiếng Việt và các viewport trong E2E đạt. Playwright dùng provider mô phỏng trên Hardhat/API/database riêng.
+
+Tiếp theo trong lộ trình: PR 3 — tách transaction preparation khỏi transport. Ma trận/hợp đồng đầy đủ của các profile ở PR 0 vẫn cần bổ sung; chưa đo coverage mới.
 
