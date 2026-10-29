@@ -266,5 +266,19 @@ Kiểm chứng:
 - Ruff cho các module mới đạt; `git diff --check` không có lỗi whitespace.
 - Test chạy qua cấu hình cô lập FakeLLM của dự án ngoài sandbox. Các lượt trong sandbox bị treo hoặc lỗi quyền thư mục tạm; lượt pytest trực tiếp còn bị cấu hình `.env` ảnh hưởng, nên không dùng làm baseline.
 
-Phần còn lại: tách runtime assembly/lifespan, bổ sung ma trận/hợp đồng đầy đủ cho các profile ở PR 0, rồi tiếp tục các PR sau. Chưa chạy local-EVM, RAG, frontend E2E hoặc đo coverage trong phần việc này; chưa thay đổi transaction logic hoặc database schema.
+Phần còn lại sau commit đầu: tách runtime assembly/lifespan, bổ sung ma trận/hợp đồng đầy đủ cho các profile ở PR 0, rồi tiếp tục các PR sau. Chưa chạy local-EVM, RAG, frontend E2E hoặc đo coverage trong commit đầu; chưa thay đổi transaction logic hoặc database schema.
+
+### Tiếp theo — tách runtime và lifespan
+
+- Commit đầu: `b597fb5` (`refactor(api): extract request schemas and route groups`).
+- Tách `ApplicationRuntime`/validation sang `backend/bootstrap/runtime.py`; factory không mở tài nguyên.
+- Tách startup/shutdown và wallet receipt worker sang `backend/bootstrap/lifespan.py`; scope retrieval được chọn và kiểm tra trong `backend/bootstrap/retrieval.py`.
+- `server.py` còn 120 dòng, giữ public factory, injection parameters, `app.state`, static hosting và entry point hiện có.
+- Dùng `AsyncExitStack` để đóng tài nguyên theo ownership. Lỗi cleanup của retriever không còn ngăn LLM được đóng; caller vẫn quản lý các dependency inject vào.
+- Thêm 7 test lifecycle: shutdown thường, scope sai, retriever tạo lỗi, cleanup lỗi, DB schema lỗi, dependency inject và worker dừng trước khi DB đóng.
+- Unit suite: 303 passed, 3 skipped, 1 deselected, 75 subtests passed. OpenAPI unit profile bằng bản trước refactor; Ruff cho source/test thay đổi đạt.
+- Wallet Playwright E2E: 9 passed, không skip/flaky; runner tạo Hardhat, API và database riêng và thoát với mã 0.
+- Cập nhật `docs/ARCHITECTURE.md` về API composition và thứ tự giải phóng tài nguyên.
+
+Tiếp theo trong lộ trình: PR 2 — tách frontend theo tính năng. Ma trận/hợp đồng đầy đủ của các profile ở PR 0 vẫn cần bổ sung; chưa đo coverage mới.
 

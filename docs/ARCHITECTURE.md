@@ -1,5 +1,33 @@
 # Architecture – AI Agent with Blockchain Tools
 
+## API composition và lifecycle hiện tại
+
+`backend/api/server.py` giữ `create_app()` và entry point chạy API. Factory gọi
+`backend/bootstrap/runtime.py` để kiểm tra profile, feature flags và lắp cấu hình;
+`backend/bootstrap/lifespan.py` khởi tạo các service khi ứng dụng startup.
+`backend/bootstrap/retrieval.py` chọn và kiểm tra scope RAG theo chain/deployment.
+Factory và module import không kết nối RPC hoặc mở database.
+
+| Module | Trách nhiệm |
+|---|---|
+| `backend/api/schemas.py` | Request models và validation |
+| `backend/api/routes/` | Health/network, chat, approval và proposal endpoints |
+| `backend/api/wallet_routes.py` | Xác thực ví, hội thoại và lịch sử có phân quyền |
+| `backend/api/dependencies.py` | Kiểm tra quyền dùng legacy endpoints |
+| `backend/api/error_handlers.py` | Chuyển lỗi wallet API thành HTTP và chính sách cache |
+| `backend/bootstrap/runtime.py` | Cấu hình đã kiểm tra, chưa mở tài nguyên |
+| `backend/bootstrap/lifespan.py` | Startup/shutdown, lắp service, receipt worker |
+
+Routes lấy service từ `request.app.state`. Mỗi app có runtime riêng; public
+factory vẫn hỗ trợ inject blockchain, policy, LLM, retriever và wallet settings.
+LLM/retriever được truyền vào do caller quản lý. Tài nguyên do app tạo được đăng
+ký vào `AsyncExitStack` ngay sau khi tạo và được đóng khi startup lỗi hoặc shutdown.
+Thứ tự đóng: dừng receipt worker → database → retriever → LLM. Nếu một thao tác
+cleanup lỗi, các thao tác cleanup còn lại vẫn được thực hiện.
+
+Các phần dưới mô tả agent core và lớp công cụ ban đầu; flow wallet history và
+database xem thêm `WALLET_HISTORY_RUNBOOK.md` và `WALLET_HISTORY_DATABASE_PLAN.md`.
+
 ## 1. Tổng quan
 
 ```mermaid
