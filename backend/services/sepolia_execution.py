@@ -19,6 +19,7 @@ from backend.services.transaction_coordinator import (
     TransactionError,
     digest,
 )
+from backend.services.transactions.transports import SepoliaTransactionTransport
 from backend.token_amounts import to_token_units
 
 FIXTURES = {"faucet_claim": 10 * 10**18, "erc20_transfer": 10**18}
@@ -142,32 +143,40 @@ class ExecutionLedger:
             return entry["status"]
 
 
+class SepoliaChainRules:
+    def __init__(self, config: SepoliaExecution):
+        self.config = config
+
+    def validate_transport(self, blockchain, chain_id):
+        url = urlparse(blockchain.rpc_url)
+        if blockchain.chain_id != chain_id or url.scheme != "https":
+            raise TransactionError(
+                "Approved Sepolia execution requires HTTPS and chain 11155111", 403
+            )
+
+    def validate_chain(self, blockchain, chain_id, sender, contract):
+        if blockchain.chain_id != chain_id or blockchain.w3.eth.chain_id != chain_id:
+            raise TransactionError("Sepolia chain identity changed", 403)
+        if self.config.signer.address.lower() != sender.lower() or contract != self.config.contract:
+            raise TransactionError("Approved signer or contract changed", 403)
+
+
 class SepoliaTransactionCoordinator(TransactionCoordinator):
     chain_id = 11155111
 
     def __init__(self, blockchain, policy, config: SepoliaExecution, *, receipt_timeout=45):
         self.config = config
         self.ledger = ExecutionLedger(config)
-        super().__init__(blockchain, policy, config.sender, receipt_timeout=receipt_timeout)
-
-    def _validate_transport(self):
-        url = urlparse(self.blockchain.rpc_url)
-        if self.blockchain.chain_id != self.chain_id or url.scheme != "https":
-            raise TransactionError(
-                "Approved Sepolia execution requires HTTPS and chain 11155111", 403
-            )
-
-    def _chain_identity(self):
-        if (
-            self.blockchain.chain_id != self.chain_id
-            or self.blockchain.w3.eth.chain_id != self.chain_id
-        ):
-            raise TransactionError("Sepolia chain identity changed", 403)
-        if (
-            self.config.signer.address.lower() != self.sender.lower()
-            or self.contract_address != self.config.contract
-        ):
-            raise TransactionError("Approved signer or contract changed", 403)
+        super().__init__(
+            blockchain,
+            policy,
+            config.sender,
+            receipt_timeout=receipt_timeout,
+            rules=SepoliaChainRules(config),
+            transport=SepoliaTransactionTransport(
+                blockchain, config.signer, self.ledger, policy, self._transaction_fixture
+            ),
+        )
 
     def _calldata(self, operation):
         if operation == "faucet_claim":
@@ -222,19 +231,6 @@ class SepoliaTransactionCoordinator(TransactionCoordinator):
                     "Prepared calldata does not match the requested fixture", 409
                 )
         return decision
-
-    def _broadcast(self, record, approval_id):
-        if self._transaction_fixture(record.transaction) != record.operation:
-            raise TransactionError("Approval fixture changed", 409)
-        tx = {key: value for key, value in record.transaction.items() if key != "from"}
-        signed = self.config.signer.sign_transaction(tx)
-        expected_hash = Web3.to_hex(Web3.keccak(signed.raw_transaction))
-        self.ledger.reserve(record.operation, expected_hash, record.transaction, approval_id)
-        self.policy.get_pending_approval(approval_id).tx_hash = expected_hash
-        observed = self.blockchain.w3.eth.send_raw_transaction(signed.raw_transaction)
-        if Web3.to_hex(observed).lower() != expected_hash.lower():
-            raise TransactionError("Broadcast hash mismatch; reconcile without resending", 409)
-        return observed
 
     def _reconcile(self, approval_id, record, pending):
         result = super()._reconcile(approval_id, record, pending)

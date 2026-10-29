@@ -22,12 +22,9 @@ from backend.db.schema_v1 import (
 )
 from backend.guardrail.policy_engine import PolicyEngine
 from backend.services.history_service import page
-from backend.services.transaction_coordinator import (
-    TransactionCoordinator,
-    TransactionError,
-    digest,
-    json_safe,
-)
+from backend.services.transactions.models import TransactionError
+from backend.services.transactions.preparation import BrowserPreparer as BrowserPreparer
+from backend.services.transactions.serialization import digest, json_safe
 from backend.services.wallet_common import (
     fail,
     hashed,
@@ -49,27 +46,6 @@ def hexdata(value):
     if value is None:
         return "0x"
     return value.lower() if isinstance(value, str) else Web3.to_hex(value).lower()
-
-
-class BrowserPreparer(TransactionCoordinator):
-    """Reuse existing simulation/policy checks without the unlocked-account transport."""
-
-    def __init__(self, blockchain, policy, sender):
-        self.chain_id = blockchain.chain_id
-        super().__init__(blockchain, policy, sender)
-
-    def _validate_transport(self):
-        if self.chain_id not in {31337, 11155111}:
-            raise TransactionError("Browser execution supports local Hardhat and Sepolia only", 403)
-        if self.chain_id == 31337:
-            super()._validate_transport()
-
-    def _chain_identity(self):
-        if self.blockchain.w3.eth.chain_id != self.chain_id:
-            raise TransactionError("RPC chain changed", 409)
-
-    def _broadcast(self, *args):
-        raise RuntimeError("Browser wallet transport cannot broadcast")
 
 
 class BrowserWalletService:
@@ -428,7 +404,7 @@ class BrowserWalletService:
             for key, value in proposal["transaction"].items()
         }
         try:
-            simulation = preparer._preflight(transaction, refresh_gas=False)
+            simulation = preparer.preflight(transaction, refresh_gas=False)
         except Exception:
             fail(
                 409,

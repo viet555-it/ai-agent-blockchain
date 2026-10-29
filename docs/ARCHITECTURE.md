@@ -46,6 +46,31 @@ hiện tại. Browser có thể tải trực tiếp các ES module/CSS qua FastA
 cùng nguồn này khi build production. Các module và stylesheet vẫn được revalidate
 qua `Cache-Control: no-cache` trong chế độ wallet history.
 
+## Transaction preparation và execution hiện tại
+
+`backend/services/transactions/` chứa các phần dùng chung:
+
+| Module | Trách nhiệm |
+|---|---|
+| `models.py` | Transaction error, proposal đang chờ và kết quả chuẩn bị |
+| `serialization.py` | Canonical JSON hash và chuyển receipt thành dữ liệu JSON |
+| `preflight.py` | Chain rules, deployment/ABI/bytecode identity, nonce, gas, balance và `eth_call` |
+| `preparation.py` | Chuẩn hóa amount/recipient, tạo unsigned transaction và đánh giá policy |
+| `transports.py` | Gửi bằng tài khoản local hoặc ký/gửi raw transaction Sepolia |
+
+`TransactionCoordinator` tiếp tục sở hữu lock, proposal binding, approval review,
+nonce fence và receipt reconciliation. Nó dùng `TransactionPreparer` qua composition,
+rồi gọi transport sau approval và lần preflight cuối. Import cũ của `TransactionError`,
+`BoundProposal`, `SUPPORTED`, `digest` và `json_safe` từ coordinator vẫn hoạt động.
+
+`BrowserPreparer` chỉ dùng preparation/preflight, không kế thừa coordinator và không
+nhận execution transport. `BrowserWalletService` gọi `preflight()` công khai trước
+khi cấp quyền ký; database tiếp tục quản lý context, version, send lock và submission.
+
+Sepolia giữ các fixture và fee/nonce ledger hiện có. Transport ký transaction,
+lưu reservation bền vững, gắn expected hash vào pending approval, rồi mới gửi raw
+transaction. Không có thay đổi về thứ tự reserve-before-send hoặc xử lý `UNKNOWN`.
+
 ## 1. Tổng quan
 
 ```mermaid

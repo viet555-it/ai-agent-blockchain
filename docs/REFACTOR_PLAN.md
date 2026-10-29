@@ -291,5 +291,15 @@ Phần còn lại sau commit đầu: tách runtime assembly/lifespan, bổ sung 
 - Thêm Playwright test cho legacy chat/timeline/approval và theme; mở rộng backend test kiểm tra serving/cache của `/ui/chat.js` và `/styles/chat.css`.
 - Kiểm chứng: 11/11 Node tests, Vite build, 10/10 Playwright E2E, 21/21 backend wallet/history tests. Kiểm tra ảnh mobile tiếng Việt và các viewport trong E2E đạt. Playwright dùng provider mô phỏng trên Hardhat/API/database riêng.
 
-Tiếp theo trong lộ trình: PR 3 — tách transaction preparation khỏi transport. Ma trận/hợp đồng đầy đủ của các profile ở PR 0 vẫn cần bổ sung; chưa đo coverage mới.
+### PR 3 — tách transaction preparation khỏi transport
+
+- Thêm `backend/services/transactions/`: models, canonical serialization, identity/preflight, unsigned preparation và execution transports.
+- `TransactionCoordinator` giảm từ 413 còn 305 dòng; giữ lock, approval records, nonce fence, review, trạng thái `UNKNOWN` và receipt reconciliation. Các identity attributes và import helper cũ vẫn được giữ cho callers.
+- Browser dùng `BrowserPreparer` theo composition, không kế thừa coordinator thực thi. `BrowserWalletService` gọi public `preflight()` thay cho `_preflight()` của coordinator.
+- Local transport giữ `send_transaction`; Sepolia transport giữ ký, reservation, expected hash và `send_raw_transaction`. Sepolia fixture gates, ledger và fee limit không đổi.
+- Đối chiếu AST xác nhận `_bound`, `review`, `_reconcile`, `get` của coordinator không đổi; `ExecutionLedger` và các method kiểm fixture/preflight/proposal/reconcile Sepolia không đổi.
+- Thêm 3 test: browser preparation với tài khoản không mở khóa tại backend, kiểm tra lại nonce qua public preflight và execution transport chỉ chạy một lần sau approval.
+- Kiểm chứng: 306 unit tests passed, 3 skipped, 1 deselected, 75 subtests passed; 13 local-EVM integration tests passed trên Hardhat cổng riêng/deployment tạm; 10/10 wallet Playwright E2E passed. Ruff và kiểm tra format đạt. Các test Sepolia dùng signer fixture và RPC giả; không gửi testnet.
+
+Tiếp theo trong lộ trình: PR 4 — tách durable wallet workflow và persistence. Ma trận/hợp đồng đầy đủ của các profile ở PR 0 vẫn cần bổ sung; chưa đo coverage mới.
 
