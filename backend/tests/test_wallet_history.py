@@ -2,15 +2,17 @@
 
 import json
 import tempfile
+import time
 import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from eth_account import Account
 from eth_account.messages import encode_defunct
 from fastapi.testclient import TestClient
 from sqlalchemy import select, update
+from sqlalchemy.exc import SQLAlchemyError
 from web3 import Web3
 from web3.exceptions import TransactionNotFound
 
@@ -18,10 +20,13 @@ from agent.llm.base import LLMResponse, ToolCall
 from agent.llm.fake import FakeLLMProvider
 from backend.api.server import create_app
 from backend.db.schema_v1 import (
+    approvals,
     attempts,
     challenges,
     messages,
     proposals,
+    receipts,
+    send_locks,
     sessions,
     turns,
 )
@@ -221,10 +226,54 @@ class WalletHistoryTests(unittest.TestCase):
         self.assertEqual(response.json()["detail"]["code"], "DEPLOYMENT_UNAVAILABLE")
 
     def test_frontend_revalidates_assets_so_old_wallet_controls_are_not_cached(self):
-        for path in ["/", "/app.js", "/styles.css"]:
+        for path in ["/", "/app.js", "/styles.css", "/ui/chat.js", "/styles/chat.css"]:
             response = self.client.get(path)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.headers["cache-control"], "no-cache")
+
+    def test_contract_wallet_rejection_is_not_masked_as_rpc_unavailability(self):
+        challenge = self.client.post(
+            "/api/auth/challenge", json={"address": self.a.address, "chain_id": 31337}
+        ).json()
+        signature = Account.sign_message(
+            encode_defunct(text=challenge["message"]), self.a.key
+        ).signature.hex()
+        self.chain.w3.eth.get_code.return_value = b"\x60\x00"
+        response = self.client.post(
+            "/api/auth/verify",
+            json={"challenge_id": challenge["challenge_id"], "signature": signature},
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(),
+            {"detail": {
+                "code": "UNSUPPORTED_WALLET",
+                "message": "Contract wallets are not supported in this version.",
+            }},
+        )
+
+    def test_wallet_type_rpc_failure_keeps_challenge_available_for_retry(self):
+        challenge = self.client.post(
+            "/api/auth/challenge", json={"address": self.a.address, "chain_id": 31337}
+        ).json()
+        signature = Account.sign_message(
+            encode_defunct(text=challenge["message"]), self.a.key
+        ).signature.hex()
+        body = {"challenge_id": challenge["challenge_id"], "signature": signature}
+        self.chain.w3.eth.get_code.side_effect = ConnectionError("private-provider-credential")
+        response = self.client.post("/api/auth/verify", json=body)
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(
+            response.json(),
+            {"detail": {"code": "RPC", "message": "Cannot verify wallet type right now."}},
+        )
+        with self.app.state.wallet_db.transaction() as connection:
+            consumed = connection.execute(
+                select(challenges.c.consumed_at).where(challenges.c.id == challenge["challenge_id"])
+            ).scalar_one()
+            self.assertIsNone(consumed)
+        self.chain.w3.eth.get_code.side_effect = None
+        self.assertEqual(self.client.post("/api/auth/verify", json=body).status_code, 200)
 
     def test_invalid_signature_and_expired_challenge(self):
         challenge = self.client.post(
@@ -559,6 +608,82 @@ class WalletHistoryTests(unittest.TestCase):
         self.assertEqual(sorted(response.status_code for response in responses), [200, 409])
         with self.app.state.wallet_db.transaction() as connection:
             self.assertEqual(len(list(connection.execute(select(attempts)))), 1)
+
+    def test_authorization_storage_failure_rolls_back_proposal_attempt_and_send_lock(self):
+        context, _, _ = self.login()
+        proposal = self.propose(context, self.conversation(context))
+        path = f"/api/wallet-proposals/{proposal['approval_id']}/authorize"
+        body = self.review_body(context, proposal)
+        with patch(
+            "backend.db.repositories.submissions.insert_approval",
+            side_effect=SQLAlchemyError("approval storage failed"),
+        ):
+            response = self.client.post(path, json=body)
+        self.assertEqual(response.status_code, 503, response.text)
+        with self.app.state.wallet_db.transaction() as connection:
+            stored = connection.execute(select(proposals)).mappings().one()
+            self.assertEqual(stored["status"], "PENDING_REVIEW")
+            self.assertEqual(stored["version"], 0)
+            self.assertEqual(list(connection.execute(select(attempts))), [])
+            self.assertEqual(list(connection.execute(select(approvals))), [])
+            self.assertIsNone(connection.execute(select(send_locks.c.attempt_id)).scalar_one())
+        retry = self.client.post(path, json=body)
+        self.assertEqual(retry.status_code, 200, retry.text)
+
+    def test_rejected_signature_storage_failure_rolls_back_all_state_changes(self):
+        context, _, _ = self.login()
+        proposal = self.propose(context, self.conversation(context))
+        submission = self.client.post(
+            f"/api/wallet-proposals/{proposal['approval_id']}/authorize",
+            json=self.review_body(context, proposal),
+        ).json()
+        path = f"/api/wallet-submissions/{submission['submission_id']}/report"
+        body = {"report_token": submission["report_token"], "rejected": True}
+        with patch(
+            "backend.db.repositories.submissions.release_send_lock",
+            side_effect=SQLAlchemyError("send lock storage failed"),
+        ):
+            response = self.client.post(path, json=body)
+        self.assertEqual(response.status_code, 503, response.text)
+        with self.app.state.wallet_db.transaction() as connection:
+            self.assertEqual(
+                connection.execute(select(proposals.c.status)).scalar_one(), "AWAITING_SIGNATURE"
+            )
+            self.assertEqual(
+                connection.execute(select(attempts.c.status)).scalar_one(), "AWAITING_SIGNATURE"
+            )
+            self.assertEqual(
+                connection.execute(select(send_locks.c.attempt_id)).scalar_one(),
+                submission["submission_id"],
+            )
+        self.assertEqual(self.client.post(path, json=body).status_code, 200)
+        with self.app.state.wallet_db.transaction() as connection:
+            self.assertIsNone(connection.execute(select(send_locks.c.attempt_id)).scalar_one())
+
+    def test_reconciliation_cannot_persist_after_losing_its_lease_during_rpc(self):
+        proposal, submission, tx, _ = self.submitted()
+
+        def lose_lease(_):
+            with self.app.state.wallet_db.transaction() as connection:
+                connection.execute(
+                    update(attempts)
+                    .where(attempts.c.id == submission["submission_id"])
+                    .values(lease_id="new-worker", lease_until=time.time() + 120)
+                )
+            return tx
+
+        self.chain.w3.eth.get_transaction.side_effect = lose_lease
+        self.poll_now()
+        with self.app.state.wallet_db.transaction() as connection:
+            attempt = connection.execute(select(attempts)).mappings().one()
+            self.assertEqual(attempt["lease_id"], "new-worker")
+            self.assertEqual(attempt["status"], "AWAITING_SIGNATURE")
+            self.assertEqual(attempt["verification_status"], "UNVERIFIED")
+            self.assertEqual(list(connection.execute(select(receipts))), [])
+            self.assertEqual(
+                connection.execute(select(send_locks.c.attempt_id)).scalar_one(),
+                submission["submission_id"],
+            )
 
     def test_hash_recovery_is_owner_only(self):
         proposal, submission, tx, receipt = self.submitted()

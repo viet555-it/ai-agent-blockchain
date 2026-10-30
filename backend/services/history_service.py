@@ -3,10 +3,13 @@
 import base64
 import time
 
-from sqlalchemy import and_, or_, select, update
+from sqlalchemy import select, update
 
+from backend.db.pagination import encode_cursor as encode_cursor
+from backend.db.pagination import page as page
 from backend.db.schema_v1 import audit, conversations, messages, proposals, turns
 from backend.services.wallet_common import fail, one, record_audit, require_context, uid
+from backend.wallet_errors import WalletErrorKind as ErrorKind
 
 
 def protocol_json(value, decode=False):
@@ -19,33 +22,6 @@ def protocol_json(value, decode=False):
     if isinstance(value, list):
         return [protocol_json(item, decode) for item in value]
     return value
-
-
-def encode_cursor(timestamp, record_id):
-    return base64.urlsafe_b64encode(f"{timestamp}|{record_id}".encode()).decode()
-
-
-def page(connection, statement, table, timestamp, cursor=None, limit=30):
-    if cursor:
-        try:
-            value, record_id = base64.urlsafe_b64decode(cursor.encode()).decode().split("|", 1)
-            value = float(value)
-        except Exception:
-            fail(400, "CURSOR", "Invalid history cursor.")
-        statement = statement.where(
-            or_(timestamp < value, and_(timestamp == value, table.c.id < record_id))
-        )
-    rows = [
-        dict(row)
-        for row in connection.execute(
-            statement.order_by(timestamp.desc(), table.c.id.desc()).limit(limit + 1)
-        ).mappings()
-    ]
-    more, rows = len(rows) > limit, rows[:limit]
-    return {
-        "items": rows,
-        "next_cursor": encode_cursor(rows[-1][timestamp.name], rows[-1]["id"]) if more else None,
-    }
 
 
 class HistoryService:
@@ -61,7 +37,7 @@ class HistoryService:
             ),
         )
         if not row:
-            fail(404, "NOT_FOUND", "Conversation not found.")
+            fail(ErrorKind.NOT_FOUND, "NOT_FOUND", "Conversation not found.")
         return row
 
     def create(self, principal, deployment_id, title):
@@ -136,7 +112,7 @@ class HistoryService:
                 .where(turns.c.id == turn_id, conversations.c.wallet_id == principal.wallet_id),
             )
         if not row:
-            fail(404, "NOT_FOUND", "Chat turn not found.")
+            fail(ErrorKind.NOT_FOUND, "NOT_FOUND", "Chat turn not found.")
         return row
 
     def recover(self):
@@ -171,14 +147,22 @@ class HistoryService:
             if previous:
                 return previous, False
             if conversation["archived_at"] or conversation["deployment_id"] != deployment_id:
-                fail(409, "CONVERSATION_CONTEXT", "Start a conversation on the current deployment.")
+                fail(
+                    ErrorKind.CONFLICT,
+                    "CONVERSATION_CONTEXT",
+                    "Start a conversation on the current deployment.",
+                )
             claimed = connection.execute(
                 update(conversations)
                 .where(conversations.c.id == conversation_id, conversations.c.lease_until < now)
                 .values(lease_until=now + 300, lease_id=turn_id, updated_at=now)
             )
             if claimed.rowcount != 1:
-                fail(409, "CHAT_BUSY", "Another message is being processed in this conversation.")
+                fail(
+                    ErrorKind.CONFLICT,
+                    "CHAT_BUSY",
+                    "Another message is being processed in this conversation.",
+                )
             row = dict(
                 id=turn_id,
                 conversation_id=conversation_id,
@@ -237,7 +221,11 @@ class HistoryService:
                 ),
             )
             if not row:
-                fail(409, "CHAT_INTERRUPTED", "Chat processing lease is no longer valid.")
+                fail(
+                    ErrorKind.CONFLICT,
+                    "CHAT_INTERRUPTED",
+                    "Chat processing lease is no longer valid.",
+                )
             # The user message was committed before the model ran. Preserve only
             # public user/final text and tool protocol; never persist thought text.
             sanitized = []

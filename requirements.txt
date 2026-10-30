@@ -148,7 +148,7 @@ websocket-client==1.9.2
 websockets==15.0.1
 yarl==1.25.1
 
--e .[dev]
+# Register the checkout separately: python -m pip install --no-deps --no-build-isolation -e .
 SQLAlchemy==2.1.6
 alembic==1.20.1
 Mako==1.4.3

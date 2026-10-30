@@ -7,17 +7,31 @@ export class ApiError extends Error {
   }
 }
 
-export async function api(path, { method = 'GET', body, signal } = {}) {
+export async function api(path, { method = 'GET', body, signal, headers = {} } = {}) {
   const csrf = document.cookie.split('; ').find(value => value.startsWith('ati_csrf='))?.split('=').slice(1).join('=') || '';
   const response = await fetch(`/api${path}`, {
     method, credentials: 'same-origin', signal,
-    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': decodeURIComponent(csrf) },
+    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': decodeURIComponent(csrf), ...headers },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
   const data = await response.json();
   if (!response.ok) throw new ApiError(response.status, data.detail);
   return data;
 }
+
+/** Dashboard endpoints for both legacy demos and authenticated wallet sessions. */
+export const dashboardApi = {
+  health: () => api('/health'),
+  networkStatus: () => api('/network/status'),
+  walletInfo: address => api(`/wallet/info${address ? `?address=${encodeURIComponent(address)}` : ''}`),
+  policies: () => api('/guardrail/policies'),
+  chat: body => api('/chat', { method: 'POST', body }),
+  turn: (conversation, body) => api(`/history/conversations/${conversation}/turns`, { method: 'POST', body }),
+  reviewApproval: body => api('/approval/action', { method: 'POST', body }),
+  approvalStatus: (approvalId, sessionId) => api(`/approval/${encodeURIComponent(approvalId)}`, {
+    headers: { 'X-Session-ID': sessionId },
+  }),
+};
 
 export function transactionForProvider(transaction) {
   const integers = new Set(['value', 'gas', 'gasPrice', 'maxFeePerGas', 'maxPriorityFeePerGas', 'nonce', 'chainId', 'type']);

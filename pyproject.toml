@@ -53,7 +53,13 @@ markers = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["agent*", "tools*", "services*", "security*", "config*"]
+include = ["agent*", "tools*", "services*", "security*", "config*", "backend*", "rag*", "scripts*", "eval*"]
+exclude = ["tests*", "backend.tests*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+config = ["*.yaml", "*.json"]
+backend = ["db/migrations/*.py", "db/migrations/versions/*.py"]
 
 [tool.coverage.run]
 omit = [

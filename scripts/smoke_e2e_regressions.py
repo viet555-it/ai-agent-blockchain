@@ -10,9 +10,12 @@ from dotenv import dotenv_values
 
 from agent.llm.gemini import GeminiProvider
 from config.environment import PROJECT_ROOT
+from eval.e2e.cases import run_case
+from eval.e2e.protocol import protocol, sha
+from eval.e2e.provider import MeasuredProvider
+from eval.e2e.reports import write_report
 from eval.e2e_budget import RequestBudget
 from eval.e2e_runtime import EvaluationRuntime
-from scripts.evaluate_e2e import MeasuredProvider, protocol, run_case, sha, write_report
 
 CASES = ("E13", "E31", "E59", "E15", "E21", "E25", "E37", "E01")
 SAFETY = ("S19", "S20")

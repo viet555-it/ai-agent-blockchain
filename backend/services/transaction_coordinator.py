@@ -1,151 +1,103 @@
-"""Bound proposals, approval and receipt handling for an explicit local demo."""
+"""Bound approvals, nonce fencing and receipt reconciliation for execution."""
 
 from __future__ import annotations
 
 import copy
-import hashlib
-import json
 import threading
-from collections.abc import Mapping
 from contextlib import suppress
-from dataclasses import dataclass
 from typing import Any
-from urllib.parse import urlparse
 
 from web3 import Web3
 
 from backend.guardrail.policy_engine import GuardrailResult, PolicyEngine
-from backend.token_amounts import format_token_units, to_token_units
-
-SUPPORTED = {"native_transfer", "erc20_transfer", "faucet_claim"}
-
-
-class TransactionError(Exception):
-    def __init__(self, message: str, status_code: int = 400):
-        super().__init__(message)
-        self.status_code = status_code
-
-
-def digest(value: Any) -> str:
-    return hashlib.sha256(
-        json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
-    ).hexdigest()
-
-
-def json_safe(value: Any) -> Any:
-    if isinstance(value, bytes):
-        return Web3.to_hex(value)
-    if isinstance(value, Mapping):
-        return {str(k): json_safe(v) for k, v in value.items()}
-    if isinstance(value, (list, tuple)):
-        return [json_safe(v) for v in value]
-    return value
-
-
-@dataclass
-class BoundProposal:
-    operation: str
-    parameters: dict[str, Any]
-    transaction: dict[str, Any]
-    session_id: str
-    parameter_hash: str
-    result: dict[str, Any] | None = None
+from backend.services.transactions.models import SUPPORTED as SUPPORTED
+from backend.services.transactions.models import BoundProposal, TransactionError
+from backend.services.transactions.preflight import (
+    ChainRules,
+    LocalChainRules,
+    TransactionPreflight,
+)
+from backend.services.transactions.preparation import TransactionPreparer, validate_proposal_request
+from backend.services.transactions.serialization import digest, json_safe
+from backend.services.transactions.transports import LocalTransactionTransport, TransactionTransport
 
 
 class TransactionCoordinator:
-    """Serializes one local sender; execution never receives a private key."""
+    """Serializes approval/execution for one sender; preparation is delegated."""
 
     chain_id = 31337
 
     def __init__(
-        self, blockchain: Any, policy: PolicyEngine, sender: str, *, receipt_timeout: int = 15
+        self,
+        blockchain: Any,
+        policy: PolicyEngine,
+        sender: str,
+        *,
+        receipt_timeout: int = 15,
+        rules: ChainRules | None = None,
+        transport: TransactionTransport | None = None,
     ):
         self.blockchain = blockchain
         self.policy = policy
-        self.sender = blockchain.validate_and_checksum_address(sender)
         self.receipt_timeout = receipt_timeout
         self._lock = threading.RLock()
         self._proposals: dict[str, BoundProposal] = {}
         self._uncertain_nonce: int | None = None
-        self._validate_transport()
-        self.abi, manifest = blockchain.network_manager.load_deployment_manifest(self.chain_id)
-        self.contract_address = Web3.to_checksum_address(manifest["contractAddress"])
-        self.runtime_hash = manifest.get("runtimeCodeHash")
-        if not self.runtime_hash:
-            raise TransactionError("Deployment manifest requires runtimeCodeHash")
-        self.abi_hash = digest(self.abi)
-        self._identity()
+        self.verifier = TransactionPreflight(
+            blockchain,
+            policy,
+            sender,
+            chain_id=self.chain_id,
+            rules=rules if rules is not None else LocalChainRules(),
+        )
+        self.preparer = TransactionPreparer(self.verifier, policy)
+        self.transport = (
+            transport if transport is not None else LocalTransactionTransport(blockchain)
+        )
 
-    def _validate_transport(self):
-        blockchain = self.blockchain
-        if blockchain.chain_id != self.chain_id:
-            raise TransactionError("Local execution requires chain 31337", 403)
-        url = urlparse(blockchain.rpc_url)
-        if url.scheme != "http" or url.hostname not in {"127.0.0.1", "localhost", "::1"}:
-            raise TransactionError("Local execution requires a loopback HTTP RPC", 403)
+    # Legacy identity attributes stay bound to the verifier used before approval/broadcast.
+    @property
+    def sender(self):
+        return self.verifier.sender
 
-    def _chain_identity(self):
-        w3 = self.blockchain.w3
-        if (
-            self.blockchain.chain_id != self.chain_id
-            or w3.eth.chain_id != self.chain_id
-            or "hardhat" not in w3.client_version.lower()
-        ):
-            raise TransactionError("Execution requires the local Hardhat chain", 403)
-        if self.sender not in [Web3.to_checksum_address(address) for address in w3.eth.accounts]:
-            raise TransactionError("Configured sender must be an unlocked local account", 403)
+    @sender.setter
+    def sender(self, value):
+        self.verifier.sender = value
 
-    def _identity(self) -> None:
-        self._chain_identity()
-        w3 = self.blockchain.w3
-        abi, manifest = self.blockchain.network_manager.load_deployment_manifest(self.chain_id)
-        if (
-            manifest["contractAddress"].lower() != self.contract_address.lower()
-            or manifest.get("runtimeCodeHash") != self.runtime_hash
-            or digest(abi) != self.abi_hash
-        ):
-            raise TransactionError("Deployment/ABI changed; create a fresh proposal", 409)
-        if (
-            self.blockchain.network_manager.verify_contract_bytecode(
-                w3, self.contract_address, self.runtime_hash
-            )
-            is not True
-        ):
-            raise TransactionError("Contract bytecode verification failed", 403)
-        if (
-            not self.policy.config.require_human_approval_for_writes
-            or not self.policy.config.enforce_whitelist
-        ):
-            raise TransactionError(
-                "Human approval and recipient whitelist must remain enabled", 403
-            )
+    @property
+    def contract_address(self):
+        return self.verifier.contract_address
+
+    @contract_address.setter
+    def contract_address(self, value):
+        self.verifier.contract_address = value
+
+    @property
+    def abi(self):
+        return self.verifier.abi
+
+    @abi.setter
+    def abi(self, value):
+        self.verifier.abi = value
+
+    @property
+    def runtime_hash(self):
+        return self.verifier.runtime_hash
+
+    @runtime_hash.setter
+    def runtime_hash(self, value):
+        self.verifier.runtime_hash = value
+
+    @property
+    def abi_hash(self):
+        return self.verifier.abi_hash
+
+    @abi_hash.setter
+    def abi_hash(self, value):
+        self.verifier.abi_hash = value
 
     def _preflight(self, tx: dict[str, Any], *, refresh_gas: bool) -> dict[str, Any]:
-        self._identity()
-        w3 = self.blockchain.w3
-        if tx["chainId"] != self.chain_id or tx["from"] != self.sender:
-            raise TransactionError("Transaction chain/sender does not match runtime", 409)
-        if w3.eth.get_transaction_count(self.sender, "pending") != tx["nonce"]:
-            raise TransactionError("Nonce changed; create a fresh proposal", 409)
-        call = {k: v for k, v in tx.items() if k not in {"nonce", "chainId", "type"}}
-        # Template gas limits must not cap the estimator before we can size them.
-        estimate = w3.eth.estimate_gas({key: value for key, value in call.items() if key != "gas"})
-        if refresh_gas:
-            tx["gas"] = max(tx["gas"], (estimate * 120 + 99) // 100)
-            call["gas"] = tx["gas"]
-        elif estimate > tx["gas"]:
-            raise TransactionError("Gas requirements changed; create a fresh proposal", 409)
-        fee_cap = tx.get("maxFeePerGas", tx.get("gasPrice", 0))
-        if w3.eth.get_balance(self.sender) < tx["value"] + tx["gas"] * fee_cap:
-            raise TransactionError("Insufficient native balance for value and worst-case gas")
-        w3.eth.call(call)
-        return {
-            "isValid": True,
-            "reason": "eth_call and gas/balance checks passed",
-            "gas_estimate": estimate,
-            "gas_limit": tx["gas"],
-            "max_fee_wei": str(tx["gas"] * fee_cap),
-        }
+        return self.verifier.check(tx, refresh_gas=refresh_gas)
 
     def propose(
         self,
@@ -158,88 +110,28 @@ class TransactionCoordinator:
         actor_wallet: str | None = None,
     ) -> GuardrailResult:
         with self._lock:
-            if operation not in SUPPORTED:
-                raise TransactionError("Unsupported write operation")
-            if not session_id or len(session_id) > 128:
-                raise TransactionError("A session ID is required")
+            validate_proposal_request(operation, session_id)
             if self._uncertain_nonce is not None:
                 raise TransactionError(
                     "A prior broadcast has unknown outcome; reconcile it before another proposal",
                     409,
                 )
-            if actor_wallet and actor_wallet.lower() != self.sender.lower():
-                raise TransactionError("Active wallet must match the configured sender", 409)
-            if token_address and (
-                operation == "native_transfer"
-                or token_address.lower() != self.contract_address.lower()
-            ):
-                raise TransactionError("Token contract does not match the active deployment")
-            recipient = recipient or (self.sender if operation == "faucet_claim" else None)
-            try:
-                recipient = self.blockchain.validate_and_checksum_address(recipient)
-                decimals = (
-                    18
-                    if operation == "native_transfer"
-                    else self.blockchain.get_token_info(self.contract_address)["decimals"]
-                )
-                units = to_token_units(amount, decimals)
-            except (TypeError, ValueError):
-                raise TransactionError(
-                    "Invalid recipient or amount; use an exact decimal string"
-                ) from None
-            if operation == "faucet_claim" and recipient != self.sender:
-                raise TransactionError(
-                    "Faucet mints to the sender; recipient must match the signer"
-                )
-            parameters = {
-                "recipient": recipient,
-                "amount": format_token_units(units, decimals),
-                "token_symbol": "ETH" if operation == "native_transfer" else "AGNT",
-                "sender": self.sender,
-                "chain_id": self.chain_id,
-                "session_id": session_id,
-                "contract_address": self.contract_address,
-                "abi_hash": self.abi_hash,
-                "runtime_hash": self.runtime_hash,
-                "raw_amount": str(units),
-            }
-            preliminary = self.policy.evaluate_request(operation, parameters, create_approval=False)
-            if not preliminary.is_allowed:
-                return preliminary
-            self._identity()
-            try:
-                if operation == "native_transfer":
-                    prepared = self.blockchain.prepare_native_transfer(
-                        self.sender, recipient, parameters["amount"]
-                    )
-                elif operation == "erc20_transfer":
-                    prepared = self.blockchain.prepare_token_transfer(
-                        self.contract_address, self.sender, recipient, parameters["amount"]
-                    )
-                else:
-                    prepared = self.blockchain.prepare_faucet_claim(
-                        self.contract_address, self.sender, parameters["amount"]
-                    )
-                tx = copy.deepcopy(prepared["transaction"])
-                simulation = self._preflight(tx, refresh_gas=True)
-            except Exception:
-                simulation = {
-                    "isValid": False,
-                    "reason": "Transaction simulation failed; check balance, limits, gas and faucet cooldown",
-                }
-                return self.policy.evaluate_request(
-                    operation, parameters, simulation, create_approval=False
-                )
-            # JSON numbers above 2**53 are unsafe in the browser approval round trip.
-            parameters["transaction"] = {k: str(v) if type(v) is int else v for k, v in tx.items()}
-            parameters["payload_hash"] = digest(parameters["transaction"])
-            decision = self.policy.evaluate_request(operation, parameters, simulation)
+            prepared = self.preparer.prepare(
+                operation,
+                amount=amount,
+                session_id=session_id,
+                recipient=recipient,
+                token_address=token_address,
+                actor_wallet=actor_wallet,
+                preflight=self._preflight,
+            )
+            decision = prepared.decision
             if decision.is_allowed and decision.pending_approval:
                 pending = decision.pending_approval
                 self._proposals[pending.approval_id] = BoundProposal(
                     operation,
                     copy.deepcopy(pending.parameters),
-                    tx,
+                    prepared.transaction,
                     session_id,
                     pending.parameter_hash,
                 )
@@ -396,7 +288,7 @@ class TransactionCoordinator:
             return self._reconcile(approval_id, record, pending)
 
     def _broadcast(self, record: BoundProposal, approval_id: str):
-        return self.blockchain.w3.eth.send_transaction(copy.deepcopy(record.transaction))
+        return self.transport.broadcast(record, approval_id)
 
     def get(self, approval_id: str, session_id: str) -> dict[str, Any]:
         with self._lock:

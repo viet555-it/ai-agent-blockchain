@@ -1,0 +1,986 @@
+{
+  "components": {
+    "schemas": {
+      "AgentResponse": {
+        "description": "Standardized response from the AI Agent.",
+        "properties": {
+          "approval_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approval Id"
+          },
+          "blockchain_result": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blockchain Result"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "guardrail_result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GuardrailResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "intent": {
+            "title": "Intent",
+            "type": "string"
+          },
+          "query": {
+            "title": "Query",
+            "type": "string"
+          },
+          "rag_result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RAGSearchResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reply": {
+            "title": "Reply",
+            "type": "string"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "requires_approval": {
+            "default": false,
+            "title": "Requires Approval",
+            "type": "boolean"
+          },
+          "timeline": {
+            "items": {
+              "$ref": "#/components/schemas/TimelineStep"
+            },
+            "title": "Timeline",
+            "type": "array"
+          },
+          "tool_selected": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Selected"
+          }
+        },
+        "required": [
+          "query",
+          "reply",
+          "intent"
+        ],
+        "title": "AgentResponse",
+        "type": "object"
+      },
+      "ApprovalActionRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "approval_id": {
+            "title": "Approval Id",
+            "type": "string"
+          },
+          "parameters": {
+            "additionalProperties": true,
+            "description": "Exact parameters bound to this approval",
+            "title": "Parameters",
+            "type": "object"
+          },
+          "reviewer_comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewer Comment"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id"
+          }
+        },
+        "required": [
+          "approval_id",
+          "action",
+          "parameters"
+        ],
+        "title": "ApprovalActionRequest",
+        "type": "object"
+      },
+      "ChatRequest": {
+        "properties": {
+          "query": {
+            "description": "User prompt or blockchain command",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Query",
+            "type": "string"
+          },
+          "session_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Session Id",
+            "type": "string"
+          },
+          "wallet_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional active wallet address",
+            "title": "Wallet Address"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "title": "ChatRequest",
+        "type": "object"
+      },
+      "GuardrailResult": {
+        "description": "Structured response returned to caller/frontend on policy evaluation.",
+        "properties": {
+          "is_allowed": {
+            "title": "Is Allowed",
+            "type": "boolean"
+          },
+          "operation": {
+            "title": "Operation",
+            "type": "string"
+          },
+          "operation_type": {
+            "title": "Operation Type",
+            "type": "string"
+          },
+          "pending_approval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PendingApproval"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "requires_approval": {
+            "title": "Requires Approval",
+            "type": "boolean"
+          },
+          "sanitized_parameters": {
+            "additionalProperties": true,
+            "title": "Sanitized Parameters",
+            "type": "object"
+          },
+          "simulation_result": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Simulation Result"
+          },
+          "violations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Violations",
+            "type": "array"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "is_allowed",
+          "requires_approval",
+          "operation",
+          "operation_type"
+        ],
+        "title": "GuardrailResult",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "PendingApproval": {
+        "description": "Represents a write transaction pending explicit human approval.",
+        "properties": {
+          "approval_id": {
+            "title": "Approval Id",
+            "type": "string"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "number"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "expires_at": {
+            "title": "Expires At",
+            "type": "number"
+          },
+          "operation": {
+            "title": "Operation",
+            "type": "string"
+          },
+          "parameter_hash": {
+            "title": "Parameter Hash",
+            "type": "string"
+          },
+          "parameters": {
+            "additionalProperties": true,
+            "title": "Parameters",
+            "type": "object"
+          },
+          "reviewed_at": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed At"
+          },
+          "reviewer_comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewer Comment"
+          },
+          "status": {
+            "default": "PENDING",
+            "title": "Status",
+            "type": "string"
+          },
+          "tx_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tx Hash"
+          }
+        },
+        "required": [
+          "operation",
+          "expires_at",
+          "parameters",
+          "parameter_hash",
+          "description"
+        ],
+        "title": "PendingApproval",
+        "type": "object"
+      },
+      "ProposalRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "amount": {
+            "title": "Amount",
+            "type": "string"
+          },
+          "operation": {
+            "enum": [
+              "native_transfer",
+              "erc20_transfer",
+              "faucet_claim"
+            ],
+            "title": "Operation",
+            "type": "string"
+          },
+          "recipient": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recipient"
+          },
+          "session_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Session Id",
+            "type": "string"
+          },
+          "token_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Address"
+          },
+          "wallet_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wallet Address"
+          }
+        },
+        "required": [
+          "operation",
+          "amount",
+          "session_id"
+        ],
+        "title": "ProposalRequest",
+        "type": "object"
+      },
+      "RAGSearchResult": {
+        "description": "Result of context retrieval for an agent query.",
+        "properties": {
+          "documents": {
+            "items": {
+              "$ref": "#/components/schemas/RetrievedDocument"
+            },
+            "title": "Documents",
+            "type": "array"
+          },
+          "has_relevant_context": {
+            "default": false,
+            "title": "Has Relevant Context",
+            "type": "boolean"
+          },
+          "provider": {
+            "default": "curated_knowledge_adapter",
+            "title": "Provider",
+            "type": "string"
+          },
+          "query": {
+            "title": "Query",
+            "type": "string"
+          },
+          "retrieval_query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retrieval Query"
+          },
+          "status": {
+            "default": "ok",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "title": "RAGSearchResult",
+        "type": "object"
+      },
+      "RetrievedDocument": {
+        "description": "Represents a chunk of retrieved knowledge context.",
+        "properties": {
+          "doc_id": {
+            "title": "Doc Id",
+            "type": "string"
+          },
+          "excerpt": {
+            "title": "Excerpt",
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "score": {
+            "default": 0.9,
+            "maximum": 1.0,
+            "minimum": -1.0,
+            "title": "Score",
+            "type": "number"
+          },
+          "source_file": {
+            "title": "Source File",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc_id",
+          "title",
+          "source_file",
+          "excerpt"
+        ],
+        "title": "RetrievedDocument",
+        "type": "object"
+      },
+      "SwitchNetworkRequest": {
+        "properties": {
+          "chain_id": {
+            "title": "Chain Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "chain_id"
+        ],
+        "title": "SwitchNetworkRequest",
+        "type": "object"
+      },
+      "TimelineStep": {
+        "description": "Step in the 9-stage Agent workflow timeline.",
+        "properties": {
+          "duration_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Ms"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "result": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
+          },
+          "sanitized_parameters": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sanitized Parameters"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "step_number": {
+            "title": "Step Number",
+            "type": "integer"
+          },
+          "timestamp": {
+            "title": "Timestamp",
+            "type": "number"
+          },
+          "tool_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Name"
+          }
+        },
+        "required": [
+          "step_number",
+          "name",
+          "status"
+        ],
+        "title": "TimelineStep",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "AI Agent with Blockchain Tools API",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/approval/action": {
+      "post": {
+        "operationId": "handle_approval_action_api_approval_action_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Handle Approval Action"
+      }
+    },
+    "/api/approval/{approval_id}": {
+      "get": {
+        "operationId": "get_approval_api_approval__approval_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "approval_id",
+            "required": true,
+            "schema": {
+              "title": "Approval Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Session-ID",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Session-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Approval"
+      }
+    },
+    "/api/chat": {
+      "post": {
+        "operationId": "handle_chat_api_chat_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Handle Chat"
+      }
+    },
+    "/api/guardrail/audits": {
+      "get": {
+        "operationId": "get_audit_logs_api_guardrail_audits_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Audit Logs"
+      }
+    },
+    "/api/guardrail/policies": {
+      "get": {
+        "operationId": "get_guardrail_policies_api_guardrail_policies_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Guardrail Policies"
+      }
+    },
+    "/api/health": {
+      "get": {
+        "operationId": "get_health_api_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Health"
+      }
+    },
+    "/api/network/status": {
+      "get": {
+        "operationId": "get_network_status_api_network_status_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Network Status"
+      }
+    },
+    "/api/network/switch": {
+      "post": {
+        "operationId": "switch_network_api_network_switch_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwitchNetworkRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Switch Network"
+      }
+    },
+    "/api/transactions/propose": {
+      "post": {
+        "operationId": "propose_transaction_api_transactions_propose_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposalRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Propose Transaction"
+      }
+    },
+    "/api/wallet/info": {
+      "get": {
+        "operationId": "get_wallet_info_api_wallet_info_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "address",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Address"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Wallet Info"
+      }
+    }
+  }
+}

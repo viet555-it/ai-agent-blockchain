@@ -1,0 +1,128 @@
+/* ==========================================================================
+   Left Column: Network & Assets Panel
+   ========================================================================== */
+
+.info-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: border-color var(--transition-fast), background-color var(--transition-normal);
+}
+
+.info-card:hover {
+  border-color: var(--secondary-border);
+}
+
+.info-card.gold-bordered {
+  border-color: var(--primary-border);
+}
+
+.info-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.info-label.primary-color {
+  color: var(--primary);
+}
+
+.info-value-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.info-main-val {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.info-main-val.primary-val {
+  color: var(--primary);
+}
+
+.info-unit {
+  font-size: 0.85rem;
+  color: var(--primary);
+  margin-left: 0.25rem;
+  font-weight: 600;
+}
+
+.info-mono {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  word-break: break-all;
+}
+
+.contract-link-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.icon-button {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 0.3rem;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.icon-button:hover {
+  color: var(--text-main);
+  background: var(--bg-surface-hover);
+}
+
+.icon-button:focus-visible {
+  outline: 2px solid var(--border-focus);
+}
+
+/* Guardrail Policies List */
+.policy-card {
+  border-left: 3px solid var(--primary);
+  background: var(--primary-subtle);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  transition: background-color var(--transition-normal);
+}
+
+.policy-card.safe {
+  border-left-color: var(--success);
+  background: var(--success-subtle);
+}
+
+.policy-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.policy-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+

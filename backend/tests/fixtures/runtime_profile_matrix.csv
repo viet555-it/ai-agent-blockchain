@@ -1,0 +1,17 @@
+profile,agent_mode,local_writes,history,explicit_grant
+unit,legacy,false,off,false
+unit,llm,false,off,false
+unit,llm,false,read,false
+unit,llm,false,write,false
+local_evm,legacy,false,off,false
+local_evm,llm,false,off,false
+local_evm,llm,false,read,false
+local_evm,llm,false,write,false
+local_evm,llm,true,off,false
+local_evm,llm,true,read,false
+local_evm,llm,true,write,false
+sepolia_read,legacy,false,off,false
+sepolia_read,llm,false,off,false
+sepolia_read,llm,false,read,false
+sepolia_read,llm,false,write,false
+sepolia_write,llm,false,off,true

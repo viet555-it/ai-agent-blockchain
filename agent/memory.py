@@ -38,6 +38,10 @@ class ConversationMemory:
         self._system_prompt: dict[str, Any] | None = None
         self.observer = None
 
+    def count_tokens(self, text: str) -> int:
+        """Count additional context with the same tokenizer as this conversation."""
+        return self._counter.count(text)
+
     def set_system_prompt(self, content: str) -> None:
         """Set (or replace) the system prompt. Always preserved."""
         self._system_prompt = {"role": "system", "content": content}
@@ -52,27 +56,32 @@ class ConversationMemory:
     def add_user(self, content: str) -> None:
         self.add_message({"role": "user", "content": content})
 
-    def add_assistant(self, content: str | None = None, tool_calls: list | None = None,
-                      provider_metadata: dict[str, Any] | None = None) -> None:
+    def add_assistant(
+        self,
+        content: str | None = None,
+        tool_calls: list | None = None,
+        provider_metadata: dict[str, Any] | None = None,
+    ) -> None:
         msg: dict[str, Any] = {"role": "assistant"}
         if content:
             msg["content"] = content
         if tool_calls:
             msg["tool_calls"] = [
-                {"id": tc.id, "name": tc.name, "arguments": tc.arguments}
-                for tc in tool_calls
+                {"id": tc.id, "name": tc.name, "arguments": tc.arguments} for tc in tool_calls
             ]
         if provider_metadata:
             msg["provider_metadata"] = provider_metadata
         self.add_message(msg)
 
     def add_tool_result(self, tool_call_id: str, name: str, content: str) -> None:
-        self.add_message({
-            "role": "tool",
-            "tool_call_id": tool_call_id,
-            "name": name,
-            "content": content,
-        })
+        self.add_message(
+            {
+                "role": "tool",
+                "tool_call_id": tool_call_id,
+                "name": name,
+                "content": content,
+            }
+        )
 
     def get_messages(self) -> list[dict[str, Any]]:
         """Return current message list including system prompt."""
@@ -104,8 +113,11 @@ class ConversationMemory:
         """
         while self._current_tokens() > self._max_tokens:
             boundary = next(
-                (i for i, message in enumerate(self._messages)
-                 if i > 0 and message.get("role") == "user"),
+                (
+                    i
+                    for i, message in enumerate(self._messages)
+                    if i > 0 and message.get("role") == "user"
+                ),
                 None,
             )
             if boundary is None:

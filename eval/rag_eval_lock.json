@@ -25,8 +25,22 @@
     "reason": "Dev-only parent context expansion; corrected malformed ABI scope digest before any holdout execution; gold evidence unchanged."
   },
   "runtime_hashes": {
-    "rag/retriever.py": "sha256:900f02b83d533bf667978a51040854bf4049d4556d8a1a14506497233ca3f317",
+    "rag/retriever.py": "sha256:232d637654e0d7643b8cf5a98d01704e4fb8ed56077c638882560e194c90af0c",
+    "rag/retrieval/__init__.py": "sha256:2401b26359d2c326279a5e3888834d6ef208cc010ac8db339dc5c9902026b80c",
+    "rag/retrieval/candidates.py": "sha256:11eea6a485d1fb42dec16a26c7044c465c9dea2e9f0115663b5428601f40d434",
+    "rag/retrieval/contracts.py": "sha256:eba2e456b0652c6b134787fcb71c08fdd58ba07404c58f2ee89b6d47c909775e",
+    "rag/retrieval/metadata.py": "sha256:b21e380dfb7058d81a6038fefa6a20536b52ea8b083ab23688f629f58326fe84",
+    "rag/retrieval/search.py": "sha256:b7f703b6f018c4d31137b476aa462dbd600f1131682cbe04894e0b106c988e10",
+    "rag/retrieval/signatures.py": "sha256:122ac482a8bb112b2b7f6b851c6bdd9cd562f0588eb762f61ddf312a494c377e",
     "eval/run_rag_eval.py": "sha256:788cdd0b2aec92e2a4af7d84795f0f21bc6a39fde1113492f0cc628824cec3a3"
   },
-  "lock_hash": "sha256:9aa8ce8a22fda6f2fe5ac92e689d3e4f20ebfd0eabcaafbd363ee502a1a5d1c6"
+  "lock_hash": "sha256:36ee3f46b6112331ca2dd3315e443551a94948d29d90f5fbbd09dff9dcee5d29",
+  "structure_revision": {
+    "previous_lock": "eval/locks/rag_eval_pre_structure_refactor.json",
+    "previous_lock_hash": "sha256:9aa8ce8a22fda6f2fe5ac92e689d3e4f20ebfd0eabcaafbd363ee502a1a5d1c6",
+    "reason": "Extract retrieval contracts, signatures, metadata and synchronous search; deduplicate identical cosine candidate lookups. No ranking, scope, threshold, tokenizer, corpus or model change.",
+    "equivalence_report": "eval/rag_structure_equivalence.json",
+    "equivalence_report_hash": "sha256:c1400d66f81768198a853651864d353a7e0ef1581592d2d8c18cf06c7ea96fb2",
+    "prior_reports": "Existing dev/holdout reports identify the archived lock. Run dev on this revision before any new holdout run; prior reports are not measurements of this revision."
+  }
 }

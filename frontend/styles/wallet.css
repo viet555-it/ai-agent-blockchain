@@ -1,0 +1,20 @@
+/* ==========================================================================
+   ATI Project Design System & Theme Tokens
+   ========================================================================== */
+
+
+[hidden] { display: none !important; }
+.wallet-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; max-width: 680px; }
+#wallet-status { font-size: .75rem; color: var(--text-muted); flex-basis: 100%; }
+.wallet-controls select, .wallet-history select, .wallet-history button {
+  border: 1px solid var(--border-strong); border-radius: 6px; padding: .4rem .6rem;
+  color: var(--text-main); background: var(--bg-input); font: inherit; font-size: .75rem;
+}
+.wallet-history select { width: 100%; margin: .5rem 0; }
+.history-actions { display: flex; gap: .3rem; flex-wrap: wrap; margin-bottom: .6rem; }
+.wallet-history details { margin-top: .8rem; font-size: .8rem; }
+.wallet-history summary { cursor: pointer; color: var(--text-muted); }
+.wallet-history .history-entry { display: block; width: 100%; margin: .4rem 0; padding: .5rem; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; font-size: .7rem; }
+button:disabled { opacity: .5; cursor: not-allowed; }
+@media (max-width: 1000px) { .header-status-group { flex-wrap: wrap; } .wallet-controls { max-width: 100%; } }
+

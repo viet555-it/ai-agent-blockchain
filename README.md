@@ -47,6 +47,12 @@ browser-wallet không giữ khóa riêng hoặc ký thay người dùng.
 | Smart contract | Solidity, OpenZeppelin, Hardhat — `contracts/` |
 | Kiểm thử | pytest/unittest, Node test runner, Playwright |
 
+Chi tiết dependency boundaries nằm trong [kiến trúc](docs/ARCHITECTURE.md).
+Factory/lifespan, agent integration, wallet workflows/repositories, blockchain
+adapters và evaluator đã được chia theo trách nhiệm; các facade/import cũ vẫn
+được giữ cho callers. Xem [ma trận runtime/API](docs/RUNTIME_PROFILES.md) và
+[quy ước cài đặt/đóng gói](docs/PACKAGING.md).
+
 ## Cài đặt
 
 Các lệnh dành cho **Windows PowerShell**, chạy tại root repository. Môi trường
@@ -65,6 +71,7 @@ Set-Location ai-agent-blockchain
 
 python -m venv .venv-phase3
 .\.venv-phase3\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv-phase3\Scripts\python.exe -m pip install --no-deps --no-build-isolation -e .
 .\.venv-phase3\Scripts\python.exe -m pip check
 
 npm.cmd --prefix contracts ci
@@ -226,6 +233,8 @@ Hoặc chạy từng nhóm:
 
 ```powershell
 .\.venv-phase3\Scripts\python.exe -m scripts.run_phase3 --suite unit
+.\.venv-phase3\Scripts\python.exe -m scripts.run_phase3 --suite rag
+.\.venv-phase3\Scripts\python.exe -m scripts.check_packaging
 .\.venv-phase3\Scripts\python.exe -m scripts.run_phase3 --suite local_evm
 npm.cmd --prefix contracts test
 npm.cmd --prefix frontend test

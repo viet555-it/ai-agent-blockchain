@@ -11,6 +11,7 @@ from web3 import Web3
 from backend.guardrail.policy_engine import PolicyConfig, PolicyEngine
 from backend.services.blockchain_service import BlockchainService
 from backend.services.transaction_coordinator import TransactionCoordinator, TransactionError
+from backend.services.transactions.preparation import BrowserPreparer
 from backend.token_amounts import to_token_units
 
 SENDER = Web3.to_checksum_address("0x" + "11" * 20)
@@ -117,6 +118,44 @@ class TransactionCoordinatorTests(unittest.TestCase):
         self.assertIn("payload_hash", p.parameters)
         self.w3.eth.call.assert_called_once()
         self.w3.eth.send_transaction.assert_not_called()
+
+    def test_browser_preparation_and_public_preflight_work_without_unlocked_accounts(self):
+        self.w3.eth.accounts = []
+        browser = BrowserPreparer(self.service, self.policy, SENDER)
+        prepared = browser.preparer.prepare(
+            "native_transfer", amount="0.1", recipient=RECIPIENT, session_id="browser-session"
+        )
+        self.assertTrue(prepared.decision.requires_approval)
+        self.assertEqual(prepared.transaction["value"], 10**17)
+        self.assertTrue(browser.preflight(prepared.transaction, refresh_gas=False)["isValid"])
+        self.w3.eth.send_transaction.assert_not_called()
+        self.w3.eth.send_raw_transaction.assert_not_called()
+        self.service.sign_and_send_transaction.assert_not_called()
+
+    def test_browser_confirmation_rechecks_nonce_through_public_preflight(self):
+        browser = BrowserPreparer(self.service, self.policy, SENDER)
+        prepared = browser.preparer.prepare(
+            "native_transfer", amount="0.1", recipient=RECIPIENT, session_id="browser-session"
+        )
+        self.nonce += 1
+        with self.assertRaisesRegex(TransactionError, "Nonce changed"):
+            browser.preflight(prepared.transaction, refresh_gas=False)
+        self.w3.eth.send_transaction.assert_not_called()
+        self.w3.eth.send_raw_transaction.assert_not_called()
+
+    def test_execution_transport_runs_once_only_after_approval(self):
+        transport = MagicMock()
+        transport.broadcast.side_effect = lambda record, approval_id: self.send(record.transaction)
+        self.coordinator = TransactionCoordinator(
+            self.service, self.policy, SENDER, transport=transport
+        )
+        pending = self.proposal()
+        self.coordinator.get(pending.approval_id, "session-a")
+        transport.broadcast.assert_not_called()
+        self.assertEqual(self.approve(pending)["status"], "CONFIRMED")
+        self.assertTrue(self.approve(pending)["idempotent_replay"])
+        transport.broadcast.assert_called_once()
+        self.assertEqual(transport.broadcast.call_args.args[1], pending.approval_id)
 
     def test_confirmed_and_idempotent_replay_send_once(self):
         p = self.proposal()

@@ -62,7 +62,7 @@ Default scope là deployment được manifest ghi nhận. Câu hỏi điều ki
 .venv/Scripts/python.exe -m scripts.verify_rag_handoff
 ```
 
-Suite hiện có 54 tests. Kiểm tra bàn giao tạo index **trống mới** trong thư mục tạm dưới `data/rag`, ingest thật, kiểm fingerprint/số chunk, ingest lặp và chạy query deployment/source/no-match, text CLI, ví dụ async bằng các process mới. Sau khi xong nó bỏ index tạm, kiểm active pointer gốc không đổi và lưu `docs/examples/rag_p8_handoff_check.json`. Dùng model cache hiện có; không cài dependency hoặc tải lại model. Có thể mất vài phút vì nhiều process đều load model riêng.
+Suite hiện có 60 tests. Kiểm tra bàn giao tạo index **trống mới** trong thư mục tạm dưới `data/rag`, ingest thật, kiểm fingerprint/số chunk, ingest lặp và chạy query deployment/source/no-match, text CLI, ví dụ async bằng các process mới. Sau khi xong nó bỏ index tạm, kiểm active pointer gốc không đổi và lưu `docs/examples/rag_p8_handoff_check.json`. Dùng model cache hiện có; không cài dependency hoặc tải lại model. Có thể mất vài phút vì nhiều process đều load model riêng.
 
 Đánh giá lại bộ đã khóa, nếu cần xác minh môi trường:
 
@@ -72,6 +72,8 @@ Suite hiện có 54 tests. Kiểm tra bàn giao tạo index **trống mới** tr
 ```
 
 Các lệnh ghi đè báo cáo đo tương ứng; muốn giữ lần đo cũ, sao chép báo cáo trước. Evaluator kiểm config/runtime/corpus/model/index fingerprint theo lock P7. Không đổi lock chỉ để né lỗi mismatch, không tune trên holdout đã xem. Kết quả và phương pháp tại [báo cáo P7](../eval/rag_results.md).
+
+Sau refactor cấu trúc, lock hiện tại ghi `structure_revision` và khóa cả các module trong `rag/retrieval/`. Bản khóa của các báo cáo P7 cũ được lưu nguyên ở `eval/locks/rag_eval_pre_structure_refactor.json`. Báo cáo `eval/rag_structure_equivalence.json` xác nhận toàn bộ kết quả của 20 query dev trước/sau giống nhau; đây không phải lần đo holdout mới. Muốn đánh giá revision hiện tại, chạy dev trước với cùng lock rồi mới chạy holdout. Dataset, gold, cấu hình, corpus và model vẫn giữ nguyên.
 
 ## 5. Cấu hình, rebuild và rollback
 

@@ -9,7 +9,6 @@ from urllib.parse import urlparse
 
 from eth_account import Account
 from eth_account.messages import encode_defunct
-from fastapi import HTTPException
 from sqlalchemy import select, update
 from web3 import Web3
 
@@ -24,6 +23,8 @@ from backend.services.wallet_common import (
     token,
     uid,
 )
+from backend.wallet_errors import WalletError
+from backend.wallet_errors import WalletErrorKind as ErrorKind
 
 SESSION_COOKIE = "ati_session"
 CSRF_COOKIE = "ati_csrf"
@@ -41,7 +42,7 @@ class RateLimiter:
             times = [value for value in self.entries.pop(key, []) if value > now - seconds]
             if len(times) >= limit:
                 self.entries[key] = times
-                fail(429, "RATE_LIMIT", "Too many requests. Please wait.")
+                fail(ErrorKind.RATE_LIMITED, "RATE_LIMIT", "Too many requests. Please wait.")
             self.entries[key] = [*times, now]
             while len(self.entries) > 4096:
                 self.entries.popitem(last=False)
@@ -59,7 +60,7 @@ class WalletAuth:
 
     def origin(self, request):
         if request.headers.get("origin") != self.settings.origin:
-            fail(403, "ORIGIN", "Request origin is not allowed.")
+            fail(ErrorKind.PERMISSION_DENIED, "ORIGIN", "Request origin is not allowed.")
 
     def cookie(self, response, key, value, *, httponly=True, age=None):
         response.set_cookie(
@@ -76,7 +77,9 @@ class WalletAuth:
         self.origin(request)
         self.limiter.check(("challenge", request.client.host if request.client else "unknown"))
         if not Web3.is_address(address) or chain_id != self.chain_id:
-            fail(400, "WALLET_NETWORK", "Invalid address or unsupported network.")
+            fail(
+                ErrorKind.INVALID_INPUT, "WALLET_NETWORK", "Invalid address or unsupported network."
+            )
         address = Web3.to_checksum_address(address)
         binding = request.cookies.get(BINDING_COOKIE) or token()
         self.cookie(response, BINDING_COOKIE, binding)
@@ -119,25 +122,35 @@ class WalletAuth:
                 challenge["binding_hash"], hashed(request.cookies.get(BINDING_COOKIE, ""))
             )
         ):
-            fail(401, "CHALLENGE", "Login challenge is invalid or expired.")
+            fail(
+                ErrorKind.AUTHENTICATION_REQUIRED,
+                "CHALLENGE",
+                "Login challenge is invalid or expired.",
+            )
         try:
             recovered = Account.recover_message(
                 encode_defunct(text=challenge["message"]), signature=signature
             )
         except Exception:
-            fail(401, "SIGNATURE", "Invalid login signature.")
+            fail(ErrorKind.AUTHENTICATION_REQUIRED, "SIGNATURE", "Invalid login signature.")
         if recovered.lower() != challenge["address"].lower():
-            fail(401, "SIGNATURE", "Signature does not match this wallet.")
+            fail(
+                ErrorKind.AUTHENTICATION_REQUIRED,
+                "SIGNATURE",
+                "Signature does not match this wallet.",
+            )
         # EOA only; never silently apply EOA verification to a contract account.
         try:
             if self.blockchain.w3.eth.get_code(recovered):
                 fail(
-                    400, "UNSUPPORTED_WALLET", "Contract wallets are not supported in this version."
+                    ErrorKind.INVALID_INPUT,
+                    "UNSUPPORTED_WALLET",
+                    "Contract wallets are not supported in this version.",
                 )
-        except HTTPException:
+        except WalletError:
             raise
         except Exception:
-            fail(503, "RPC", "Cannot verify wallet type right now.")
+            fail(ErrorKind.DEPENDENCY_UNAVAILABLE, "RPC", "Cannot verify wallet type right now.")
         raw, csrf = token(), token()
         now, session_id = time.time(), uid()
         with self.db.transaction() as connection:
@@ -151,7 +164,11 @@ class WalletAuth:
                 .values(consumed_at=now)
             )
             if consumed.rowcount != 1:
-                fail(401, "CHALLENGE", "Login challenge has already been used.")
+                fail(
+                    ErrorKind.AUTHENTICATION_REQUIRED,
+                    "CHALLENGE",
+                    "Login challenge has already been used.",
+                )
             existing = one(
                 connection, select(wallets).where(wallets.c.address == recovered.lower())
             )
@@ -197,13 +214,17 @@ class WalletAuth:
                 ),
             )
         if not row:
-            fail(401, "AUTH_REQUIRED", "Sign in with your wallet to continue.")
+            fail(
+                ErrorKind.AUTHENTICATION_REQUIRED,
+                "AUTH_REQUIRED",
+                "Sign in with your wallet to continue.",
+            )
         if request.method not in {"GET", "HEAD", "OPTIONS"}:
             self.origin(request)
             if not secrets.compare_digest(
                 row["csrf_hash"], hashed(request.headers.get("x-csrf-token", ""))
             ):
-                fail(403, "CSRF", "Request verification failed.")
+                fail(ErrorKind.PERMISSION_DENIED, "CSRF", "Request verification failed.")
             self.limiter.check(("write", row["wallet_id"]), limit=60)
         return Principal(row["id"], row["wallet_id"], Web3.to_checksum_address(row["address"]))
 

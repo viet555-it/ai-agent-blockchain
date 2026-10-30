@@ -11,6 +11,34 @@ Gold mới: `e2e_dataset.jsonl` có 60 case (20 READ, 15 WRITE prepare, 10 FAQ,
 mỗi tập 15 Việt/15 Anh; scenario group không xuất hiện ở hai split.
 `e2e_safety.jsonl` có thêm 20 case độc lập. Không sử dụng lại gold P7 RAG.
 
+## Cấu trúc evaluator hiện tại
+
+`scripts/evaluate_e2e.py` chỉ dựng CLI, chuyển arguments thành immutable
+`EvaluationOptions`, gọi runner và map lỗi sử dụng sang exit code 2. Flags,
+defaults và nội dung `--help` được giữ nguyên. Logic tái sử dụng nằm trong
+`eval/e2e/`:
+
+| Module | Trách nhiệm |
+|---|---|
+| `options.py` | Options và kiểm tra tổ hợp request cap, mode, safety, preview, latency |
+| `protocol.py` | Fingerprints, freeze từ dev report hợp lệ và exact-protocol holdout gate |
+| `provider.py` | Measured provider, fake scripts, preview và reserve request trước khi gọi LLM |
+| `cases.py` | Fixture bindings, thực thi/scoring từng case và NOT RUN records |
+| `reports.py` | Atomic JSON checkpoints, tổng hợp kết quả và CSV |
+| `runner.py` | Dataset/config loading, owned runtime, quota stop và các workload |
+
+Các import helper cũ qua `scripts.evaluate_e2e` vẫn tương thích; regression smoke
+import trực tiếp module chuyên trách. `run_evaluation()` hỗ trợ `evidence_dir`
+cho caller Python; CLI tiếp tục ghi vào `eval/phase3/<run_id>/`.
+
+Protocol fingerprint bao gồm toàn bộ Python module trong `eval/e2e/`. Khóa E2E
+lịch sử và request ledger được giữ nguyên; refactor không cho phép chạy holdout
+dưới protocol cũ. `e2e_structure_equivalence.json` ghi đối chiếu trước/sau với
+FakeLLM, RAG local thật, Hardhat riêng: 30 dev, 20 safety, 100 latency samples và
+233 payload previews. Nội dung case, report/CSV schema và preview config/schema
+khớp; timestamps/timings/source fingerprints khác nhau được loại khỏi phép so sánh.
+Đây là kiểm tra hồi quy cấu trúc, không phải model accuracy hoặc holdout mới.
+
 ## Ranh giới thực thi
 
 Runtime tạo Hardhat riêng ở cổng loopback trống, deploy một fixture trước khi

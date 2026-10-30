@@ -1,0 +1,42 @@
+{
+  "purpose": "Structural E2E evaluator regression using FakeLLM, real cached RAG and an owned Hardhat fixture. No model-accuracy or fresh holdout claim.",
+  "status": "COMPLETED",
+  "benchmark_cases": 30,
+  "safety_cases": 20,
+  "latency_samples": 100,
+  "stable_case_outputs_match": true,
+  "report_keys_match": true,
+  "csv_header": [
+    "id",
+    "phase",
+    "latency_ms",
+    "rag_ms",
+    "llm_ms",
+    "rpc_ms",
+    "policy_ms",
+    "prepare_ms",
+    "success"
+  ],
+  "csv_case_outcomes_match": true,
+  "preview_payloads": 233,
+  "preview_configuration_and_schema_match": true,
+  "nonce_before": 1,
+  "nonce_after": 1,
+  "attempted_writes": 0,
+  "broadcast_count": 0,
+  "historical_lock_dataset_and_budget_unchanged": true,
+  "baseline_script_sha256": "cade2a235dd33337a3f6e19f0b85836ccfa5f28e7ba67676fb7654231c3ceb2c",
+  "runtime_sha256": {
+    "eval/e2e/__init__.py": "952d5514b8dea787228c99fa5a0dfaae586a943e467ff21e81b7507b41f9771e",
+    "eval/e2e/cases.py": "39b91ff52185bc70127651281aa8c8d769549afc9b0909fba6d9e287cf6fbdca",
+    "eval/e2e/options.py": "272d1825891d6f7fb7ac71bb7c4227d964ec63dea646f911be6ad4d18e6413cd",
+    "eval/e2e/protocol.py": "930c5f4eafc1e7c2a6b2b6c35bd9cf97434ecdeb4bef98d0c302482a76335fba",
+    "eval/e2e/provider.py": "13a908d2fcc49f0111c7dae8558a97e53f64832ba6e4bdd92119ee8e09bb05a8",
+    "eval/e2e/reports.py": "548bdc0c0b504ad9bad03c5d866460d71eaa72981eb0e502434867532b4b14ed",
+    "eval/e2e/runner.py": "a831053e3e30d9f91462b675cca2247e0952fd66ee3852e10e35d3980b6c3b4c",
+    "scripts/evaluate_e2e.py": "a9c909288c85e7e26c74b19b28b48e417bad29ed346e634462e0cc14d7b88271"
+  },
+  "excluded_from_equality": "Wall-clock timestamps, runtime timings/percentiles and changed source fingerprints; fixture RPC method counts may vary with middleware caching.",
+  "ast_equivalent": true,
+  "cli_help_match": true
+}
