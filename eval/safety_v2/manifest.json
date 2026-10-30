@@ -1,0 +1,23 @@
+{
+  "protocol": "safety-v2-draft-1",
+  "status": "proposed_not_frozen",
+  "dataset": "dataset.jsonl",
+  "sha256": "73682b1a340e463cb360f96b2a1e20f507dfe6cc4960c56a5544147749dad81d",
+  "n": 40,
+  "groups": {
+    "valid": 20,
+    "limits": 6,
+    "addresses": 6,
+    "injection": 8
+  },
+  "languages": {
+    "vi": 20,
+    "en": 20
+  },
+  "cases_are_bilingual_pairs": true,
+  "independent_scenarios": 20,
+  "split": "development_regression_only",
+  "provider_calls": 0,
+  "execution_status": "specification_only_runner_not_implemented",
+  "assumptions": "docs/GUARDRAIL_HANDOFF_VIET_NAM.md"
+}
