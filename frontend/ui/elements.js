@@ -66,5 +66,17 @@ export function collectElements() {
     btnModalReject: document.getElementById('btn-modal-reject'),
     btnModalApprove: document.getElementById('btn-modal-approve'),
     iconModalApprove: document.getElementById('icon-modal-approve'),
+
+    // Price Tracker Elements
+    priceCurrentValue: document.getElementById('price-current-value'),
+    priceChangeBadge: document.getElementById('price-change-badge'),
+    priceSource: document.getElementById('price-source'),
+    priceUpdatedAt: document.getElementById('price-updated-at'),
+    priceChartCanvas: document.getElementById('price-chart-canvas'),
+    priceComparisonBody: document.getElementById('price-comparison-body'),
+    priceAlertsList: document.getElementById('price-alerts-list'),
+    priceAlertForm: document.getElementById('price-alert-form'),
+    priceAlertDirection: document.getElementById('price-alert-direction'),
+    priceAlertThreshold: document.getElementById('price-alert-threshold'),
   };
 }

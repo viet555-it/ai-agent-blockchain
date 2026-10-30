@@ -12,6 +12,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&subset=latin,latin-ext,vietnamese&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles/prices.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
   <!-- App Header -->
@@ -154,6 +156,64 @@
             <span class="info-unit">Gwei</span>
           </div>
           <div class="info-mono" id="val-base-fee">Base fee: -- Gwei</div>
+        </div>
+
+        <!-- ETH/USD Price Tracker Card -->
+        <div class="info-card price-card" id="price-tracker-card">
+          <div class="price-card-header">
+            <div class="info-label" style="margin-bottom: 0;" data-i18n="prices.title">ETH / USD Price</div>
+            <span class="price-source-badge" id="price-source">CoinGecko</span>
+          </div>
+
+          <div class="price-main-display">
+            <span class="price-main-val" id="price-current-value">--</span>
+            <span class="price-change-pill" id="price-change-badge" style="display: none;">--%</span>
+          </div>
+
+          <div class="price-meta-row">
+            <span id="price-updated-at">--</span>
+          </div>
+
+          <!-- 3 Timeframes Chart -->
+          <div class="price-timeframe-bar">
+            <button type="button" class="price-timeframe-btn" data-tf="1h">1H</button>
+            <button type="button" class="price-timeframe-btn active" data-tf="24h">24H</button>
+            <button type="button" class="price-timeframe-btn" data-tf="7d">7D</button>
+          </div>
+
+          <div class="price-chart-wrapper">
+            <canvas id="price-chart-canvas"></canvas>
+          </div>
+
+          <!-- Multi-Currency Comparison Table -->
+          <div class="price-comparison-section">
+            <div class="info-label" data-i18n="prices.comparison">Multi-Currency Comparison</div>
+            <table class="price-comparison-table">
+              <thead>
+                <tr>
+                  <th data-i18n="prices.currency">Pair</th>
+                  <th data-i18n="prices.rate" style="text-align: right;">Rate</th>
+                </tr>
+              </thead>
+              <tbody id="price-comparison-body">
+                <tr><td colspan="2" style="color:var(--text-dim); text-align:center;">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Price Alerts -->
+          <details class="price-alerts-section">
+            <summary data-i18n="prices.alerts">Price Alerts</summary>
+            <div class="price-alerts-list" id="price-alerts-list"></div>
+            <form class="price-alert-form" id="price-alert-form">
+              <select id="price-alert-direction">
+                <option value="above" data-i18n="prices.above">Above</option>
+                <option value="below" data-i18n="prices.below">Below</option>
+              </select>
+              <input type="number" id="price-alert-threshold" placeholder="USD (e.g. 2600)" step="0.01" required />
+              <button type="submit" data-i18n="prices.addAlert">Set</button>
+            </form>
+          </details>
         </div>
 
         <!-- Guardrail Engine Policies Card -->

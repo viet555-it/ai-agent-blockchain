@@ -1,9 +1,8 @@
-"""Pure policy checks and formatting; approval state remains in PolicyEngine."""
+"""Guardrail validation rules and operation sets."""
 
 import hashlib
 import json
 import re
-from decimal import Decimal
 from typing import Any
 
 from web3 import Web3
@@ -23,130 +22,109 @@ READ_OPERATIONS = {
     "get_gas_price",
     "read_contract",
     "simulate_transfer",
+    "get_crypto_price",
 }
 
 
 WRITE_OPERATIONS = {
     "native_transfer",
     "erc20_transfer",
-    "erc20_approve",
     "faucet_claim",
+    "contract_write",
+    "call_contract",
 }
 
 
 def compute_parameter_hash(operation: str, parameters: dict[str, Any]) -> str:
-    """Deterministically hash parameters to prevent parameter tampering."""
-    # Sanitize and sort keys
-    serialized = json.dumps(
-        {"op": operation, "params": parameters},
-        sort_keys=True,
-        separators=(",", ":"),
-        allow_nan=False,
-    )
-    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
-
-
-def validate_address(
-    address: str, field_name: str = "address"
-) -> tuple[bool, str | None, str | None]:
-    """Validate EVM address and return checksummed form."""
-    if not address or not isinstance(address, str):
-        return False, None, f"{field_name} must be a non-empty string"
-    if not Web3.is_address(address):
-        return False, None, f"Invalid EVM address format for {field_name}: '{address}'"
-    checksummed = Web3.to_checksum_address(address)
-    return True, checksummed, None
+    serialized = json.dumps({"op": operation, "params": parameters}, sort_keys=True)
+    return hashlib.sha256(serialized.encode()).hexdigest()
 
 
 def format_description(operation: str, params: dict[str, Any]) -> str:
-    recipient = params.get("recipient", "N/A")
-    amount = params.get("amount", params.get("amount_eth", params.get("amount_token", "N/A")))
+    if operation == "erc20_transfer":
+        return f"Transfer {params.get('amount', '?')} AGNT to {params.get('recipient', '?')}"
     if operation == "native_transfer":
-        return f"Send {amount} ETH to {recipient}"
-    elif operation == "erc20_transfer":
-        token_symbol = params.get("token_symbol", "AGNT")
-        return f"Transfer {amount} {token_symbol} to {recipient}"
-    elif operation == "erc20_approve":
-        spender = params.get("spender", "N/A")
-        token_symbol = params.get("token_symbol", "AGNT")
-        return f"Approve spender {spender} for {amount} {token_symbol}"
-    elif operation == "faucet_claim":
-        return f"Claim {amount} AGNT testnet tokens for {recipient}"
-    return f"{operation} with amount {amount}"
+        return f"Transfer {params.get('amount', '?')} ETH to {params.get('recipient', '?')}"
+    if operation == "faucet_claim":
+        return f"Claim tokens from faucet for {params.get('recipient', '?')}"
+    return f"{operation} with params: {params}"
+
+
+def validate_address(address: str) -> tuple[bool, str]:
+    if not address or not isinstance(address, str):
+        return False, "Address must be a non-empty string"
+    if not re.match(r"^0x[a-fA-F0-9]{40}$", address):
+        return False, "Address does not match 20-byte hex format (0x + 40 hex chars)"
+    try:
+        checksummed = Web3.to_checksum_address(address)
+        return True, checksummed
+    except ValueError as e:
+        return False, f"Invalid checksum: {e}"
 
 
 def check_write_request(
-    operation,
-    parameters,
-    simulation_data,
+    operation: str,
+    parameters: dict[str, Any],
     config: PolicyConfig,
-    normalized_whitelist,
-    *,
-    address_validator=validate_address,
-):
-    sanitized_params = dict(parameters)
+    normalized_whitelist: set[str],
+) -> tuple[bool, list[str], list[dict[str, Any]]]:
+    checks = []
     violations = []
-    # 3. For WRITE operations: Validate parameters
-    recipient_addr = (
-        parameters.get("recipient") or parameters.get("to") or parameters.get("to_address")
-    )
-    amount_raw = next(
-        (
-            parameters[k]
-            for k in ("amount", "amount_eth", "amount_token")
-            if k in parameters and parameters[k] is not None
-        ),
-        None,
-    )
 
-    if not recipient_addr:
-        violations.append("Recipient address is required.")
-    if amount_raw is None:
-        violations.append("Transaction amount is required.")
+    # 1. Check if write operations are enabled
+    if not config.allow_write_operations:
+        violations.append("Write operations are globally disabled by guardrail policy")
+        checks.append({"check": "writes_enabled", "passed": False})
+        return False, violations, checks
+    checks.append({"check": "writes_enabled", "passed": True})
 
-    if recipient_addr:
-        is_valid_addr, checksum_recipient, err = address_validator(recipient_addr, "recipient")
-        if not is_valid_addr:
-            violations.append(err or "Invalid recipient address")
+    # 2. Whitelist recipient validation (only for transfers)
+    if operation in ("erc20_transfer", "native_transfer"):
+        recipient = parameters.get("recipient", "")
+        valid_format, result = validate_address(recipient)
+        if not valid_format:
+            violations.append(f"Recipient address validation failed: {result}")
+            checks.append({"check": "recipient_valid_format", "passed": False})
         else:
-            sanitized_params["recipient"] = checksum_recipient
-            if int(checksum_recipient, 16) == 0:
-                violations.append("Zero recipient address is not permitted.")
-            # Whitelist Check
-            if config.enforce_whitelist and checksum_recipient not in normalized_whitelist:
-                violations.append(
-                    f"Recipient address {checksum_recipient} is NOT in the authorized whitelist."
-                )
-
-    # 4. Amount limits check
-    if amount_raw is not None:
-        try:
-            if type(amount_raw) not in (str, int) or not re.fullmatch(
-                r"[0-9]+(?:\.[0-9]+)?", str(amount_raw)
-            ):
-                raise ValueError("Use a finite non-negative decimal string or integer")
-            amount_dec = Decimal(str(amount_raw))
-            if not amount_dec.is_finite() or amount_dec <= 0:
-                violations.append("Transaction amount must be strictly greater than 0.")
-            else:
-                if operation == "native_transfer":
-                    if amount_dec > config.max_native_transfer_limit:
-                        violations.append(
-                            f"Amount {amount_dec} ETH exceeds native transfer limit of {config.max_native_transfer_limit} ETH."
-                        )
-                elif (
-                    operation in ("erc20_transfer", "erc20_approve", "faucet_claim")
-                    and amount_dec > config.max_token_transfer_limit
-                ):
+            checks.append({"check": "recipient_valid_format", "passed": True})
+            if config.enforce_whitelist:
+                if result.lower() not in normalized_whitelist:
                     violations.append(
-                        f"Amount {amount_dec} tokens exceeds token policy limit of {config.max_token_transfer_limit} tokens."
+                        f"Recipient {result} is not on the approved destination whitelist"
                     )
-        except Exception as e:
-            violations.append(f"Invalid numerical amount '{amount_raw}': {e}")
+                    checks.append({"check": "whitelist_enforced", "passed": False})
+                else:
+                    checks.append({"check": "whitelist_enforced", "passed": True})
 
-    # 5. Contract dry-run simulation checks (if provided)
-    if simulation_data is not None and simulation_data.get("isValid") is not True:
-        reason = simulation_data.get("reason", "Simulation failed on-chain")
-        violations.append(f"On-chain pre-flight simulation reverted: {reason}")
+    # 3. Limit validation
+    amount_str = parameters.get("amount")
+    if amount_str is not None:
+        try:
+            amount = float(amount_str)
+            if amount <= 0:
+                violations.append("Transfer amount must be strictly greater than 0")
+                checks.append({"check": "amount_positive", "passed": False})
+            else:
+                checks.append({"check": "amount_positive", "passed": True})
 
-    return sanitized_params, violations
+            if operation == "erc20_transfer" and amount > config.max_erc20_transfer_amount:
+                violations.append(
+                    f"Transfer amount {amount} AGNT exceeds maximum single-tx limit of {config.max_erc20_transfer_amount} AGNT"
+                )
+                checks.append({"check": "max_erc20_limit", "passed": False})
+            elif operation == "erc20_transfer":
+                checks.append({"check": "max_erc20_limit", "passed": True})
+
+            if operation == "native_transfer" and amount > config.max_native_transfer_amount:
+                violations.append(
+                    f"Transfer amount {amount} ETH exceeds maximum single-tx limit of {config.max_native_transfer_amount} ETH"
+                )
+                checks.append({"check": "max_native_limit", "passed": False})
+            elif operation == "native_transfer":
+                checks.append({"check": "max_native_limit", "passed": True})
+        except (ValueError, TypeError):
+            violations.append(f"Invalid transfer amount format: {amount_str}")
+            checks.append({"check": "amount_numeric", "passed": False})
+
+    is_allowed = len(violations) == 0
+    return is_allowed, violations, checks
