@@ -1,0 +1,276 @@
+{
+  "purpose": "Structural refactor equivalence on the frozen dev queries; full content/metadata/order/scores compared. No tuning or new holdout claim.",
+  "baseline_lock_hash": "sha256:9aa8ce8a22fda6f2fe5ac92e689d3e4f20ebfd0eabcaafbd363ee502a1a5d1c6",
+  "baseline_retriever_hash": "sha256:900f02b83d533bf667978a51040854bf4049d4556d8a1a14506497233ca3f317",
+  "dataset_hash": "sha256:f599424654e492d89331fd2f46772aa9fd1ba17dca642c7b7b4948926034d3c3",
+  "config_hash": "sha256:3e879312762ee90984356cc4da1cb137d7d40b77389516606831162c7eacefe6",
+  "index_fingerprint": "sha256:fac5405f38d38b19252b95d5b91021dc509a8d9357aaf82e6145afa5a2152e8f",
+  "index_collection": "rag_34c21e2d0dcd474eb66e230aae366630",
+  "model": {
+    "provider": "sentence-transformers",
+    "model_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "revision": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+    "dimension": 384,
+    "max_tokens": 128,
+    "normalize_embeddings": true,
+    "device": "cpu",
+    "dtype": "float32",
+    "prompt": ""
+  },
+  "options": {
+    "min_similarity": 0.45,
+    "candidate_pool": 32,
+    "context_max_tokens": 1024,
+    "max_query_chars": 2000,
+    "timeout_seconds": 15.0,
+    "max_concurrency": 1,
+    "max_per_parent": 5,
+    "parent_context": true,
+    "general_categories": [
+      "web3"
+    ]
+  },
+  "runtime_hashes": {
+    "rag/retriever.py": "sha256:232d637654e0d7643b8cf5a98d01704e4fb8ed56077c638882560e194c90af0c",
+    "rag/retrieval/__init__.py": "sha256:2401b26359d2c326279a5e3888834d6ef208cc010ac8db339dc5c9902026b80c",
+    "rag/retrieval/candidates.py": "sha256:11eea6a485d1fb42dec16a26c7044c465c9dea2e9f0115663b5428601f40d434",
+    "rag/retrieval/contracts.py": "sha256:eba2e456b0652c6b134787fcb71c08fdd58ba07404c58f2ee89b6d47c909775e",
+    "rag/retrieval/metadata.py": "sha256:b21e380dfb7058d81a6038fefa6a20536b52ea8b083ab23688f629f58326fe84",
+    "rag/retrieval/search.py": "sha256:b7f703b6f018c4d31137b476aa462dbd600f1131682cbe04894e0b106c988e10",
+    "rag/retrieval/signatures.py": "sha256:122ac482a8bb112b2b7f6b851c6bdd9cd562f0588eb762f61ddf312a494c377e",
+    "eval/run_rag_eval.py": "sha256:788cdd0b2aec92e2a4af7d84795f0f21bc6a39fde1113492f0cc628824cec3a3"
+  },
+  "split": "dev",
+  "compared": 20,
+  "matches": 20,
+  "ast_equivalent": true,
+  "rows": [
+    {
+      "case_id": "dev-01",
+      "category": "abi",
+      "match": true,
+      "baseline_output_hash": "sha256:9d4bfd7a43e3883af1701e9420f69e625944c6da65158b3fab7532a417a05bdb",
+      "output_hash": "sha256:9d4bfd7a43e3883af1701e9420f69e625944c6da65158b3fab7532a417a05bdb",
+      "returned_ids": [
+        "agenttoken-abi-guide:b59b4933f1686a404e5d3034018c2a2aaa2e5ea355058c0ea4d9083aaedb520d",
+        "agenttoken-sepolia-abi:f14ddb38086aa1323096a59b7fd28c7fb0d76790c3f38d76e4adecf877cb3414",
+        "agenttoken-sepolia-abi:24a0d2a93914d6f4d53a065d380e105b53516cc8ff89071dc1a1f32942e1266b"
+      ]
+    },
+    {
+      "case_id": "dev-02",
+      "category": "abi",
+      "match": true,
+      "baseline_output_hash": "sha256:8fb36fa72edcd7fd991d29ab8e173e5f5d6f3c88d405e4d834aacd31ee88fc75",
+      "output_hash": "sha256:8fb36fa72edcd7fd991d29ab8e173e5f5d6f3c88d405e4d834aacd31ee88fc75",
+      "returned_ids": [
+        "agenttoken-sepolia-abi:34f186f1eb1a4072c77ddba0047d18b4f62acd3942251e0fddfdf9ec6dbf8830",
+        "agenttoken-sepolia-abi:99ba6ee0d6200e1025631b905434534a58a4a2e395e0fb6e912c6c04c4d3099a",
+        "agenttoken-abi-guide:c2ece70c3e7c58e5bee5d294cff6d6b34a4d7632b76d0660d0db32ccb1a5e69d"
+      ]
+    },
+    {
+      "case_id": "dev-03",
+      "category": "abi",
+      "match": true,
+      "baseline_output_hash": "sha256:d4dc1e48f7ab442bb91cc7c8c0a3ff9dda2da1878c2610693043d4eb7d74baa9",
+      "output_hash": "sha256:d4dc1e48f7ab442bb91cc7c8c0a3ff9dda2da1878c2610693043d4eb7d74baa9",
+      "returned_ids": [
+        "agenttoken-sepolia-abi:412068afa243200aad72522317e8fc6ef125e7fb3bb25c8f8cca87b90f23b3fd",
+        "agenttoken-abi-guide:532e986fe6cc27c563a3f2e65af6c6b23b1855de0d510b3063bcaa2d913ee17f"
+      ]
+    },
+    {
+      "case_id": "dev-04",
+      "category": "abi",
+      "match": true,
+      "baseline_output_hash": "sha256:bafa0ea1c40cd6e004c4ed4e5d93869bf69a1b2b2ce5c75db8f12c9b0d0a0970",
+      "output_hash": "sha256:bafa0ea1c40cd6e004c4ed4e5d93869bf69a1b2b2ce5c75db8f12c9b0d0a0970",
+      "returned_ids": [
+        "agenttoken-abi-guide:c2d80db6f2e4340289fe5150f7ab748ccc6230589c8fa8d643fc1380251a5ae4",
+        "agenttoken-sepolia-abi:a448b6fbd1f68a9d4186dd31fec0cd2625e6e3cef6b4596f4d83a7d5268356ef"
+      ]
+    },
+    {
+      "case_id": "dev-05",
+      "category": "abi",
+      "match": true,
+      "baseline_output_hash": "sha256:d1ad824fc93701a17d93ab101ae4388d051fe3a33f45f1535a2d72b663fb6423",
+      "output_hash": "sha256:d1ad824fc93701a17d93ab101ae4388d051fe3a33f45f1535a2d72b663fb6423",
+      "returned_ids": [
+        "agenttoken-sepolia-abi:398bf0149e3897dfa632945913af858e14887d20101683fb1cba36e7dd63b1e1",
+        "agenttoken-sepolia-abi:90afe78fbbcdc13e3413cb6c0278503e5b7a23adb93907cf8ec2457050d28adc",
+        "agenttoken-abi-guide:832a4d072727d1bf66c44dea93f60390ab741041db28822cdcc1301d9896e682"
+      ]
+    },
+    {
+      "case_id": "dev-06",
+      "category": "abi",
+      "match": true,
+      "baseline_output_hash": "sha256:2a909e08373d74daf21efe56d249b164da48f92e55aa3ba3d5c5f2dcaee77011",
+      "output_hash": "sha256:2a909e08373d74daf21efe56d249b164da48f92e55aa3ba3d5c5f2dcaee77011",
+      "returned_ids": [
+        "agenttoken-sepolia-abi:6d9b843135228b7d4b8a92e593db31e7fdf59cb81839ad0ca4b3d623191d0894",
+        "agenttoken-sepolia-abi:df09fc2a46835ff9ebf14374d2cac4f1eb9e6fbfdd819f9eddd19b81aeef2e6d",
+        "agenttoken-sepolia-abi:a6eb6068e03c343f7ab6205485c277cca9247eac34afde871e20bb425daf0116",
+        "agenttoken-abi-guide:f3ceb57a6bac3790a78c181b9f502615c07d78d1d57faa0b66c911eeb7aba1fc"
+      ]
+    },
+    {
+      "case_id": "dev-13",
+      "category": "web3",
+      "match": true,
+      "baseline_output_hash": "sha256:79e18cf61231b9e4fb6b7712baac42d54b17120113196f0ac3248e5809cb3583",
+      "output_hash": "sha256:79e18cf61231b9e4fb6b7712baac42d54b17120113196f0ac3248e5809cb3583",
+      "returned_ids": [
+        "web3-token-units:d85e20cbef703b43c08e3ad3f92e2a1c122182c23bb6be991ac88cc804c9f51b",
+        "web3-token-units:0998ae04e46962fb997897941fefcab42aab0f7cb5fc4a24595edaf63577841f",
+        "web3-token-units:fa391565e9e301cf9680320fde06ce1d7e4a59d101ab05f6e67c69874831efd8",
+        "web3-token-units:9e7183752d6eb2708ec29eaad1edf45061a172eeb25d4b5fcfb6b2a0a404f7bd",
+        "web3-token-units:dde6294df0ff940394d84245b1001979e9ce5ac39bb1abc8db702382d9fcbf61"
+      ]
+    },
+    {
+      "case_id": "dev-14",
+      "category": "web3",
+      "match": true,
+      "baseline_output_hash": "sha256:c1ba0d3fadcebfc2660db6deff0909c3f35034942c1fa6681c7f7a87d417aa87",
+      "output_hash": "sha256:c1ba0d3fadcebfc2660db6deff0909c3f35034942c1fa6681c7f7a87d417aa87",
+      "returned_ids": [
+        "web3-token-units:d85e20cbef703b43c08e3ad3f92e2a1c122182c23bb6be991ac88cc804c9f51b",
+        "web3-token-units:0998ae04e46962fb997897941fefcab42aab0f7cb5fc4a24595edaf63577841f",
+        "web3-token-units:fa391565e9e301cf9680320fde06ce1d7e4a59d101ab05f6e67c69874831efd8",
+        "web3-token-units:dde6294df0ff940394d84245b1001979e9ce5ac39bb1abc8db702382d9fcbf61",
+        "web3-token-units:9e7183752d6eb2708ec29eaad1edf45061a172eeb25d4b5fcfb6b2a0a404f7bd"
+      ]
+    },
+    {
+      "case_id": "dev-15",
+      "category": "web3",
+      "match": true,
+      "baseline_output_hash": "sha256:3f22c3d9c920294dad02dfb08be9f194d334257b26a11ba1fdc5a82daee268e4",
+      "output_hash": "sha256:3f22c3d9c920294dad02dfb08be9f194d334257b26a11ba1fdc5a82daee268e4",
+      "returned_ids": [
+        "web3-addresses:1306065b5665a514b1d3e1c50d4e3d2858fc2b3ac8ac0467b0220399a3b6eb98",
+        "web3-addresses:74b5178ea57a0b357d796b98ae9b287959996b595882f0996f71b5d92667bdd0",
+        "web3-addresses:74e93fa9025f6b96557fadf927ef568d73c5943fafc312d01b81328c5a6655e6",
+        "web3-addresses:839c6c27644a139fdd62f9c771d8876059ed45d3ed95c3733862d3c29e93a5a5",
+        "agenttoken-deployment-guide:a6e789f4e58a0b907650228d8bd2cc8fc9d4b998a2e6dcfddfff0303b378f02d"
+      ]
+    },
+    {
+      "case_id": "dev-16",
+      "category": "web3",
+      "match": true,
+      "baseline_output_hash": "sha256:be5b4a558897bc49c075281675995aa478869a76ce3cab8bf9351f0c76318f91",
+      "output_hash": "sha256:be5b4a558897bc49c075281675995aa478869a76ce3cab8bf9351f0c76318f91",
+      "returned_ids": [
+        "web3-simulation:66bbead220ed7b67b886da870cd0b194d4555f033d08289cef58d1a81cc62bfe"
+      ]
+    },
+    {
+      "case_id": "dev-21",
+      "category": "source",
+      "match": true,
+      "baseline_output_hash": "sha256:618f2173c79acb909f424938fab5a88e2df18e7154dbcb4a1803c226eaddaa5f",
+      "output_hash": "sha256:618f2173c79acb909f424938fab5a88e2df18e7154dbcb4a1803c226eaddaa5f",
+      "returned_ids": [
+        "agenttoken-faucet-admin-source:5540c64d4463ecfeaa5b9fbcb6a3f0ae34025907e064b2a0ed0087d1ffa8227b",
+        "agenttoken-faucet-admin-source:e06fa8cb6a421b075cb8484b234b8ed7cd34815a1bced4019f32eb371268f023",
+        "agenttoken-faucet-admin-source:fb6bfb23bb3c21282ad891a7caf842ba1931d0e80a7d47da8555b74949764de6",
+        "agenttoken-faucet-admin-source:91a511ea3bc95e6760d4b35a5c63d53606dd13a9178e103ca36379fa07cb0f0f",
+        "agenttoken-faucet-admin-source:58841fb6dcd0b1db416d7b57009723827b8654aa25c60846acc4eda976b15b98"
+      ]
+    },
+    {
+      "case_id": "dev-22",
+      "category": "source",
+      "match": true,
+      "baseline_output_hash": "sha256:391949f5b9afe2005bd432d2d4f5ec1f4052a8038f5aac8f4df04587bb046b7e",
+      "output_hash": "sha256:391949f5b9afe2005bd432d2d4f5ec1f4052a8038f5aac8f4df04587bb046b7e",
+      "returned_ids": [
+        "agenttoken-transfers-source:1daab9e7510eb3638b9c6af166810d09fa8d7332b0b12ca5c11c244a9f3e3007",
+        "agenttoken-transfers-source:1baec5b55943f7bc9f3bf2f42c496a37370c4458764ab14498d5c236f1a0a43c",
+        "agenttoken-transfers-source:a47c126212c33389e086e3dc5380dbd9fabe3d849889d864a87a74fb782093f0",
+        "agenttoken-transfers-source:41d7202854d016f186988addc3a03168a00b076d11ab060dcb5d0f93f1c27d75",
+        "agenttoken-transfers-source:92ee3840673e387e15b97e893a5f06fb7502e492eed91fa84349074361448343"
+      ]
+    },
+    {
+      "case_id": "dev-23",
+      "category": "source",
+      "match": true,
+      "baseline_output_hash": "sha256:77dc1c54321ffc813bca7f492103741b08d11ecda4793527fd069d0afcdd3c52",
+      "output_hash": "sha256:77dc1c54321ffc813bca7f492103741b08d11ecda4793527fd069d0afcdd3c52",
+      "returned_ids": [
+        "agenttoken-faucet-admin-source:90fc56de71033a0ca1da29d8d88455fcf9c0eda8786e1ead733b91ab68c5584c",
+        "agenttoken-faucet-admin-source:566fd6f112e0d7f644d17b03b0d08875476ea4a3774f53f79fd92a9c15887101",
+        "agenttoken-transfers-source:bafcb11b021f4f9a335aa11549074aa9e655523b695b31416841022aa1d03004",
+        "agenttoken-transfers-source:c575fa157532e22af21d45e7a081802ca4876cb2c124e7b8ae7a1f00d5be7264",
+        "agenttoken-transfers-source:dd816efc4f18897d28ac35fda2826ffa70dfee4a0c5c9f0d68f3b279377cd7a9"
+      ]
+    },
+    {
+      "case_id": "dev-24",
+      "category": "source",
+      "match": true,
+      "baseline_output_hash": "sha256:65a0d233e870a46194c6678d935f71dc50a000dc1e9f494e076cc344c9f3d034",
+      "output_hash": "sha256:65a0d233e870a46194c6678d935f71dc50a000dc1e9f494e076cc344c9f3d034",
+      "returned_ids": [
+        "agenttoken-faucet-admin-source:09a705efee2d1a5f9c73b79bfa1d81cb80cbe4b0ee6dc91a39ce2faa884ecc37",
+        "agenttoken-faucet-admin-source:8231ddcdc8acc365d14dda1ab5ce01bd8d24a84b87bff08d9b4e475b313e0b80",
+        "agenttoken-faucet-admin-source:3faabce75b3f25b1f3822f52beb06cbcd98c6137d7619c4ed3e38ce301e9fdd2",
+        "agenttoken-faucet-admin-source:94f9d169859e0f61f9a2587c0d9144e67485c16a8647551caecae8ac47e913a2",
+        "agenttoken-faucet-admin-source:91a511ea3bc95e6760d4b35a5c63d53606dd13a9178e103ca36379fa07cb0f0f"
+      ]
+    },
+    {
+      "case_id": "dev-29",
+      "category": "scope",
+      "match": true,
+      "baseline_output_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "output_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "returned_ids": []
+    },
+    {
+      "case_id": "dev-30",
+      "category": "scope",
+      "match": true,
+      "baseline_output_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "output_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "returned_ids": []
+    },
+    {
+      "case_id": "dev-31",
+      "category": "scope",
+      "match": true,
+      "baseline_output_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "output_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "returned_ids": []
+    },
+    {
+      "case_id": "dev-35",
+      "category": "outside",
+      "match": true,
+      "baseline_output_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "output_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "returned_ids": []
+    },
+    {
+      "case_id": "dev-36",
+      "category": "outside",
+      "match": true,
+      "baseline_output_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "output_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "returned_ids": []
+    },
+    {
+      "case_id": "dev-37",
+      "category": "outside",
+      "match": true,
+      "baseline_output_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "output_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "returned_ids": []
+    }
+  ]
+}

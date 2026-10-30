@@ -344,5 +344,15 @@ Phần còn lại sau commit đầu: tách runtime assembly/lifespan, bổ sung 
 - Thêm 5 test hành vi cho phí legacy/EIP-1559 và 1 wei, nonce/chain có sẵn khi ký, không retry broadcast chưa rõ kết quả, metadata/pending receipt và simulation với manifest/spender. Cả 5 test cũng chạy đạt với service baseline trước khi tách.
 - Kiểm chứng: 324 unit tests passed, 3 skipped, 1 deselected, 87 subtests passed; 20/20 local-EVM integration passed (bổ sung cả bộ blockchain integration hiện có); 10/10 Playwright wallet E2E passed, không skip/flaky. Ruff/format đạt. Hardhat dùng cổng riêng và deployment/database tạm; không gửi transaction lên mạng thật.
 
-Tiếp theo: PR 6b — RAG retriever/eval và hoàn thiện tài liệu/packaging. Ma trận/hợp đồng đầy đủ của các profile ở PR 0 vẫn cần bổ sung; chưa đo coverage mới.
+### PR 6b — tách RAG contracts và synchronous search — 30/10/2026
+
+- `rag/retriever.py` giảm từ 434 xuống 196 dòng. Runtime giữ factory, worker/semaphore, query validation, deadline, cancellation, cleanup và catalog cache theo fingerprint.
+- Tách `rag/retrieval/`: immutable contracts/errors/options, ABI signature parser, metadata/provenance, cosine candidate lookup và scoped search/ranking/context selection. Ba đoạn lookup/cosine giống nhau dùng chung một function; không thay công thức hay ngưỡng.
+- Giữ import/re-export cũ cùng object canonical. Module contracts không tải runtime/index/model; async methods và cache logic giữ nguyên AST.
+- Đối chiếu AST của contracts, parser, metadata, cosine và toàn bộ search sau khi inline candidate helper khớp baseline. Model local đã pin trả toàn bộ content/metadata/order/scores giống nhau cho 20/20 query dev; báo cáo ở `eval/rag_structure_equivalence.json`.
+- Lưu nguyên benchmark lock cũ trong `eval/locks/`, thêm structural development revision và hash cho toàn bộ module mới vào lock hiện tại. Dataset/gold/config/model/corpus và các báo cáo dev/holdout cũ không thay đổi; không chạy lại hoặc tune holdout. Công cụ tạo benchmark mới cũng khóa các module đã tách.
+- Thêm 6 test về import độc lập, object aliases, provenance/type spoofing, options input isolation, hash của các runtime dependency và khả năng nhận diện khóa/báo cáo cũ.
+- Kiểm chứng: baseline RAG 54/54 passed; sau refactor RAG 60/60 passed. Unit suite 324 passed, 3 skipped, 1 deselected, 87 subtests passed; 20/20 local-EVM integration passed, gồm các flow API dùng RAG thật. Ruff đạt; 8 file runtime/test mới hoặc refactor đạt kiểm tra format. Các test dùng model cache local, FakeLLM và Hardhat/deployment/database tạm.
+
+Tiếp theo: PR 6c — tách E2E eval runner khỏi CLI và hoàn thiện tài liệu/packaging. Ma trận/hợp đồng đầy đủ của các profile ở PR 0 vẫn cần bổ sung; chưa đo coverage mới.
 

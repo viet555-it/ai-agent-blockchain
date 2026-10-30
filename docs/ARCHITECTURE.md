@@ -170,6 +170,32 @@ whitelist, pending approvals và audit log. Các check thuần vẫn chạy tron
 engine; review, expiration, tamper checks, state mutation và audit không bị tách
 sang owner khác. `security/policy.py` của agent core vẫn là implementation riêng.
 
+## RAG retrieval hiện tại
+
+`rag/retriever.py` giữ public `RAGRetriever`, factory offline, query validation,
+worker executor/semaphore, deadline, cancellation, cleanup và catalog cache theo
+index fingerprint. Tìm kiếm đồng bộ được chuyển sang `rag/retrieval/` với dependency
+provider/store/scope/options được truyền trực tiếp:
+
+| Module | Trách nhiệm |
+|---|---|
+| `contracts.py` | Immutable `SourceScope`, `RetrievalOptions` và ba loại lỗi retrieval |
+| `signatures.py` | Canonical ABI type signatures, overloads và tuple/array parsing |
+| `metadata.py` | Khôi phục provenance, kiểm scalar filters và stored signatures |
+| `candidates.py` | Đọc candidate vectors, tính cosine thực và kiểm provenance |
+| `search.py` | Scope/interface filtering, ANN, ranking, parent context và token budget |
+
+Import các contracts/parser qua `rag.retriever` vẫn trả cùng object canonical.
+Module contracts có thể được import mà không tải retriever, index hoặc model.
+Timeout/cancel tiếp tục giữ slot cho đến khi native worker kết thúc; catalog chỉ
+được dùng lại khi index fingerprint khớp. Query không mở rộng scope hoặc tăng giả score.
+
+`eval/rag_eval_lock.json` khóa cả các module vừa tách và ghi `structure_revision`.
+Bản khóa cũ nằm ở `eval/locks/rag_eval_pre_structure_refactor.json`; các báo cáo
+dev/holdout P7 cũ tiếp tục nhận diện bằng khóa này. `eval/rag_structure_equivalence.json`
+ghi kết quả đối chiếu đầy đủ 20 query dev trước/sau bằng model local đã pin; đây là
+kiểm tra tương đương của refactor, không phải phép đo holdout mới.
+
 ## 1. Tổng quan
 
 ```mermaid

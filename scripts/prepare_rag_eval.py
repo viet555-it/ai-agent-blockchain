@@ -22,7 +22,7 @@ def main():
     active = store.active()
     data = store.collection().get(include=["documents", "metadatas"])
     catalog = {row_id: dict(content=text, metadata=json.loads(meta["record_json"]))
-               for row_id, text, meta in zip(data["ids"], data["documents"], data["metadatas"])}
+               for row_id, text, meta in zip(data["ids"], data["documents"], data["metadatas"], strict=False)}
     rows = []
 
     def add(split, category, group, query, *, signature=None, doc=None, evidence=(), scope="deployment", overrides=None, note=""):
@@ -116,7 +116,10 @@ def main():
                 index_fingerprint=active["fingerprint"], source_manifest_hash=active["source_manifest_hash"],
                 embedding=active["embedding"], benchmark_k=5, benchmark_queries=100,
                 runtime_hashes={name: content_hash((root / name).read_text(encoding="utf-8"))
-                                for name in ("rag/retriever.py", "eval/run_rag_eval.py")},
+                                for name in ("rag/retriever.py",
+                                             *sorted(path.relative_to(root).as_posix()
+                                                     for path in (root / "rag/retrieval").glob("*.py")),
+                                             "eval/run_rag_eval.py")},
                 policy="Freeze before dev/holdout runs. No tuning on holdout. P5/P6-exposed intents assigned to dev; curated local benchmark, not an external independent test set.")
     lock["lock_hash"] = fingerprint(lock)
     lock_path.write_text(json.dumps(lock, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
