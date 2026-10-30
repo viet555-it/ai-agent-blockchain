@@ -58,6 +58,35 @@ def format_read_reply(
             f"- Amount: {result.get('amount')} AGNT"
         )
 
+    if tool_name == "get_crypto_price":
+        if result.get("type") == "chainlink":
+            data = result.get("data")
+            if not data:
+                return "❌ Không thể đọc giá ETH/USD từ Chainlink Sepolia Oracle."
+            return (
+                f"**Giá ETH/USD từ Chainlink Sepolia Oracle:**\n"
+                f"- **Giá:** `${data.get('price_usd'):,.2f}`\n"
+                f"- **Round ID:** `{data.get('round_id')}`\n"
+                f"- **Thời điểm cập nhật:** {data.get('updated_at')}\n"
+                f"- **Nguồn dữ liệu:** Chainlink Aggregator (`0x694AA1769357215DE4FAC081bf1f309aDC325306`)"
+            )
+        current = result.get("current", {})
+        price = current.get("price_usd")
+        if price is None:
+            return "❌ Không thể lấy dữ liệu giá ETH từ CoinGecko (lỗi API / rate limit). Vui lòng thử lại sau."
+        chg = current.get("change_24h_pct", 0)
+        chg_sign = "+" if chg and chg > 0 else ""
+        source = current.get("source", "coingecko")
+        updated = current.get("updated_at", "")
+        timeframe = result.get("timeframe", "24h")
+        return (
+            f"**Thị trường ETH/USD (Nguồn: {source}):**\n"
+            f"- **Giá hiện tại:** `${price:,.2f}` ({chg_sign}{chg}% trong 24h)\n"
+            f"- **Thời điểm cập nhật:** {updated}\n"
+            f"- **Biểu đồ khung {timeframe.upper()}:** Đã đồng bộ dữ liệu lịch sử.\n\n"
+            f"[CHART:ETH:{timeframe}]"
+        )
+
     return f"Blockchain operation completed successfully: {result}"
 
 

@@ -163,5 +163,22 @@
     "wrongOrigin": "Open the app at the exact APP_ORIGIN address configured on the server (for example http://127.0.0.1:8000).",
     "confirmInWallet": "Connecting…",
     "addNetworkFirst": "Add the app network to MetaMask first (Hardhat local: chain 31337, RPC http://127.0.0.1:8545)."
+  },
+  "prices": {
+    "title": "ETH / USD PRICE TRACKER",
+    "comparison": "Multi-Currency Comparison",
+    "currency": "Currency Pair",
+    "rate": "Rate",
+    "alerts": "Price Alerts",
+    "above": "Above",
+    "below": "Below",
+    "addAlert": "Set Alert",
+    "noAlerts": "No active alerts set.",
+    "alertTriggered": "Alert: ETH price is {direction} !",
+    "source": "Source",
+    "updatedAt": "Updated {time}",
+    "apiError": "Price data temporarily unavailable",
+    "chainlinkLabel": "Chainlink Sepolia",
+    "coingeckoLabel": "CoinGecko"
   }
 }

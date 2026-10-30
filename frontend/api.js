@@ -31,6 +31,13 @@ export const dashboardApi = {
   approvalStatus: (approvalId, sessionId) => api(`/approval/${encodeURIComponent(approvalId)}`, {
     headers: { 'X-Session-ID': sessionId },
   }),
+  priceCurrent: () => api('/prices/current'),
+  priceHistory: (tf = '24h') => api(`/prices/history?timeframe=${encodeURIComponent(tf)}`),
+  priceComparison: () => api('/prices/comparison'),
+  priceChainlink: () => api('/prices/chainlink'),
+  priceAlerts: () => api('/prices/alerts'),
+  addPriceAlert: (body) => api('/prices/alerts', { method: 'POST', body }),
+  removePriceAlert: (id) => api(`/prices/alerts/${encodeURIComponent(id)}`, { method: 'DELETE' }),
 };
 
 export function transactionForProvider(transaction) {

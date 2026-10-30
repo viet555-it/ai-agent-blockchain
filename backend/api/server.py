@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 
 from backend.api.routes import approvals as approval_routes
 from backend.api.routes import chat as chat_routes
+from backend.api.routes import prices as price_routes
 from backend.api.routes import system as system_routes
 
 # Preserve existing imports while callers migrate to backend.api.schemas.
@@ -98,6 +99,7 @@ def create_app(
     app.include_router(system_routes.router)
     app.include_router(chat_routes.router)
     app.include_router(approval_routes.router)
+    app.include_router(price_routes.router)
 
     frontend = REPO_ROOT / "frontend"
     if frontend.exists():

@@ -6,6 +6,7 @@ import { createAssetsController } from './controllers/assets.js';
 import { createApprovalController } from './controllers/approvals.js';
 import { createChatController } from './controllers/chat.js';
 import { createWalletSession } from './controllers/wallet-session.js';
+import { createPriceController } from './controllers/prices.js';
 import { collectElements } from './ui/elements.js';
 import { createThemeView } from './ui/theme.js';
 import { createLanguageView } from './ui/language.js';
@@ -14,6 +15,7 @@ import { createChatView } from './ui/chat.js';
 import { createTimelineView } from './ui/timeline.js';
 import { createApprovalModal } from './ui/approval-modal.js';
 import { createWalletGate } from './ui/wallet-gate.js';
+import { createPriceChartView } from './ui/price-chart.js';
 import { bindDashboardEvents } from './ui/events.js';
 import { observeDashboardLayout } from './ui/layout.js';
 
@@ -21,7 +23,9 @@ async function bootstrap() {
   const state = createDashboardState();
   const elements = collectElements();
   const theme = createThemeView(state, elements);
-  const chat = createChatView(state, elements);
+  const priceChart = createPriceChartView(state, elements);
+  const prices = createPriceController(state, elements, priceChart);
+  const chat = createChatView(state, elements, priceChart);
   const timeline = createTimelineView(state, elements);
   const approval = createApprovalModal(state, elements);
   const assetsView = createAssetsView(state, elements);
@@ -64,6 +68,7 @@ async function bootstrap() {
     ...approvalController,
     closeApprovalModal: approval.closeApprovalModal,
   });
+  prices.bindEvents();
   chat.appendMessage('agent', t('chat.welcomeGreeting'));
 
   try {
@@ -74,11 +79,21 @@ async function bootstrap() {
     return;
   }
 
-  await Promise.all([assets.loadNetworkStatus(), assets.loadWalletInfo(), assets.loadPolicies()]);
+  await Promise.all([
+    assets.loadNetworkStatus(),
+    assets.loadWalletInfo(),
+    assets.loadPolicies(),
+    prices.loadCurrentPrice(),
+    prices.loadPriceHistory('24h'),
+    prices.loadComparison(),
+    prices.loadAlerts(),
+  ]);
+
   setInterval(() => {
     if (!state.isProcessing) {
       assets.loadNetworkStatus();
       assets.loadWalletInfo();
+      prices.loadCurrentPrice();
       if (state.walletMode) state.historyView.refreshTransactions().catch(() => {});
     }
   }, 20000);
