@@ -196,6 +196,21 @@ dev/holdout P7 cũ tiếp tục nhận diện bằng khóa này. `eval/rag_struc
 ghi kết quả đối chiếu đầy đủ 20 query dev trước/sau bằng model local đã pin; đây là
 kiểm tra tương đương của refactor, không phải phép đo holdout mới.
 
+## E2E evaluation hiện tại
+
+`scripts/evaluate_e2e.py` giữ entry point và CLI; `eval/e2e/` chứa immutable
+options/validation, protocol freeze/holdout, measured provider, case execution,
+JSON/CSV reporting và runner. `eval/e2e_runtime.py` tiếp tục sở hữu Hardhat fixture,
+read-only benchmark RPC, RAG view và API lifecycle; request ledger và metrics vẫn
+ở các module hiện có. Regression smoke dùng các module này trực tiếp thay vì
+import logic từ CLI; các helper imports cũ vẫn được re-export.
+
+Runner giữ checkpoint sau từng case, quota stop, NOT RUN trong mẫu số, báo cáo khi
+lỗi hạ tầng và cleanup runtime. Provider tiếp tục reserve request trước khi gọi
+LLM, không reset ledger. Protocol hash bao gồm các module mới; khóa lịch sử vẫn
+không hợp lệ cho runtime đã thay đổi. Xem `eval/E2E_README.md` để chạy và diễn giải
+bằng chứng FakeLLM/latency so với phép đo model thật.
+
 ## 1. Tổng quan
 
 ```mermaid

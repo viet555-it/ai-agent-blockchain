@@ -354,5 +354,15 @@ Phần còn lại sau commit đầu: tách runtime assembly/lifespan, bổ sung 
 - Thêm 6 test về import độc lập, object aliases, provenance/type spoofing, options input isolation, hash của các runtime dependency và khả năng nhận diện khóa/báo cáo cũ.
 - Kiểm chứng: baseline RAG 54/54 passed; sau refactor RAG 60/60 passed. Unit suite 324 passed, 3 skipped, 1 deselected, 87 subtests passed; 20/20 local-EVM integration passed, gồm các flow API dùng RAG thật. Ruff đạt; 8 file runtime/test mới hoặc refactor đạt kiểm tra format. Các test dùng model cache local, FakeLLM và Hardhat/deployment/database tạm.
 
-Tiếp theo: PR 6c — tách E2E eval runner khỏi CLI và hoàn thiện tài liệu/packaging. Ma trận/hợp đồng đầy đủ của các profile ở PR 0 vẫn cần bổ sung; chưa đo coverage mới.
+### PR 6c — tách E2E evaluator khỏi CLI — 30/10/2026
+
+- `scripts/evaluate_e2e.py` giảm từ 672 xuống 55 dòng: giữ argparse/entry point, immutable options và map usage errors. Flags/defaults/`--help` giữ nguyên.
+- Tách `eval/e2e/` thành options, protocol, measured provider, case execution, reports và runner. Helper imports cũ vẫn cùng object canonical; regression smoke chuyển sang import các module chuyên trách.
+- Runtime ownership, scoring, request ledger, quota stop, NOT RUN denominator, atomic JSON checkpoint/retry, CSV và preview payload được giữ nguyên. Protocol pin thêm tất cả module đã tách; không sửa khóa E2E lịch sử, dataset/safety hoặc budget ledger.
+- Đối chiếu AST của sáu helper/class và toàn bộ session sau khi inline report finalizer khớp baseline; parser/help cũng khớp. Các lỗi quota/hạ tầng tiếp tục giữ cases chưa chạy và xuất evidence.
+- Chạy trước/sau với FakeLLM + RAG/model cache thật + Hardhat riêng: 30/30 dev, 20/20 safety, 100 latency samples không lỗi; nonce 1 → 1, 0 attempted writes/broadcast. Nội dung ổn định của 150 case/sample và cấu trúc/config của 233 previews khớp; JSON/CSV giữ schema. Báo cáo tại `eval/e2e_structure_equivalence.json`; không phải phép đo accuracy model hoặc holdout mới.
+- Thêm 11 unit tests cho CLI/config gates, options isolation, freeze/holdout/runtime hashes, quota stop, startup failure, broadcast guard, safety-only, checkpoint retry và reservation trước provider call.
+- Kiểm chứng: 335 unit tests passed, 3 skipped, 1 deselected, 109 subtests passed; Ruff/format của 11 file source/test thay đổi đạt. Fake evaluator được chạy hai lần trên infrastructure riêng và không gọi Gemini.
+
+Tiếp theo: PR 6d — hoàn thiện tài liệu/packaging và ma trận/hợp đồng đầy đủ của các profile ở PR 0. Chưa đo coverage mới.
 
