@@ -335,5 +335,14 @@ Phần còn lại sau commit đầu: tách runtime assembly/lifespan, bổ sung 
 - Thêm 5 test cho tokenizer riêng của conversation, context không chứa được tài liệu, policy input/config isolation, cleanup 101 session và review approval đồng thời chỉ thành công một lần.
 - Kiểm chứng: 319 unit tests passed, 3 skipped, 1 deselected, 82 subtests passed; 13/13 local-EVM integration passed; 10/10 Playwright wallet E2E passed. Các runner dùng FakeLLM và Hardhat/data tạm, RAG integration dùng index/cache local.
 
-Tiếp theo: PR 6 — tách blockchain service, RAG retriever/eval và hoàn thiện tài liệu/packaging. Ma trận/hợp đồng đầy đủ của các profile ở PR 0 vẫn cần bổ sung; chưa đo coverage mới.
+### PR 6a — tách synchronous blockchain adapters — 30/10/2026
+
+- `blockchain_service.py` giảm từ 566 xuống 196 dòng; giữ constructor, provider state, public parameters/defaults, method overrides và các helper `execute_*` hiện có.
+- Tách `backend/services/blockchain/` thành ABI, capability protocols, RPC reads, simulation, unsigned transaction builder và signer/receipt adapter. Functions dùng public `w3`, không phụ thuộc ngược vào facade.
+- Standard ERC-20 ABI được re-export cùng object qua import cũ. Không thay exact token units, metadata fallbacks, nonce, fee modes, bytecode verification, signing payload hoặc dữ liệu receipt.
+- Đối chiếu AST xác nhận 17 method được di chuyển giữ nguyên body sau chuẩn hóa dependency access/type annotations; constructor và orchestration còn lại cũng khớp baseline. Toàn bộ public parameters/defaults và ABI khớp baseline.
+- Thêm 5 test hành vi cho phí legacy/EIP-1559 và 1 wei, nonce/chain có sẵn khi ký, không retry broadcast chưa rõ kết quả, metadata/pending receipt và simulation với manifest/spender. Cả 5 test cũng chạy đạt với service baseline trước khi tách.
+- Kiểm chứng: 324 unit tests passed, 3 skipped, 1 deselected, 87 subtests passed; 20/20 local-EVM integration passed (bổ sung cả bộ blockchain integration hiện có); 10/10 Playwright wallet E2E passed, không skip/flaky. Ruff/format đạt. Hardhat dùng cổng riêng và deployment/database tạm; không gửi transaction lên mạng thật.
+
+Tiếp theo: PR 6b — RAG retriever/eval và hoàn thiện tài liệu/packaging. Ma trận/hợp đồng đầy đủ của các profile ở PR 0 vẫn cần bổ sung; chưa đo coverage mới.
 

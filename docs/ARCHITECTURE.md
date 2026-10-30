@@ -71,6 +71,30 @@ Sepolia giữ các fixture và fee/nonce ledger hiện có. Transport ký transa
 lưu reservation bền vững, gắn expected hash vào pending approval, rồi mới gửi raw
 transaction. Không có thay đổi về thứ tự reserve-before-send hoặc xử lý `UNKNOWN`.
 
+## Synchronous blockchain adapters
+
+`backend/services/blockchain_service.py` giữ provider/network configuration và
+public facade cho callers hiện có. Các method chuyển việc cho functions trong
+`backend/services/blockchain/`:
+
+| Module | Trách nhiệm |
+|---|---|
+| `abi.py` | Standard ERC-20 ABI, cùng object được re-export qua import cũ |
+| `access.py` | Protocol mô tả RPC, contract và unsigned-builder capabilities |
+| `reads.py` | Đọc RPC, token metadata/allowance, gas và pending receipt |
+| `simulation.py` | Deployment bytecode verification và token dry-run bằng `eth_call` |
+| `transaction_builder.py` | Native/ERC-20 transfer, approve và faucet payload chưa ký |
+| `signer.py` | Ký bằng key được truyền trực tiếp, gửi raw transaction, đợi receipt |
+
+Các adapter nhận dependency theo protocol và dùng `w3` public; không import ngược
+facade. Builder không gọi signer hoặc broadcaster. Các helper `execute_*` cũ vẫn
+điều phối prepare → sign/send → receipt qua public methods của facade. Browser
+wallet và proposal tools tiếp tục dùng unsigned preparation/preflight; approval,
+durable reservation và quyền gửi vẫn thuộc các flow transaction đã mô tả ở trên.
+
+Service sync này có interface khác `services/blockchain.py`, protocol async dùng
+bởi agent core; hai interface tiếp tục được giữ riêng.
+
 ## Durable browser-wallet workflows
 
 `BrowserWalletService` là facade giữ các method API hiện có. Nó lắp các workflow
