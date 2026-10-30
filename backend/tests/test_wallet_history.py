@@ -5,6 +5,7 @@ import tempfile
 import time
 import unittest
 from concurrent.futures import ThreadPoolExecutor
+from decimal import Decimal
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -19,6 +20,7 @@ from web3.exceptions import TransactionNotFound
 from agent.llm.base import LLMResponse, ToolCall
 from agent.llm.fake import FakeLLMProvider
 from backend.api.server import create_app
+from backend.db.schema_limits_v2 import entries as limit_entries
 from backend.db.schema_v1 import (
     approvals,
     attempts,
@@ -33,6 +35,7 @@ from backend.db.schema_v1 import (
 from backend.db.store import Database
 from backend.guardrail.policy_engine import PolicyConfig, PolicyEngine
 from backend.services.blockchain_service import BlockchainService
+from backend.services.daily_limits import DailyLimitService, LimitScope
 from backend.wallet_settings import WalletSettings
 from config.settings import Settings
 from rag.retriever import SourceScope
@@ -65,6 +68,7 @@ class WalletHistoryTests(unittest.TestCase):
             "number": 10 if height in {"latest", "finalized"} else height,
             "hash": b"\x11" * 32,
             "transactions": [],
+            "timestamp": int(time.time()) - 60,
         }
         self.chain.w3.provider.make_request.return_value = {
             "result": {"instanceId": "test-instance-1"}
@@ -246,10 +250,12 @@ class WalletHistoryTests(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(
             response.json(),
-            {"detail": {
-                "code": "UNSUPPORTED_WALLET",
-                "message": "Contract wallets are not supported in this version.",
-            }},
+            {
+                "detail": {
+                    "code": "UNSUPPORTED_WALLET",
+                    "message": "Contract wallets are not supported in this version.",
+                }
+            },
         )
 
     def test_wallet_type_rpc_failure_keeps_challenge_available_for_retry(self):
@@ -562,6 +568,7 @@ class WalletHistoryTests(unittest.TestCase):
         self.poll_now()
         result = self.client.get(f"/api/wallet-proposals/{proposal['approval_id']}").json()
         self.assertEqual(result["attempts"][0]["status"], "MINED_SUCCESS", result)
+        self.assertEqual(self.ledger_rows()[0]["status"], "RESERVED")
         self.chain.w3.eth.get_block.side_effect = lambda height, **kw: {
             "number": 9 if height == "finalized" else height,
             "hash": b"\x22" * 32 if height == 10 else b"\x11" * 32,
@@ -571,6 +578,7 @@ class WalletHistoryTests(unittest.TestCase):
         result = self.client.get(f"/api/wallet-proposals/{proposal['approval_id']}").json()
         self.assertEqual(result["attempts"][0]["status"], "SUBMITTED", result)
         self.assertIsNone(result["attempts"][0]["receipt"])
+        self.assertEqual(self.ledger_rows()[0]["status"], "RESERVED")
 
     def test_replacement_is_a_separate_attempt_and_changed_value_is_mismatched(self):
         proposal, submission, tx, receipt = self.submitted()
@@ -597,6 +605,8 @@ class WalletHistoryTests(unittest.TestCase):
         self.assertEqual(result["attempts"][0]["status"], "REPLACED", result)
         self.assertEqual(result["attempts"][1]["verification_status"], "MISMATCHED", result)
         self.assertEqual(result["attempts"][1]["replaces_id"], submission["submission_id"])
+        self.assertEqual(len(self.ledger_rows()), 1)
+        self.assertEqual(self.ledger_rows()[0]["status"], "RESERVED")
 
     def test_concurrent_authorization_only_grants_one_submission(self):
         context, _, _ = self.login()
@@ -608,6 +618,7 @@ class WalletHistoryTests(unittest.TestCase):
         self.assertEqual(sorted(response.status_code for response in responses), [200, 409])
         with self.app.state.wallet_db.transaction() as connection:
             self.assertEqual(len(list(connection.execute(select(attempts)))), 1)
+            self.assertEqual(len(list(connection.execute(select(limit_entries)))), 1)
 
     def test_authorization_storage_failure_rolls_back_proposal_attempt_and_send_lock(self):
         context, _, _ = self.login()
@@ -626,6 +637,7 @@ class WalletHistoryTests(unittest.TestCase):
             self.assertEqual(stored["version"], 0)
             self.assertEqual(list(connection.execute(select(attempts))), [])
             self.assertEqual(list(connection.execute(select(approvals))), [])
+            self.assertEqual(list(connection.execute(select(limit_entries))), [])
             self.assertIsNone(connection.execute(select(send_locks.c.attempt_id)).scalar_one())
         retry = self.client.post(path, json=body)
         self.assertEqual(retry.status_code, 200, retry.text)
@@ -714,3 +726,188 @@ class WalletHistoryTests(unittest.TestCase):
             json=self.review_body(context, next_proposal),
         )
         self.assertEqual(result.status_code, 200, result.text)
+
+    def ledger_rows(self):
+        with self.app.state.wallet_db.transaction() as connection:
+            return [dict(row) for row in connection.execute(select(limit_entries)).mappings()]
+
+    def seed_usage(self, proposal_id, amount):
+        with self.app.state.wallet_db.transaction() as connection:
+            proposal = (
+                connection.execute(select(proposals).where(proposals.c.id == proposal_id))
+                .mappings()
+                .one()
+            )
+            request = dict(
+                scope=LimitScope(proposal["wallet_id"], proposal["deployment_id"], "native"),
+                amount=amount,
+                per_tx_limit=10**18,
+                daily_limit=10**18,
+                now=time.time(),
+            )
+            DailyLimitService().reserve(connection, reservation_id="fixture-spent", **request)
+            DailyLimitService().settle_success(
+                connection, "fixture-spent", block_timestamp=time.time() - 60, now=time.time()
+            )
+
+    def test_preparation_does_not_reserve_and_authorization_does(self):
+        context, _, _ = self.login()
+        proposal = self.propose(context, self.conversation(context))
+        self.assertEqual(self.ledger_rows(), [])
+        result = self.client.post(
+            f"/api/wallet-proposals/{proposal['approval_id']}/authorize",
+            json=self.review_body(context, proposal),
+        )
+        self.assertEqual(result.status_code, 200, result.text)
+        (row,) = self.ledger_rows()
+        self.assertEqual(row["reservation_id"], proposal["approval_id"])
+        self.assertEqual(row["amount_base_units"], "1000000000000000")
+        self.assertEqual(row["status"], "RESERVED")
+
+    def test_daily_limit_changed_usage_blocks_authorization_atomically(self):
+        self.policy.config.max_native_transfer_limit = Decimal("0.001")
+        self.policy.config.max_daily_native_transfer_limit = Decimal("0.0015")
+        context, _, _ = self.login()
+        proposal = self.propose(context, self.conversation(context))
+        self.seed_usage(proposal["approval_id"], 10**15)
+        result = self.client.post(
+            f"/api/wallet-proposals/{proposal['approval_id']}/authorize",
+            json=self.review_body(context, proposal),
+        )
+        self.assertEqual(result.status_code, 409, result.text)
+        self.assertEqual(result.json()["detail"]["code"], "DAILY_LIMIT_EXCEEDED")
+        with self.app.state.wallet_db.transaction() as connection:
+            self.assertEqual(
+                connection.execute(select(proposals.c.status)).scalar_one(), "PENDING_REVIEW"
+            )
+            self.assertEqual(list(connection.execute(select(attempts))), [])
+            self.assertEqual(list(connection.execute(select(approvals))), [])
+            self.assertIsNone(connection.execute(select(send_locks.c.attempt_id)).scalar_one())
+        self.assertEqual(len(self.ledger_rows()), 1)
+
+    def test_proposal_precheck_blocks_spent_usage_without_reserving(self):
+        self.policy.config.max_native_transfer_limit = Decimal("0.001")
+        self.policy.config.max_daily_native_transfer_limit = Decimal("0.0015")
+        context, _, _ = self.login()
+        conversation = self.conversation(context)
+        proposal = self.propose(context, conversation)
+        self.seed_usage(proposal["approval_id"], 10**15)
+        result = self.client.post(
+            "/api/wallet-proposals",
+            json={
+                "context_id": context["id"],
+                "generation": context["generation"],
+                "conversation_id": conversation,
+                "operation": "native_transfer",
+                "amount": "0.001",
+                "recipient": self.recipient,
+            },
+        )
+        self.assertEqual(result.status_code, 200, result.text)
+        self.assertFalse(result.json()["is_allowed"])
+        self.assertIsNone(result.json()["pending_approval"])
+        self.assertEqual(result.json()["violations"], ["DAILY_LIMIT_EXCEEDED"])
+        self.assertEqual(len(self.ledger_rows()), 1)
+
+    def test_policy_change_during_rpc_prevents_authorization(self):
+        context, _, _ = self.login()
+        proposal = self.propose(context, self.conversation(context))
+
+        def change_policy(*args, **kwargs):
+            self.policy.config.max_daily_native_transfer_limit = Decimal("0.8")
+
+        self.chain.w3.eth.call.side_effect = change_policy
+        result = self.client.post(
+            f"/api/wallet-proposals/{proposal['approval_id']}/authorize",
+            json=self.review_body(context, proposal),
+        )
+        self.assertEqual(result.status_code, 409, result.text)
+        self.assertEqual(result.json()["detail"]["code"], "POLICY_CHANGED")
+        self.assertEqual(self.ledger_rows(), [])
+
+    def test_finalized_success_settles_once_with_block_time(self):
+        _, _, _, _ = self.submitted()
+        self.assertEqual(self.ledger_rows()[0]["status"], "RESERVED")
+        self.poll_now()
+        self.poll_now()
+        (row,) = self.ledger_rows()
+        self.assertEqual(row["status"], "SPENT")
+        self.assertAlmostEqual(row["spent_at"], time.time() - 60, delta=5)
+
+    def test_finalized_revert_releases_reservation(self):
+        _, _, _, receipt = self.submitted()
+        receipt["status"] = 0
+        self.poll_now()
+        self.assertEqual(self.ledger_rows()[0]["status"], "REVERTED")
+
+    def test_missing_verified_block_time_keeps_reservation_and_send_lock(self):
+        _, submission, _, _ = self.submitted()
+        self.chain.w3.eth.get_block.side_effect = lambda height, **kw: {
+            "number": 10,
+            "hash": b"\x11" * 32,
+            "transactions": [],
+        }
+        self.poll_now()
+        self.assertEqual(self.ledger_rows()[0]["status"], "RESERVED")
+        with self.app.state.wallet_db.transaction() as connection:
+            self.assertEqual(
+                connection.execute(select(send_locks.c.attempt_id)).scalar_one(),
+                submission["submission_id"],
+            )
+            self.assertEqual(list(connection.execute(select(receipts))), [])
+
+    def test_client_signature_rejection_does_not_release_ledger(self):
+        context, _, _ = self.login()
+        proposal = self.propose(context, self.conversation(context))
+        result = self.client.post(
+            f"/api/wallet-proposals/{proposal['approval_id']}/authorize",
+            json=self.review_body(context, proposal),
+        )
+        submission = result.json()
+        result = self.client.post(
+            f"/api/wallet-submissions/{submission['submission_id']}/report",
+            json={"report_token": submission["report_token"], "rejected": True},
+        )
+        self.assertEqual(result.status_code, 200, result.text)
+        self.assertEqual(self.ledger_rows()[0]["status"], "RESERVED")
+
+    def test_token_ledger_uses_contract_and_six_decimals(self):
+        self.chain.get_token_info.return_value = {"decimals": 6}
+        self.chain.prepare_token_transfer.side_effect = lambda contract, sender, recipient, amount: {
+            "transaction": {
+                "from": sender,
+                "to": contract,
+                "value": 0,
+                "nonce": 0,
+                "chainId": 31337,
+                "gas": 100000,
+                "gasPrice": 10**9,
+                "data": "0xa9059cbb"
+                + recipient[2:].lower().rjust(64, "0")
+                + hex(1000001)[2:].rjust(64, "0"),
+            }
+        }
+        context, _, _ = self.login()
+        conversation = self.conversation(context)
+        result = self.client.post(
+            "/api/wallet-proposals",
+            json={
+                "context_id": context["id"],
+                "generation": context["generation"],
+                "conversation_id": conversation,
+                "operation": "erc20_transfer",
+                "amount": "1.000001",
+                "recipient": self.recipient,
+            },
+        )
+        self.assertEqual(result.status_code, 200, result.text)
+        proposal = result.json()["pending_approval"]
+        self.assertIsNotNone(proposal, result.text)
+        result = self.client.post(
+            f"/api/wallet-proposals/{proposal['approval_id']}/authorize",
+            json=self.review_body(context, proposal),
+        )
+        self.assertEqual(result.status_code, 200, result.text)
+        (row,) = self.ledger_rows()
+        self.assertEqual(row["asset_id"], "erc20:0x" + "12" * 20)
+        self.assertEqual(row["amount_base_units"], "1000001")

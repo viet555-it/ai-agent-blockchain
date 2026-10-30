@@ -18,6 +18,18 @@ class PolicyConfig(BaseModel):
     max_token_transfer_limit: Decimal = Field(
         default=Decimal("500.0"), description="Maximum ERC20 token allowed per transaction"
     )
+    max_daily_native_transfer_limit: Decimal = Field(
+        default=Decimal("1"),
+        ge=0,
+        allow_inf_nan=False,
+        description="Maximum outgoing native amount in the rolling 24-hour window, excluding gas",
+    )
+    max_daily_token_transfer_limit: Decimal = Field(
+        default=Decimal("1000"),
+        ge=0,
+        allow_inf_nan=False,
+        description="Rolling 24-hour outgoing cap, accounted independently per ERC20 contract",
+    )
     recipient_whitelist: list[str] = Field(
         default_factory=lambda: [
             "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
