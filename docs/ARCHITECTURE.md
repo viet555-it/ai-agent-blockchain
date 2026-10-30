@@ -25,7 +25,7 @@ ký vào `AsyncExitStack` ngay sau khi tạo và được đóng khi startup l�
 Thứ tự đóng: dừng receipt worker → database → retriever → LLM. Nếu một thao tác
 cleanup lỗi, các thao tác cleanup còn lại vẫn được thực hiện.
 
-Các phần dưới mô tả agent core và lớp công cụ ban đầu; flow wallet history và
+Các phần dưới mô tả agent core và lớp công cụ hiện tại; flow wallet history và
 database xem thêm `WALLET_HISTORY_RUNBOOK.md` và `WALLET_HISTORY_DATABASE_PLAN.md`.
 
 ## Frontend composition hiện tại
@@ -211,223 +211,61 @@ LLM, không reset ledger. Protocol hash bao gồm các module mới; khóa lịc
 không hợp lệ cho runtime đã thay đổi. Xem `eval/E2E_README.md` để chạy và diễn giải
 bằng chứng FakeLLM/latency so với phép đo model thật.
 
-## 1. Tổng quan
+## Agent core và tool interfaces
 
-```mermaid
-flowchart TB
-    subgraph User["User / Frontend"]
-        CLI["demo_cli.py"]
-        API["Backend (FastAPI – đồng đội)"]
-    end
+`AgentService` trong `agent/service.py` quản lý session và gọi `AgentLoop`.
+Loop dựng messages/tool schemas, gọi provider, validate Pydantic arguments, chạy
+registry tool và ghép tool results vào conversation. Provider trả text, tool calls
+hoặc error theo interface chung; ứng dụng quyết định cách trình bày events.
 
-    subgraph AgentCore["Agent Core"]
-        SVC["AgentService.chat()"]
-        LOOP["ReAct Loop (core.py)"]
-        MEM["Memory (token-bounded)"]
-        PROMPT["System Prompt"]
-        LLM["LLMProvider\n(Gemini | Claude | OpenAI | Fake)"]
-    end
+`tools/base.py` cung cấp `BaseTool`, `ToolContext`, `ToolResult` và `RiskLevel`.
+Core registry dùng decorator cùng `config/tools.yaml`; backend integration dùng
+registry snapshot riêng. Cache context đi qua `cache_get()`/`cache_set()`.
+Tool READ gọi service interface; tool WRITE core có policy/dry-run riêng. Browser
+proposal tools tiếp tục dùng backend preparation/approval workflow, không sử dụng
+core WRITE registry để ký hoặc gửi.
 
-    subgraph ToolLayer["Tool Layer"]
-        REG["ToolRegistry\n(@register_tool)"]
-        READ_T["READ Tools (9)\n(balance, tx, block, gas...)"]
-        WRITE_T["WRITE Tools (3)\n(transfer, call_contract)"]
-    end
+Hai blockchain interfaces phục vụ hai boundary khác nhau:
 
-    subgraph Security["Security / Guardrail"]
-        POLICY["PolicyEngine\n(allowlist, limits, chain_id)"]
-    end
+| Interface | Consumer và kết quả |
+|---|---|
+| `services/blockchain.py` | Protocol async, Web3 implementation và deterministic mock cho core tools |
+| `backend/services/blockchain_service.py` | Facade sync cho API, trả exact decimal strings/raw integers và dùng adapters đã mô tả phía trên |
 
-    subgraph Services["Service Interfaces"]
-        BC["BlockchainService\n(Protocol → Web3Impl | Mock)"]
-        ETH["EtherscanClient\n(optional)"]
-    end
+Retriever protocol hiện tại là `async retrieve(query: str, k: int = 5) -> list[Chunk]`.
+`services/retriever.py` có `NullRetriever` để core chạy khi không inject RAG;
+LLM backend dùng `rag/retriever.py` với scope/index/model đã kiểm tra. Retriever
+không xác nhận state on-chain hoặc cấp quyền thực thi transaction.
 
-    CLI --> SVC
-    API --> SVC
-    SVC --> LOOP
-    LOOP --> MEM
-    LOOP --> PROMPT
-    LOOP --> LLM
-    LOOP --> REG
-    REG --> READ_T
-    REG --> WRITE_T
-    WRITE_T --> POLICY
-    READ_T --> BC
-    WRITE_T --> BC
-    READ_T --> ETH
-```
+`ConversationMemory` giữ system prompt, budget và cặp tool-call/result hợp lệ;
+`count_tokens()` dùng counter của conversation. Default settings dành buffer 20%
+trên context budget 8.000 tokens; runtime có thể inject settings/counter khác.
+Backend tính thêm header/citation khi ghép context và giữ các giá trị RPC chính xác.
 
-## 2. Luồng xử lý (ReAct Loop)
+## Cấu hình và cài đặt
 
-```
-User message
-    │
-    ▼
-AgentLoop.run(message)
-    │
-    ├── 1. Add user message to memory
-    │
-    ├── 2. Build messages (system + history)
-    │
-    ├── 3. LLM.chat(messages, tools)
-    │       │
-    │       ├── Case A: LLM returns text → FINAL answer
-    │       │
-    │       └── Case B: LLM returns tool_calls
-    │               │
-    │               ├── For each tool_call:
-    │               │   ├── Lookup tool in Registry
-    │               │   ├── If WRITE → log warning, delegate to tool
-    │               │   ├── Validate arguments (Pydantic)
-    │               │   ├── Execute tool.run(validated, ctx)
-    │               │   │   └── WRITE tools: PolicyEngine checks inside
-    │               │   └── Add tool result to memory
-    │               │
-    │               └── Loop back to step 2
-    │
-    └── 4. Return events list
-```
+| Nguồn | Nội dung |
+|---|---|
+| Root `.env` | Provider keys/model, RPC, profile flags và database/origin; biến process ưu tiên |
+| `config/settings.py` | Settings của agent core; không dùng để tự cấp quyền browser/backend execution |
+| `config/tools.yaml`, `config/policy.yaml` | Registry và policy cho core tools |
+| `config/rag.json`, `knowledge/manifest.json` | Pinned model/index, retrieval options và approved corpus |
+| `backend/wallet_settings.py`, runtime configuration | History, browser writes, sessions và network profiles |
 
-## 3. Tool Layer
+Ứng dụng đầy đủ chạy từ source checkout, có editable package mapping và canonical
+root requirements. Xem `docs/PACKAGING.md`; code wheel không thay thế frontend,
+knowledge và runtime assets của checkout. Ma trận hợp lệ và contract tests nằm
+trong `docs/RUNTIME_PROFILES.md`.
 
-### BaseTool (Protocol)
+## Kiểm chứng hiện tại
 
-```python
-class BaseTool:
-    name: str           # unique identifier
-    description: str    # shown to LLM
-    risk_level: RiskLevel  # READ or WRITE
-    args_schema: BaseModel # Pydantic input schema
+Runner `scripts.run_phase3 --suite unit` chạy core và backend unit tests với
+FakeLLM/isolated configuration. `--suite rag` chạy RAG/Chroma/CLI/lock tests riêng;
+root pytest mặc định không tự bao gồm backend tests. `scripts.check_packaging`
+build offline và kiểm archive/editable imports ngoài cwd.
 
-    async def run(self, validated, ctx: ToolContext) -> ToolResult
-```
-
-### ToolContext (Dependency Injection)
-
-```python
-@dataclass
-class ToolContext:
-    blockchain: BlockchainService  # RPC calls
-    settings: Settings             # config
-    _cache: dict                   # TTL cache
-```
-
-Mỗi tool nhận `ToolContext` – không import trực tiếp service.
-
-### ToolRegistry
-
-- `@register_tool` decorator → auto-register vào global registry
-- `ToolRegistry(enabled_override=[...])` → filter theo `tools.yaml`
-- Export schema: `to_openai_tools()`, `to_anthropic_tools()`, `to_gemini_tools()`
-
-### Risk Levels
-
-| Level | Behavior |
-|-------|----------|
-| `READ` | Chạy tự do, không cần xác nhận |
-| `WRITE` | Qua PolicyEngine, cần dry_run hoặc confirm |
-
-## 4. PolicyEngine
-
-```
-WRITE tool request
-    │
-    ├── check_transfer(to, value_eth)
-    │   ├── Allowlist empty? → DENY (deny-by-default)
-    │   ├── Address in allowlist? → DENY if not
-    │   ├── Value > per_tx_limit? → DENY
-    │   └── Daily total > daily_limit? → DENY
-    │
-    ├── check_contract_call(contract, function, value)
-    │   ├── Contract allowlist empty? → DENY
-    │   ├── Contract in allowlist? → DENY if not
-    │   ├── Function in allowlist? → DENY if not
-    │   └── Value limits check
-    │
-    └── check_chain_id(chain_id)
-        └── chain_id != 11155111 (Sepolia)? → DENY
-```
-
-Config: `config/policy.yaml`
-
-## 5. LLM Adapters
-
-| Provider | Module | SDK |
-|----------|--------|-----|
-| Google Gemini | `agent/llm/gemini.py` | `google-genai` |
-| Anthropic Claude | `agent/llm/anthropic.py` | `anthropic` |
-| OpenAI | `agent/llm/openai_adapter.py` | `openai` |
-| Fake (testing) | `agent/llm/fake.py` | (none) |
-
-Tất cả implement `LLMProvider` Protocol:
-```python
-class LLMProvider(Protocol):
-    async def chat(self, messages, tools=None) -> LLMResponse
-```
-
-## 6. Memory Management
-
-`ConversationMemory` giữ lịch sử hội thoại trong token budget:
-
-- **Token counting**: `TiktokenCounter` (cl100k_base) – approximate
-- **Buffer**: 20% dự trù (10000 tokens → effective 8000)
-- **Trimming**: Khi vượt budget, xóa messages cũ nhất (giữ system prompt)
-- **Provider usage**: Nếu LLM trả `usage.total_tokens`, dùng thay tiktoken
-
-## 7. Service Interfaces
-
-### BlockchainService (Protocol)
-
-```python
-class BlockchainService(Protocol):
-    async def get_balance(self, address: str) -> int
-    async def get_token_balance(self, token, wallet) -> int
-    async def get_token_info(self, token) -> dict
-    async def get_transaction(self, tx_hash) -> dict | None
-    async def get_block(self, identifier) -> dict
-    async def get_gas_price(self) -> int
-    async def estimate_gas(self, tx_params) -> int
-    async def call(self, tx_params) -> bytes
-    async def get_chain_id(self) -> int
-    async def get_transaction_count(self, address) -> int
-    async def send_raw_transaction(self, raw_tx) -> str
-    async def read_contract(self, address, abi, fn, args) -> Any
-```
-
-2 implementations:
-- `Web3BlockchainService` – real RPC
-- `MockBlockchainService` – deterministic testing
-
-### Retriever (Protocol)
-
-```python
-class Retriever(Protocol):
-    async def search(self, query, top_k) -> list[dict]
-```
-
-Hiện tại: `NullRetriever` (trả empty). Đồng đội có thể implement RAG.
-
-## 8. Config
-
-| File | Mục đích |
-|------|---------|
-| `.env` | API keys, RPC URL, wallet key |
-| `config/settings.py` | Pydantic Settings (auto-load .env) |
-| `config/tools.yaml` | Enable/disable tools |
-| `config/policy.yaml` | Allowlists, limits, chain ID |
-| `abis/*.json` | Smart contract ABIs |
-
-## 9. Testing Strategy
-
-| Layer | Test file | Coverage |
-|-------|-----------|----------|
-| Agent loop | `test_agent_loop.py` | 88% |
-| READ tools | `test_tools_read.py` | 64-95% |
-| WRITE tools | `test_tools_write.py` | 51-72% |
-| PolicyEngine | `test_policy.py` | 96% |
-| Registry | `test_registry.py` | 65% |
-| Services | `test_services.py` | Mock only |
-| Eval module | `test_eval_and_coverage.py` | 85% |
-
-Tổng: **116 tests, 85% coverage, ruff clean**.
+Local-EVM integration kiểm API, exact transaction units, approval/idempotency,
+browser authorization và RAG lifecycle. Playwright dùng provider mô phỏng, node,
+API và database riêng; vẫn cần thử popup MetaMask thật. Không gọi Gemini hoặc gửi
+Sepolia để chứng minh refactor. Kết quả từng bước nằm trong `docs/REFACTOR_PLAN.md`;
+coverage/performance không được suy ra từ số test và chưa có phép đo coverage mới.

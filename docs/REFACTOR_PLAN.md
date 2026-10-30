@@ -214,7 +214,7 @@ Thứ tự: PR 0 → PR 1 → PR 2 → PR 3 → PR 4 → PR 5 → PR 6. Có th�
 
 ## 6. Kiểm chứng khi triển khai
 
-Các lệnh dưới đây là kế hoạch kiểm chứng, chưa được chạy trong lần khảo sát này. Chạy từ root PowerShell, dùng môi trường đã cài dependency:
+Các lệnh dưới đây là kế hoạch kiểm chứng ban đầu. Kết quả đã chạy theo từng bước được ghi ở mục 8. Chạy từ root PowerShell, dùng môi trường đã cài dependency:
 
 ```powershell
 .\.venv-phase3\Scripts\python.exe -m pytest tests -q
@@ -245,9 +245,9 @@ Tiêu chí hoàn tất toàn đợt:
 
 ## 7. Phạm vi chưa kết luận từ khảo sát
 
-Chưa đo coverage/complexity thực chạy, hiệu năng, hoặc xác nhận toàn bộ test đang xanh. Đánh giá trên dựa vào đọc source và kiểm tra cấu hình; các điểm như hai service cùng tên là vấn đề ranh giới/khả năng đọc, không tự động là bug. Thay đổi có sẵn ở `docs/PHASE3_DEMO.md` được giữ nguyên.
+Tại thời điểm khảo sát chưa đo coverage/complexity, hiệu năng hoặc chạy baseline. Các kết quả triển khai/test sau khảo sát nằm ở mục 8; chưa có phép đo coverage mới. Hai service cùng tên thuộc hai interface khác nhau và được giữ riêng. Thay đổi có sẵn ở `docs/PHASE3_DEMO.md` được giữ nguyên.
 
-## 8. Tiến độ triển khai — 29/10/2026
+## 8. Tiến độ triển khai — 29–30/10/2026
 
 Branch: `refactor-project-structure`.
 
@@ -364,5 +364,15 @@ Phần còn lại sau commit đầu: tách runtime assembly/lifespan, bổ sung 
 - Thêm 11 unit tests cho CLI/config gates, options isolation, freeze/holdout/runtime hashes, quota stop, startup failure, broadcast guard, safety-only, checkpoint retry và reservation trước provider call.
 - Kiểm chứng: 335 unit tests passed, 3 skipped, 1 deselected, 109 subtests passed; Ruff/format của 11 file source/test thay đổi đạt. Fake evaluator được chạy hai lần trên infrastructure riêng và không gọi Gemini.
 
-Tiếp theo: PR 6d — hoàn thiện tài liệu/packaging và ma trận/hợp đồng đầy đủ của các profile ở PR 0. Chưa đo coverage mới.
+### PR 6d — đóng gói, tài liệu và profile/API contracts — 30/10/2026
+
+- Chốt cách cài ứng dụng đầy đủ từ source checkout với editable mapping. Bổ sung regular package `backend`, mở rộng discovery cho backend/RAG/scripts/eval và loại test/namespace khỏi build. Code wheel giữ config YAML/JSON và Python migrations; frontend/knowledge/runtime assets vẫn thuộc checkout.
+- Đồng nhất `backend/requirements.txt` với canonical root lock. Tách `-e .[dev]` khỏi lock thành lệnh editable riêng trong README, giữ nguyên mọi version pin để việc cài dependency không phụ thuộc cwd.
+- Thêm checker offline: wheel có 173 Python modules, đủ 12 module/data bắt buộc và không chứa test/virtualenv; editable artifact import được 12 module từ cwd khác trong process không dùng finder cũ. Không cài/gỡ package hiện có; compatibility requirements dry-run offline đạt.
+- Thêm acceptance CSV và 4 test profile/contracts: duyệt đủ 96 cấu hình, chấp nhận đúng 16; kiểm health/feature flags, status 200/400/403/422 và private response headers mà không chạy lifespan/RPC/DB/model. Kiểm thêm precedence của flags và browser flag không tự bật history.
+- Đưa hai OpenAPI snapshots trước bước agent refactor vào fixtures tái chạy được; schemas/paths/methods/request/response khớp hiện tại. Các contract runtime/cookies/concurrency tiếp tục được kiểm trong suite hành vi hiện có; mapping bằng chứng nằm trong `docs/RUNTIME_PROFILES.md`.
+- Cập nhật README, tài liệu packaging/profile, architecture và hướng dẫn thêm tool. Bỏ mô tả retriever null/coverage lịch sử đã lỗi thời, sửa ví dụ cache và loại private registry access trong hướng dẫn.
+- Kiểm chứng: 339 unit tests passed, 3 skipped, 1 deselected, 207 subtests passed; RAG 60/60 passed; local-EVM integration 20/20 passed; wallet Playwright E2E 10/10 passed. Ruff/format các Python file thay đổi đạt. Dùng FakeLLM, cache/index local và Hardhat/API/database riêng.
+
+Đã hoàn tất các bước refactor cấu trúc PR 1–6 và bổ sung baseline profile/OpenAPI của PR 0. Các compatibility facade còn consumer được giữ có chủ đích; không đổi schema DB/migrations, framework frontend hoặc giao thức API/CLI. Coverage/performance mới, popup MetaMask thật, cài mới đa nền tảng, wheel web-app độc lập và benchmark live/holdout mới không được suy ra từ kiểm chứng này.
 
