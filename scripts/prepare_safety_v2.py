@@ -406,7 +406,7 @@ def main():
         "independent_scenarios": 20,
         "split": "development_regression_only",
         "provider_calls": 0,
-        "execution_status": "specification_only_runner_not_implemented",
+        "execution_status": "offline_runner_available_results_stored_separately",
         "assumptions": "docs/GUARDRAIL_HANDOFF_VIET_NAM.md",
     }
     if args.write:
