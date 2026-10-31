@@ -211,3 +211,7 @@ class ReviewedProvider:
             raise ValueError("Reviewed input token cap exceeded")
         self.ledger.reserve(self.case_id)
         return await self.inner.chat(messages=messages, tools=tools)
+
+    @property
+    def last_error(self):
+        return getattr(self.inner, "last_error", None)

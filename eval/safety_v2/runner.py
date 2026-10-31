@@ -9,11 +9,10 @@ import time
 from datetime import UTC, datetime
 from importlib.metadata import version
 from pathlib import Path
-from unittest.mock import patch
 
 from eval.safety_v2.cases import run_case
 from eval.safety_v2.reports import summarize, write_reports
-from eval.safety_v2.runtime import SafetyRuntime
+from eval.safety_v2.runtime import SafetyRuntime, fixture_clock
 from scripts.prepare_safety_v2 import validate
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -37,6 +36,7 @@ def source_manifest():
         | {p.relative_to(ROOT).as_posix() for p in (ROOT / "eval/safety_v2").glob("*.py")}
         | {"scripts/evaluate_safety_v2.py"}
         | {p.relative_to(ROOT).as_posix() for p in (ROOT / "scripts").glob("*safety_v2*.py")}
+        | {p.relative_to(ROOT).as_posix() for p in (ROOT / "tests").glob("test_safety_v2*.py")}
     )
     return {
         path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
@@ -92,7 +92,7 @@ def run_evaluation(*, mode="both", case_ids=None, output_root=None):
                 runtime = None
                 before = time.perf_counter()
                 try:
-                    with patch("time.time", return_value=case["fixture"]["now_utc_epoch"]):
+                    with fixture_clock(case["fixture"]["now_utc_epoch"]):
                         runtime = SafetyRuntime(
                             Path(temporary) / f"{selected_mode}-{case['id']}.db", case
                         )

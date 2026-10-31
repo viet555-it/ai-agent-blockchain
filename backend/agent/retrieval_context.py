@@ -2,6 +2,7 @@
 
 import json
 
+from backend.agent.reference_safety import reference_findings
 from backend.rag.rag_adapter import RAGSearchResult, RetrievedDocument
 from rag.retriever import RetrievalUnavailable
 
@@ -20,9 +21,13 @@ def build_retrieval_context(
             }
         )
     documents = []
+    rejected = 0
     # Re-count citation headers/content with the LLM tokenizer, not the embedding tokenizer.
     budget = min(1800, token_budget // 3)
     for chunk in chunks:
+        if reference_findings(chunk["content"]):
+            rejected += 1
+            continue
         meta = chunk["metadata"]
         entry = "\n" + json.dumps(
             {
@@ -30,6 +35,7 @@ def build_retrieval_context(
                 "source_path": meta["source_path"],
                 "scope": meta["scope"],
                 "doc_version": meta["doc_version"],
+                "trust": "untrusted_reference_only",
             },
             ensure_ascii=False,
         )
@@ -46,7 +52,7 @@ def build_retrieval_context(
                 metadata=meta,
             )
         )
-    if chunks and not documents:
+    if chunks and not documents and not rejected:
         raise RetrievalUnavailable("No retrieved chunk fits the LLM context budget")
     rag = RAGSearchResult(
         query=query,
@@ -54,6 +60,6 @@ def build_retrieval_context(
         documents=documents,
         has_relevant_context=bool(documents),
         provider="scoped_vector_db",
-        status="ok" if documents else "no_match",
+        status="blocked_reference" if rejected else "ok" if documents else "no_match",
     )
     return context, rag

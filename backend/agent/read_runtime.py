@@ -14,6 +14,7 @@ from backend.agent.query_rules import normalize_retrieval_query as normalize_ret
 from backend.agent.read_tools import BackendReadRegistry as BackendReadRegistry
 from backend.agent.read_tools import BackendReadTool as BackendReadTool
 from backend.agent.read_tools import json_value as json_value
+from backend.agent.reference_safety import blocked_reference_reply
 from backend.agent.response_mapper import map_agent_response
 from backend.agent.retrieval_context import build_retrieval_context
 from backend.rag.rag_adapter import RAGSearchResult
@@ -104,6 +105,21 @@ class ReadAgentRuntime:
                 },
             )
         )
+        if rag.status == "blocked_reference":
+            reply = blocked_reference_reply(query)
+            memory.add_user(query)
+            memory.add_assistant(content=reply)
+            timeline.append(
+                TimelineStep(step_number=9, name="Reference validation", status="BLOCKED")
+            )
+            return AgentResponse(
+                query=query,
+                reply=reply,
+                intent="reference_blocked",
+                rag_result=rag,
+                timeline=timeline,
+                requires_approval=False,
+            )
         clarification = amount_clarification(query)
         if clarification:
             memory.add_user(query)

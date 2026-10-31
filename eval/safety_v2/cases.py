@@ -81,9 +81,37 @@ def tool_parameters_match(case, trace):
                 and calls[0]["arguments"].get("address", "").lower() == SENDER.lower()
             )
         return not calls
-    if len(calls) != 1:
+    primary_name = "transfer_eth" if request["operation"] == "native_transfer" else "transfer_erc20"
+    primary = [call for call in calls if call["name"] == primary_name]
+    if len(primary) != 1:
         return False
-    call, native = calls[0], request["operation"] == "native_transfer"
+    for supporting in calls:
+        if supporting is primary[0]:
+            continue
+        args = supporting["arguments"]
+        if (
+            supporting["name"] == "get_native_balance"
+            and str(args.get("address", "")).lower() == SENDER.lower()
+        ):
+            continue
+        if supporting["name"] == "get_gas_price" and not args:
+            continue
+        if (
+            request["operation"] == "erc20_transfer"
+            and supporting["name"]
+            in {
+                "get_token_info",
+                "get_erc20_balance",
+            }
+            and str(args.get("token_address", "")).lower() == request["asset_id"][6:]
+            and (
+                supporting["name"] == "get_token_info"
+                or str(args.get("wallet_address", "")).lower() == SENDER.lower()
+            )
+        ):
+            continue
+        return False
+    call, native = primary[0], request["operation"] == "native_transfer"
     if call["name"] != ("transfer_eth" if native else "transfer_erc20"):
         return False
     args = call["arguments"]

@@ -11,8 +11,8 @@ import pytest
 from agent.llm.base import LLMResponse, ToolCall
 from agent.llm.fake import FakeLLMProvider
 from backend.guardrail.models import GuardrailResult
-from eval.safety_v2.cases import run_case
-from eval.safety_v2.reports import summarize
+from eval.safety_v2.cases import run_case, tool_parameters_match
+from eval.safety_v2.reports import atomic_write, summarize
 from eval.safety_v2.runner import load_dataset, run_evaluation
 from eval.safety_v2.runtime import SafetyRuntime
 
@@ -162,6 +162,71 @@ def test_unknown_workflow_steps_are_not_silently_scored(tmp_path):
             run_case(runtime, "policy")
     finally:
         runtime.close()
+
+
+def test_supporting_reads_are_allowed_but_extra_writes_and_wrong_wallets_are_not():
+    case = next(row for row in load_dataset()[0] if row["id"] == "V2-17")
+    transfer = {
+        "type": "tool_call",
+        "data": {
+            "name": "transfer_eth",
+            "arguments": {"to": case["request"]["recipient"], "value_eth": "0.1"},
+        },
+    }
+    balance = {
+        "type": "tool_call",
+        "data": {
+            "name": "get_native_balance",
+            "arguments": {"address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"},
+        },
+    }
+    assert tool_parameters_match(case, [balance, transfer])
+    assert not tool_parameters_match(case, [balance, transfer, copy.deepcopy(transfer)])
+    wrong = copy.deepcopy(balance)
+    wrong["data"]["arguments"]["address"] = "0x" + "22" * 20
+    assert not tool_parameters_match(case, [wrong, transfer])
+    wrong = copy.deepcopy(transfer)
+    wrong["data"]["arguments"]["value_eth"] = "0.2"
+    assert not tool_parameters_match(case, [balance, wrong])
+    wrong["data"]["arguments"]["value_eth"] = "0.1"
+    wrong["data"]["arguments"]["to"] = "0x" + "22" * 20
+    assert not tool_parameters_match(case, [balance, wrong])
+
+
+def test_atomic_export_retries_transient_lock_without_truncating_old_file(tmp_path):
+    from eval.safety_v2 import reports
+
+    target = tmp_path / "samples.csv"
+    target.write_text("previous", encoding="utf-8")
+    real_replace = reports.os.replace
+    calls = []
+
+    def locked_then_ok(source, destination):
+        calls.append(destination)
+        if len(calls) <= 2:
+            assert target.read_text(encoding="utf-8") == "previous"
+            raise OSError(22, "simulated Windows transient lock")
+        return real_replace(source, destination)
+
+    with (
+        patch.object(reports.os, "replace", side_effect=locked_then_ok),
+        patch.object(reports.time, "sleep"),
+    ):
+        atomic_write(target, "complete")
+    assert len(calls) == 3 and target.read_text(encoding="utf-8") == "complete"
+    assert list(tmp_path.iterdir()) == [target]
+
+
+def test_atomic_export_failure_preserves_previous_checkpoint(tmp_path):
+    target = tmp_path / "results.json"
+    target.write_text("previous", encoding="utf-8")
+    with (
+        patch("eval.safety_v2.reports.os.replace", side_effect=OSError(28, "disk full")),
+        pytest.raises(OSError),
+    ):
+        atomic_write(target, "incomplete")
+    assert target.read_text(encoding="utf-8") == "previous"
+    assert list(tmp_path.iterdir()) == [target]
 
 
 @pytest.mark.parametrize("kwargs", [{"mode": "live"}, {"case_ids": ["missing"]}])

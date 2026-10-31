@@ -1,8 +1,9 @@
 """Real wallet/ledger workflows over temporary SQLite and a no-network chain fixture."""
 
+from contextlib import ExitStack, contextmanager
 from decimal import Decimal
 from types import SimpleNamespace
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from sqlalchemy import select
 from web3 import Web3
@@ -30,6 +31,20 @@ from backend.wallet_settings import WalletSettings
 
 SENDER = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 TOKEN = "0x1111111111111111111111111111111111111111"
+
+
+@contextmanager
+def fixture_clock(now):
+    """Freeze wallet clocks without altering SDK/network/asyncio wall-clock functions."""
+    with ExitStack() as stack:
+        for module in (
+            "backend.guardrail.policy_engine",
+            "backend.services.wallet.proposals",
+            "backend.services.wallet.submissions",
+            "backend.services.wallet_common",
+        ):
+            stack.enter_context(patch(module + ".time", SimpleNamespace(time=lambda: now)))
+        yield
 
 
 class SafetyRuntime:
@@ -86,6 +101,28 @@ class SafetyRuntime:
         chain.w3.eth.get_balance.return_value = 10**30
         chain.w3.eth.estimate_gas.return_value = 21000
         chain.get_token_info.return_value = {"decimals": decimals, "symbol": "AGNT"}
+        chain.get_token_balance.return_value = {
+            "wallet_address": SENDER,
+            "token_address": TOKEN,
+            "balance": "1000",
+            "raw_balance": str(1000 * 10**decimals),
+            "symbol": "AGNT",
+        }
+        chain.get_gas_price.return_value = {"gas_price_wei": str(10**9), "gas_price_gwei": "1"}
+        chain.get_block.return_value = {
+            "number": 10,
+            "hash": "0x" + "11" * 32,
+            "timestamp": self.fixture["now_utc_epoch"],
+            "transactions": [],
+        }
+        chain.get_transaction.return_value = {
+            "hash": "0x" + "aa" * 32,
+            "from": SENDER,
+            "to": TOKEN,
+            "value": "0",
+            "nonce": 0,
+            "blockNumber": 10,
+        }
         chain.get_native_balance.return_value = {
             "address": SENDER,
             "balance": "100",
