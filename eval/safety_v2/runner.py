@@ -36,6 +36,7 @@ def source_manifest():
         set(tracked)
         | {p.relative_to(ROOT).as_posix() for p in (ROOT / "eval/safety_v2").glob("*.py")}
         | {"scripts/evaluate_safety_v2.py"}
+        | {p.relative_to(ROOT).as_posix() for p in (ROOT / "scripts").glob("*safety_v2*.py")}
     )
     return {
         path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
