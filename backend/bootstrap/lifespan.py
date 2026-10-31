@@ -18,11 +18,23 @@ from backend.wallet_errors import WalletError
 logger = logging.getLogger("backend.api")
 
 
+async def run_reconciliation_step(function):
+    # Cancelling to_thread's await does not stop the underlying thread. Keep its
+    # task alive and drain it before the exit stack disposes its database.
+    worker = asyncio.create_task(asyncio.to_thread(function))
+    try:
+        return await asyncio.shield(worker)
+    except asyncio.CancelledError:
+        with suppress(Exception):
+            await worker
+        raise
+
+
 async def reconcile_wallet(browser: Any, history: Any) -> None:
     while True:
         try:
-            await asyncio.to_thread(browser.reconcile_batch)
-            await asyncio.to_thread(history.recover)
+            await run_reconciliation_step(browser.reconcile_batch)
+            await run_reconciliation_step(history.recover)
         except asyncio.CancelledError:
             raise
         except WalletError as error:

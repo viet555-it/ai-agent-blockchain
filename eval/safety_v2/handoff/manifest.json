@@ -1,0 +1,20 @@
+{
+  "kind": "safety-evaluation-handoff",
+  "state": "independent_work_ready_for_team_review",
+  "offline_only": true,
+  "files_sha256": {
+    "assessment.json": "6ffd86b59cf74fb91748447138ab697b4e263c70da0b7cfa508712f75f6d0bcd",
+    "reviewed-cases.csv": "a2daf405b87fd14dd65c0d7f8b0c7f0f0b0b5d001953ea3f58c9ef8b40081bd3",
+    "review-annotations.json": "0e20cceec94f9d3aba6cf149e2872cc363dfc11a89bd4ac8832efad46abb83b3",
+    "handoff.md": "8d4465c8fe88f7f76e0a11e3ec0a3786d1561e2a5196a9a7257a99e551b4228c",
+    "demo.md": "18190afd29c8e4ab4e9a2124748982109cce7cbe3488701b10030b79dd95ebc1",
+    "validation-summary.json": "52a342f33dc424c4fcdfa3a0f5abc76ed15a0a77d5e409cea0d5f73813b54e45"
+  },
+  "pending": [
+    "Nam wallet policy API/version integration",
+    "historical usage backfill",
+    "4 live HTTP 429 cases",
+    "post-fix live model behavior and independent holdout"
+  ],
+  "additional_provider_requests": 0
+}

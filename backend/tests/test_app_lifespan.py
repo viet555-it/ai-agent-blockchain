@@ -2,6 +2,7 @@
 
 import asyncio
 import unittest
+from threading import Event
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from backend.api.server import create_app
@@ -66,6 +67,35 @@ class AppLifespanTests(unittest.IsolatedAsyncioTestCase):
         history.recover.assert_not_called()
         sleep.assert_awaited_once_with(15)
         self.assertIn("DEPLOYMENT_UNAVAILABLE", logs.output[0])
+
+    async def test_cancellation_drains_each_inflight_receipt_thread_before_stopping(self):
+        for phase in ("receipt", "history"):
+            with self.subTest(phase=phase):
+                started, release = Event(), Event()
+                events = []
+
+                def blocking_step(started=started, release=release, events=events):
+                    started.set()
+                    if not release.wait(timeout=5):
+                        raise RuntimeError("Test did not release the worker")
+                    events.append("thread finished")
+
+                browser, history = MagicMock(), MagicMock()
+                target = browser.reconcile_batch if phase == "receipt" else history.recover
+                target.side_effect = blocking_step
+                worker = asyncio.create_task(reconcile_wallet(browser, history))
+                try:
+                    self.assertTrue(await asyncio.to_thread(started.wait, 2))
+                    worker.cancel()
+                    await asyncio.sleep(0)
+                    self.assertFalse(worker.done(), "Shutdown must drain the synchronous worker")
+                finally:
+                    release.set()
+                    with self.assertRaises(asyncio.CancelledError):
+                        await asyncio.wait_for(worker, timeout=2)
+                self.assertEqual(events, ["thread finished"])
+                if phase == "receipt":
+                    history.recover.assert_not_called()
 
     async def test_invalid_scope_closes_resources_acquired_before_startup_failure(self):
         self.own_resources()

@@ -26,12 +26,16 @@ def fingerprint(value):
     return hashlib.sha256(canonical(value).encode("utf-8")).hexdigest()
 
 
-def build_review(model, *, request_cap=80):
+def build_review(model, *, request_cap=80, case_ids=None, continuation_of=None):
     if not isinstance(model, str) or not model.strip() or len(model) > 160:
         raise ValueError("An explicit model name is required")
     if type(request_cap) is not int or not 1 <= request_cap <= 160:
         raise ValueError("request_cap must be in 1..160")
     rows, dataset_hash = load_dataset()
+    if case_ids is not None:
+        if not case_ids or set(case_ids) - {row["id"] for row in rows}:
+            raise ValueError("Expected known, nonempty review case IDs")
+        rows = [row for row in rows if row["id"] in case_ids]
     tools = BackendReadRegistry(None, object()).to_gemini_tools()
     review = {
         "protocol": "safety-v2-live-review-1",
@@ -53,6 +57,8 @@ def build_review(model, *, request_cap=80):
         "followup_scope": "Same initial system/user input; only model messages and results of listed fixture tools may follow. No additional user turns.",
         "execution_scope": "Temporary SQLite and mock blockchain; no signer, testnet transaction or production RAG. Gold labels and expected decisions are excluded from payload.",
     }
+    if continuation_of:
+        review["continuation_of"] = continuation_of
     return {"review_sha256": fingerprint(review), "review": review}
 
 
@@ -60,7 +66,12 @@ def validate_review(packet):
     review = packet["review"]
     if packet["review_sha256"] != fingerprint(review):
         raise ValueError("Payload review integrity mismatch")
-    current = build_review(review["model"], request_cap=review["limits"]["total_requests"])
+    current = build_review(
+        review["model"],
+        request_cap=review["limits"]["total_requests"],
+        case_ids=[row["id"] for row in review["cases"]],
+        continuation_of=review.get("continuation_of"),
+    )
     if current != packet:
         raise ValueError("Reviewed payload/source changed; prepare a new review")
     return review
@@ -102,7 +113,7 @@ def write_review(directory, packet):
         "",
         f"Model lấy từ cấu hình dự án: `{review['model']}`.",
         "",
-        f"Gửi tối đa {cap} request cho 40 ca Việt/Anh; tối đa 4 request/ca, 512 output token/request, tổng trần output {cap * 512} token. Temperature 0, không tự retry. Đây là giới hạn request/token, không phải báo giá hoặc cam kết miễn phí.",
+        f"Gửi tối đa {cap} request cho {len(review['cases'])} ca Việt/Anh; tối đa 4 request/ca, 512 output token/request, tổng trần output {cap * 512} token. Temperature 0, không tự retry. Đây là giới hạn request/token, không phải báo giá hoặc cam kết miễn phí.",
         "",
         "Nội dung gồm system prompt, prompt benchmark, 9 schema công cụ, địa chỉ ví/contract thử nghiệm, policy và trạng thái hạn mức giả lập. Hai ca có tài liệu RAG độc hại được chèn vào retrieval context. Các lượt sau có thể chứa phản hồi model và kết quả fixture tool được liệt kê; không gửi gold/kỳ vọng chấm điểm.",
         "",
@@ -179,6 +190,14 @@ class LiveRequestLedger:
             finally:
                 if temporary and temporary.exists():
                     temporary.unlink()
+
+    def exhausted(self, case_id):
+        records = self.snapshot()["reservations"]
+        return (
+            len(records) >= self.review["limits"]["total_requests"]
+            or sum(row["case_id"] == case_id for row in records)
+            >= self.review["limits"]["requests_per_case"]
+        )
 
 
 class ReviewedProvider:

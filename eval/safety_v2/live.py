@@ -159,16 +159,18 @@ def run_live_evaluation(
     case_ids=None,
     output_root=None,
     ledger_path=None,
+    request_ledger=None,
 ):
     # Validate every gate before constructing an SDK or reading any provider secret.
     review = validate_review(packet)
     if not allow_live or approved_hash != packet["review_sha256"]:
         raise ValueError("Live execution needs --allow-live-llm and the approved review hash")
     rows, dataset_hash = load_dataset()
-    if case_ids:
-        if set(case_ids) - {row["id"] for row in rows}:
-            raise ValueError("Unknown live case ID")
-        rows = [row for row in rows if row["id"] in case_ids]
+    reviewed_ids = {row["id"] for row in review["cases"]}
+    if case_ids and set(case_ids) - reviewed_ids:
+        raise ValueError("Unknown live case ID")
+    selected_ids = set(case_ids) if case_ids else reviewed_ids
+    rows = [row for row in rows if row["id"] in selected_ids]
     injected = provider_factory is not None
     if not injected and not api_key:
         raise ValueError("GEMINI_API_KEY is required for reviewed live execution")
@@ -184,7 +186,13 @@ def run_live_evaluation(
                 max_calls=review["limits"]["requests_per_case"],
             )
 
-    ledger = LiveRequestLedger(ledger_path or ROOT / ".phase3/safety-v2-live-budget.json", packet)
+    ledger = (
+        request_ledger
+        if request_ledger is not None
+        else LiveRequestLedger(ledger_path or ROOT / ".phase3/safety-v2-live-budget.json", packet)
+    )
+    if ledger.packet["review_sha256"] != packet["review_sha256"]:
+        raise ValueError("Request ledger is bound to another review")
     initial_reservations = len(ledger.snapshot()["reservations"])
     provider_requests = {"count": 0}
     stopped_on_rate_limit = False
@@ -195,6 +203,7 @@ def run_live_evaluation(
     report = {
         "protocol": "safety-v2-live-1",
         "review_sha256": packet["review_sha256"],
+        "continuation_of": review.get("continuation_of"),
         "dataset_sha256": dataset_hash,
         "source_sha256": review["source_sha256"],
         "started_at_utc": started.isoformat(),
@@ -214,13 +223,7 @@ def run_live_evaluation(
     with tempfile.TemporaryDirectory(dir=tmp_root) as temporary:
         for case in rows:
             runtime = None
-            records = ledger.snapshot()["reservations"]
-            if (
-                stopped_on_rate_limit
-                or len(records) >= review["limits"]["total_requests"]
-                or sum(record["case_id"] == case["id"] for record in records)
-                >= review["limits"]["requests_per_case"]
-            ):
+            if stopped_on_rate_limit or ledger.exhausted(case["id"]):
                 report["results"].append(
                     {
                         "id": case["id"],
@@ -328,6 +331,10 @@ def run_live_evaluation(
             report["summaries"] = {"live_agent": summarize(report["results"])}
             write_reports(directory, report)
     report["finished_at_utc"] = datetime.now(UTC).isoformat()
+    report["request_reservations"] = ledger.snapshot()
+    report["provider_request_reservations_this_run"] = (
+        len(report["request_reservations"]["reservations"]) - initial_reservations
+    )
     report["summaries"] = {"live_agent": summarize(report["results"])}
     write_reports(directory, report)
     return directory, report

@@ -58,6 +58,25 @@ def validate_address(
     return True, checksummed, None
 
 
+def check_recipient(
+    recipient, enforce_whitelist, normalized_whitelist, *, address_validator=validate_address
+):
+    """Return the shared recipient checks with stable codes and legacy display messages."""
+    if not recipient:
+        return None, ["INVALID_ADDRESS"], ["Recipient address is required."]
+    valid, checksummed, error = address_validator(recipient, "recipient")
+    if not valid:
+        return None, ["INVALID_ADDRESS"], [error or "Invalid recipient address"]
+    codes, messages = [], []
+    if int(checksummed, 16) == 0:
+        codes.append("ZERO_ADDRESS")
+        messages.append("Zero recipient address is not permitted.")
+    if enforce_whitelist and checksummed not in normalized_whitelist:
+        codes.append("RECIPIENT_NOT_ALLOWED")
+        messages.append(f"Recipient address {checksummed} is NOT in the authorized whitelist.")
+    return checksummed, codes, messages
+
+
 def format_description(operation: str, params: dict[str, Any]) -> str:
     recipient = params.get("recipient", "N/A")
     amount = params.get("amount", params.get("amount_eth", params.get("amount_token", "N/A")))
@@ -99,24 +118,21 @@ def check_write_request(
         None,
     )
 
+    checksum_recipient, _, recipient_errors = check_recipient(
+        recipient_addr,
+        config.enforce_whitelist,
+        normalized_whitelist,
+        address_validator=address_validator,
+    )
+    # Keep the legacy missing-field message order for existing callers.
     if not recipient_addr:
-        violations.append("Recipient address is required.")
+        violations.extend(recipient_errors)
     if amount_raw is None:
         violations.append("Transaction amount is required.")
-
     if recipient_addr:
-        is_valid_addr, checksum_recipient, err = address_validator(recipient_addr, "recipient")
-        if not is_valid_addr:
-            violations.append(err or "Invalid recipient address")
-        else:
+        violations.extend(recipient_errors)
+        if checksum_recipient:
             sanitized_params["recipient"] = checksum_recipient
-            if int(checksum_recipient, 16) == 0:
-                violations.append("Zero recipient address is not permitted.")
-            # Whitelist Check
-            if config.enforce_whitelist and checksum_recipient not in normalized_whitelist:
-                violations.append(
-                    f"Recipient address {checksum_recipient} is NOT in the authorized whitelist."
-                )
 
     # 4. Amount limits check
     if amount_raw is not None:
