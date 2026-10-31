@@ -8,6 +8,7 @@ from web3.exceptions import TransactionNotFound
 from backend.db.repositories import daily_limits as limit_repository
 from backend.db.repositories import reconciliation as repository
 from backend.services.daily_limits import DailyLimitService, timestamp
+from backend.services.limit_backfill import VERIFIED_TIME
 from backend.services.transactions.serialization import json_safe
 from backend.services.wallet_common import fail, record_audit
 from backend.wallet_errors import WalletErrorKind as ErrorKind
@@ -136,6 +137,10 @@ class WalletReconciler:
                         status = "FINALIZED"
                         if matched and number(receipt["status"]) == 1:
                             spent_at = block.get("timestamp")
+                    receipt_data = json_safe(dict(receipt))
+                    receipt_data.pop(VERIFIED_TIME, None)
+                    if spent_at is not None:
+                        receipt_data[VERIFIED_TIME] = timestamp(spent_at)
                     receipt_row = dict(
                         id=uid(),
                         attempt_id=attempt["id"],
@@ -143,7 +148,7 @@ class WalletReconciler:
                         block_hash=hexdata(receipt["blockHash"]),
                         receipt_status=number(receipt["status"]),
                         confirmations=confirmations,
-                        data=json_safe(dict(receipt)),
+                        data=receipt_data,
                         finalized_at=time.time() if finalized else None,
                     )
         # Recheck the deployment after RPC work, before persisting chain evidence.

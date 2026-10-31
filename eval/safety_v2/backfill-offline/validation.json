@@ -1,0 +1,44 @@
+{
+  "scope": "offline_daily_limit_historical_backfill",
+  "git_revision": "c085862fceb64b61a6b620cefc3008e87fe0fb1f",
+  "working_tree_changes": true,
+  "full_suite_before_final_cli_snapshot_selector_changes": {
+    "passed": 447,
+    "subtests_passed": 207,
+    "skipped": 3,
+    "deselected": 1,
+    "warnings": 1
+  },
+  "final_focused_suite": {
+    "tests": 83,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "junit_sha256": "6fb8ca41fe3625df048ba0291836b1650af28cf48c5b0f299a94e610542cc42e",
+    "modules": [
+      "backend/tests/test_limit_backfill.py",
+      "backend/tests/test_daily_limits.py",
+      "backend/tests/test_wallet_history.py"
+    ]
+  },
+  "ruff_check": "passed",
+  "ruff_format_check": "passed",
+  "additional_real_api_requests": 0,
+  "real_budget_reservations": 45,
+  "real_budget_sha256_unchanged": "e22f6da340ee852006b8d59621e79ae538374d4d0f483102b75a0d3f3122902a",
+  "personal_database_accessed": false,
+  "test_storage": "temporary SQLite fixtures only",
+  "source_sha256": {
+    "backend/services/limit_backfill.py": "3239d66ad02f7142725d32c489141eda1ba46d3f06a79d1fb8f8ef2097a9de55",
+    "scripts/backfill_daily_limits.py": "5b099ddd631cde805944b2bd2096af99afd24ea127b5c2bac1c413c84bd4fc9c",
+    "backend/services/wallet/reconciliation.py": "f9535d983c26480c39047ab04e0768591b0fc4cb9495362ff37c9304fc54aa34",
+    "backend/tests/test_limit_backfill.py": "43de355ba35e168b988f2d0711c912c6f5c5d0599692d55797835897de0daab7",
+    "backend/tests/test_wallet_history.py": "c7d604a501ebf3623e92a5b530617a8c59b8204ff2813d526c85677aa7a0104a"
+  },
+  "remaining": [
+    "Review a fresh preview before applying to real history",
+    "Chain verification required for unresolved historical evidence",
+    "Nam wallet-specific policy integration unavailable",
+    "Live API follow-up deferred per user preference"
+  ]
+}

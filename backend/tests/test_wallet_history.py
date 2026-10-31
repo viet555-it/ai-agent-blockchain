@@ -833,6 +833,24 @@ class WalletHistoryTests(unittest.TestCase):
         (row,) = self.ledger_rows()
         self.assertEqual(row["status"], "SPENT")
         self.assertAlmostEqual(row["spent_at"], time.time() - 60, delta=5)
+        with self.app.state.wallet_db.transaction() as connection:
+            data = connection.execute(select(receipts.c.data)).scalar_one()
+            self.assertEqual(data["_app_verified_block_timestamp"], row["spent_at"])
+
+    def test_legacy_receipt_cannot_supply_its_own_verified_block_time(self):
+        _, _, _, receipt = self.submitted()
+        receipt["_app_verified_block_timestamp"] = 123
+        with self.app.state.wallet_db.transaction() as connection:
+            connection.execute(limit_entries.delete())
+        self.chain.w3.eth.get_block.side_effect = lambda height, **kw: {
+            "number": 10,
+            "hash": b"\x11" * 32,
+            "transactions": [],
+        }
+        self.poll_now()
+        with self.app.state.wallet_db.transaction() as connection:
+            data = connection.execute(select(receipts.c.data)).scalar_one()
+            self.assertNotIn("_app_verified_block_timestamp", data)
 
     def test_finalized_revert_releases_reservation(self):
         _, _, _, receipt = self.submitted()
