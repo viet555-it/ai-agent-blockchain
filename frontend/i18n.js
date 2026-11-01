@@ -1,30 +1,40 @@
 /**
  * Internationalization (i18n) Engine
- * Supports Vietnamese (vi) and English (en) with reactive updates.
+ * Supports Auto, Vietnamese (vi), and English (en) with reactive updates.
  */
 // The API serves native browser modules directly, without a Vite build.
 const translations = { en: {}, vi: {} };
 const STORAGE_KEY = 'ati_language';
 const DEFAULT_LANG = 'en';
+const SUPPORTED_LANGS = new Set(['auto', 'en', 'vi']);
 
 let currentLang = localStorage.getItem(STORAGE_KEY) || DEFAULT_LANG;
-if (!translations[currentLang]) {
+if (!SUPPORTED_LANGS.has(currentLang)) {
   currentLang = DEFAULT_LANG;
 }
 
 const listeners = new Set();
 
+function getEffectiveLang() {
+  if (currentLang === 'auto') {
+    return (typeof navigator !== 'undefined' && navigator.language && navigator.language.startsWith('vi'))
+      ? 'vi'
+      : 'en';
+  }
+  return currentLang;
+}
+
 export async function initializeI18n() {
-  await Promise.all(Object.keys(translations).map(async lang => {
+  await Promise.all(['en', 'vi'].map(async lang => {
     const response = await fetch(new URL(`./locales/${lang}.json`, import.meta.url));
     if (!response.ok) throw new Error(`Unable to load locale ${lang}`);
     translations[lang] = await response.json();
   }));
-  document.documentElement.lang = currentLang;
+  document.documentElement.lang = getEffectiveLang();
 }
 
 /**
- * Get current active language code ('en' | 'vi')
+ * Get current configured language code ('auto' | 'en' | 'vi')
  */
 export function getLanguage() {
   return currentLang;
@@ -34,14 +44,14 @@ export function getLanguage() {
  * Set current active language code, save to localStorage, and notify listeners
  */
 export function setLanguage(lang) {
-  if (!translations[lang]) return;
+  if (!SUPPORTED_LANGS.has(lang)) return;
   currentLang = lang;
   try {
     localStorage.setItem(STORAGE_KEY, lang);
   } catch (e) {
     console.warn('Unable to persist language in localStorage:', e);
   }
-  document.documentElement.lang = lang;
+  document.documentElement.lang = getEffectiveLang();
   notifyListeners(lang);
 }
 
@@ -68,11 +78,12 @@ function notifyListeners(lang) {
  * Supports variable interpolation: {fee}, {current}, etc.
  */
 export function t(key, params = {}, fallback = key) {
-  const langDict = translations[currentLang] || translations[DEFAULT_LANG];
+  const active = getEffectiveLang();
+  const langDict = translations[active] || translations[DEFAULT_LANG];
   let val = resolveKey(langDict, key);
 
   // Fallback to English dictionary if key not found in current language
-  if (val === undefined && currentLang !== DEFAULT_LANG) {
+  if (val === undefined && active !== DEFAULT_LANG) {
     val = resolveKey(translations[DEFAULT_LANG], key);
   }
 
@@ -108,26 +119,21 @@ function resolveKey(obj, path) {
 }
 
 /**
- * Update all DOM elements with data-i18n attributes
+ * Walk the DOM and translate elements with data-i18n attributes.
  */
-export function updateDomTranslations() {
-  document.querySelectorAll('[data-i18n]').forEach(el => {
+export function updateDomTranslations(root = document) {
+  root.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    const translation = t(key);
-    if (el.hasAttribute('data-i18n-html')) {
-      el.innerHTML = translation;
-    } else {
-      el.textContent = translation;
-    }
+    if (key) el.textContent = t(key);
   });
 
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+  root.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
     const key = el.getAttribute('data-i18n-placeholder');
-    el.setAttribute('placeholder', t(key));
+    if (key) el.setAttribute('placeholder', t(key));
   });
 
-  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+  root.querySelectorAll('[data-i18n-title]').forEach(el => {
     const key = el.getAttribute('data-i18n-title');
-    el.setAttribute('title', t(key));
+    if (key) el.setAttribute('title', t(key));
   });
 }

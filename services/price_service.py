@@ -35,12 +35,20 @@ CHAINLINK_DECIMALS = 8
 # Default Sepolia public RPC
 DEFAULT_SEPOLIA_RPC = "https://ethereum-sepolia.publicnode.com"
 
+# Supported token symbol mapping to CoinGecko IDs
+TOKEN_ID_MAP: dict[str, str] = {
+    "ETH": "ethereum",
+    "BTC": "bitcoin",
+    "LINK": "chainlink",
+}
+
 # ── Timeframe presets ────────────────────────────────────────────────
 
 _TIMEFRAME_CONFIG: dict[str, dict[str, Any]] = {
     "1h": {"days": "0.042", "interval": "minutely"},   # ~1 h  → 5-min granularity
     "24h": {"days": "1", "interval": "hourly"},         # 24 h  → 1-hour granularity
     "7d": {"days": "7", "interval": "hourly"},          # 7 d   → ~6-hour (post-sampled)
+    "30d": {"days": "30", "interval": "daily"},         # 30 d  → daily granularity
 }
 
 # ── Helpers ──────────────────────────────────────────────────────────
@@ -108,15 +116,14 @@ class PriceService:
 
     # ── Current price ────────────────────────────────────────────────
 
-    async def get_current_price(self) -> dict[str, Any]:
-        """Fetch the current ETH/USD price from CoinGecko.
+    async def get_current_price(self, symbol: str = "ETH") -> dict[str, Any]:
+        """Fetch the current token price in USD from CoinGecko.
 
-        Returns a dict with keys ``symbol``, ``price_usd``,
-        ``change_24h_pct``, ``source``, ``updated_at``, and ``cached``.
-        On upstream failure the ``source`` is ``None`` and no fake price is
-        returned.
+        Supports ETH, BTC, LINK (default ETH).
         """
-        cache_key = "current_price"
+        symbol_upper = (symbol or "ETH").upper()
+        coin_id = TOKEN_ID_MAP.get(symbol_upper, "ethereum")
+        cache_key = f"current_price_{symbol_upper}"
         cached = self._cache.get(cache_key)
         if cached and cached.valid:
             result = dict(cached.data)
@@ -124,7 +131,7 @@ class PriceService:
             return result
 
         params = {
-            "ids": "ethereum",
+            "ids": coin_id,
             "vs_currencies": "usd",
             "include_24hr_change": "true",
         }
@@ -134,15 +141,15 @@ class PriceService:
                 resp.raise_for_status()
                 data = resp.json()
 
-            eth = data.get("ethereum", {})
-            price_usd = eth.get("usd")
-            change_24h = eth.get("usd_24h_change")
+            coin_data = data.get(coin_id, {})
+            price_usd = coin_data.get("usd")
+            change_24h = coin_data.get("usd_24h_change")
 
             if price_usd is None:
-                raise ValueError("Missing price data in CoinGecko response")
+                raise ValueError(f"Missing price data in CoinGecko response for {symbol_upper}")
 
             result: dict[str, Any] = {
-                "symbol": "ETH",
+                "symbol": symbol_upper,
                 "price_usd": float(price_usd),
                 "change_24h_pct": round(float(change_24h), 2) if change_24h is not None else None,
                 "source": "coingecko",
@@ -153,35 +160,39 @@ class PriceService:
             return result
 
         except Exception:
-            logger.exception("Failed to fetch current price from CoinGecko")
+            logger.exception("Failed to fetch current price for %s from CoinGecko", symbol_upper)
             return {
-                "symbol": "ETH",
+                "symbol": symbol_upper,
                 "price_usd": None,
                 "change_24h_pct": None,
                 "source": None,
                 "updated_at": _now_iso(),
                 "cached": False,
-                "error": "Failed to fetch price from CoinGecko",
+                "error": f"Failed to fetch price from CoinGecko for {symbol_upper}",
             }
 
     # ── Historical prices ────────────────────────────────────────────
 
-    async def get_price_history(self, timeframe: str = "24h") -> dict[str, Any]:
-        """Fetch historical ETH/USD prices for the given *timeframe*.
+    async def get_price_history(self, timeframe: str = "24h", symbol: str = "ETH") -> dict[str, Any]:
+        """Fetch historical prices for the given *timeframe* and *symbol*.
 
-        Supported timeframes: ``1h``, ``24h``, ``7d``.
+        Supported timeframes: ``1h``, ``24h``, ``7d``, ``30d``.
+        Supported symbols: ``ETH``, ``BTC``, ``LINK``.
         """
+        symbol_upper = (symbol or "ETH").upper()
+        coin_id = TOKEN_ID_MAP.get(symbol_upper, "ethereum")
+
         if timeframe not in _TIMEFRAME_CONFIG:
             return {
-                "symbol": "ETH",
+                "symbol": symbol_upper,
                 "timeframe": timeframe,
                 "prices": [],
                 "source": None,
                 "updated_at": _now_iso(),
-                "error": f"Invalid timeframe '{timeframe}'. Must be one of: 1h, 24h, 7d",
+                "error": f"Invalid timeframe '{timeframe}'. Must be one of: 1h, 24h, 7d, 30d",
             }
 
-        cache_key = f"history_{timeframe}"
+        cache_key = f"history_{symbol_upper}_{timeframe}"
         cached = self._cache.get(cache_key)
         if cached and cached.valid:
             return cached.data
@@ -191,10 +202,14 @@ class PriceService:
             "vs_currency": "usd",
             "days": cfg["days"],
         }
+        if "interval" in cfg:
+            params["interval"] = cfg["interval"]
+
+        url = f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart"
 
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
-                resp = await client.get(COINGECKO_MARKET_CHART, params=params)
+                resp = await client.get(url, params=params)
                 resp.raise_for_status()
                 data = resp.json()
 
@@ -206,7 +221,7 @@ class PriceService:
             prices = _downsample(raw_prices, step)
 
             result: dict[str, Any] = {
-                "symbol": "ETH",
+                "symbol": symbol_upper,
                 "timeframe": timeframe,
                 "prices": prices,
                 "source": "coingecko",
@@ -216,15 +231,54 @@ class PriceService:
             return result
 
         except Exception:
-            logger.exception("Failed to fetch price history from CoinGecko")
+            logger.exception("Failed to fetch price history for %s from CoinGecko", symbol_upper)
             return {
-                "symbol": "ETH",
+                "symbol": symbol_upper,
                 "timeframe": timeframe,
                 "prices": [],
                 "source": None,
                 "updated_at": _now_iso(),
-                "error": "Failed to fetch price history from CoinGecko",
+                "error": f"Failed to fetch price history from CoinGecko for {symbol_upper}",
             }
+
+    async def get_token_price(
+        self, symbol: str = "ETH", timeframe: str = "24h", source: str = "coingecko"
+    ) -> dict[str, Any]:
+        """Unified method for token price and historical trend."""
+        symbol_upper = (symbol or "ETH").upper()
+        tf = (timeframe or "24h").lower()
+        if tf not in _TIMEFRAME_CONFIG:
+            tf = "24h"
+
+        if source.lower() == "chainlink" and symbol_upper == "ETH":
+            chainlink_data = await self.get_chainlink_price()
+            if chainlink_data:
+                return {
+                    "type": "chainlink",
+                    "symbol": "ETH",
+                    "price_usd": chainlink_data.get("price_usd"),
+                    "round_id": chainlink_data.get("round_id"),
+                    "source": "chainlink_sepolia",
+                    "updated_at": chainlink_data.get("updated_at"),
+                    "chart_marker": f"[CHART:ETH:{tf}]",
+                    "disclaimer": "Real-world reference market price from Chainlink Sepolia Aggregator. Sepolia testnet assets have no monetary value.",
+                }
+
+        current = await self.get_current_price(symbol=symbol_upper)
+        history = await self.get_price_history(timeframe=tf, symbol=symbol_upper)
+
+        return {
+            "type": "coingecko",
+            "symbol": symbol_upper,
+            "price_usd": current.get("price_usd"),
+            "change_24h_pct": current.get("change_24h_pct"),
+            "timeframe": tf,
+            "source": current.get("source") or "coingecko",
+            "updated_at": current.get("updated_at"),
+            "chart_marker": f"[CHART:{symbol_upper}:{tf}]",
+            "history_summary": history.get("prices", [])[:10],
+            "disclaimer": "Real-world reference market price from CoinGecko. Sepolia testnet assets have no monetary value.",
+        }
 
     # ── Multi-currency comparison ────────────────────────────────────
 

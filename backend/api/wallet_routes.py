@@ -48,6 +48,7 @@ class Turn(Body):
     context_id: str = Field(max_length=36)
     generation: int
     client_request_id: str = Field(min_length=1, max_length=128)
+    language: str | None = Field(default="auto", max_length=10)
 
 
 class Proposal(Body):
@@ -195,7 +196,10 @@ async def chat(conversation_id: str, body: Turn, request: Request, identity=AUTH
         runtime.service.restore_session(conversation_id, previous, observer=journal.append)
         async with asyncio.timeout(240):
             result = await runtime.process_message(
-                body.query, wallet=identity.address, session_id=conversation_id
+                body.query,
+                wallet=identity.address,
+                session_id=conversation_id,
+                language=body.language or "auto",
             )
         response = result.model_dump(mode="json")
     except Exception as error:

@@ -3,13 +3,9 @@ import { t, getLanguage, setLanguage, updateDomTranslations } from '../i18n.js';
 export function createLanguageView(state, elements, { updateNetworkLabels, renderTimeline }) {
   function updateLanguageUI(lang) {
     state.language = lang;
-    if (lang === 'vi') {
-      elements.langOptVi.classList.add('active');
-      elements.langOptEn.classList.remove('active');
-    } else {
-      elements.langOptEn.classList.add('active');
-      elements.langOptVi.classList.remove('active');
-    }
+    if (elements.langOptAuto) elements.langOptAuto.classList.toggle('active', lang === 'auto');
+    if (elements.langOptVi) elements.langOptVi.classList.toggle('active', lang === 'vi');
+    if (elements.langOptEn) elements.langOptEn.classList.toggle('active', lang === 'en');
 
     // Update all declarative elements in DOM
     updateDomTranslations();
@@ -42,10 +38,10 @@ export function createLanguageView(state, elements, { updateNetworkLabels, rende
   }
 
   function toggleLanguage() {
-    const nextLang = getLanguage() === 'en' ? 'vi' : 'en';
+    const cur = getLanguage();
+    const nextLang = cur === 'en' ? 'vi' : cur === 'vi' ? 'auto' : 'en';
     setLanguage(nextLang);
   }
-
 
   return { updateLanguageUI, toggleLanguage };
 }

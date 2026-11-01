@@ -38,7 +38,7 @@ export function createChatView(state, elements, priceChartView = null) {
     let chartTf = null;
 
     if (sender === 'agent' && cleanText.includes('[CHART:ETH:')) {
-      const match = cleanText.match(/\[CHART:ETH:(1h|24h|7d)\]/i);
+      const match = cleanText.match(/\[CHART:ETH:(1h|24h|7d|30d)\]/i);
       if (match) chartTf = match[1].toLowerCase();
       cleanText = cleanText.replace(/\[CHART:ETH:[^\]]+\]/g, '').trim();
     }
@@ -53,7 +53,7 @@ export function createChatView(state, elements, priceChartView = null) {
       chartPlaceholder.style.justifyContent = 'center';
       chartPlaceholder.style.fontSize = 'var(--text-xs)';
       chartPlaceholder.style.color = 'var(--text-dim)';
-      chartPlaceholder.textContent = 'Đang tải biểu đồ...';
+      chartPlaceholder.textContent = t('chat.loadingChart') || 'Loading chart...';
       bubble.appendChild(chartPlaceholder);
 
       api(`/prices/history?timeframe=${encodeURIComponent(chartTf)}`)
@@ -64,7 +64,7 @@ export function createChatView(state, elements, priceChartView = null) {
           elements.chatHistory.scrollTop = elements.chatHistory.scrollHeight;
         })
         .catch(err => {
-          chartPlaceholder.textContent = `❌ Không thể tải biểu đồ: ${err.message}`;
+          chartPlaceholder.textContent = t('chat.chartError', { error: err.message }) || `❌ Unable to load chart: ${err.message}`;
         });
     }
 

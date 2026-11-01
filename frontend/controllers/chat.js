@@ -1,5 +1,5 @@
 import { dashboardApi } from '../api.js';
-import { t } from '../i18n.js';
+import { getLanguage, t } from '../i18n.js';
 
 export function createChatController(state, elements, {
   appendMessage, showTypingIndicator, removeTypingIndicator, renderCitation,
@@ -12,10 +12,14 @@ export function createChatController(state, elements, {
     const conversation = wallet?.conversation;
     const epoch = state.historyView?.epoch;
     const current = () => !state.walletMode || (wallet.current(generation) && wallet.conversation === conversation && state.historyView.epoch === epoch);
-    if (state.walletMode && (!wallet.ready || !conversation || state.historyView.readOnly)) {
+
+    // Only block if viewing an archived/read-only conversation from a different deployment
+    if (state.walletMode && wallet?.ready && conversation && state.historyView?.readOnly) {
       appendMessage('agent', t('wallet.loginRequired'));
       return;
     }
+
+    const isGuestTurn = state.walletMode && (!wallet?.ready || !conversation);
 
     state.isProcessing = true;
     elements.btnSendMessage.disabled = true;
@@ -27,18 +31,26 @@ export function createChatController(state, elements, {
 
     try {
       let data;
-      if (state.walletMode) {
+      const activeLang = getLanguage();
+      if (state.walletMode && !isGuestTurn) {
         const context = wallet.context;
         const requestId = crypto.randomUUID();
         const result = await client.turn(conversation, {
-          query, context_id: context.id, generation: context.generation, client_request_id: requestId,
+          query,
+          context_id: context.id,
+          generation: context.generation,
+          client_request_id: requestId,
+          language: activeLang,
         });
         if (!current()) return;
         data = result.response;
         if (!data) throw new Error(t('wallet.turnStatus', { status: result.status }));
       } else {
         data = await client.chat({
-          query, wallet_address: state.wallet ? state.wallet.address : null, session_id: state.sessionId,
+          query,
+          wallet_address: state.wallet ? state.wallet.address : null,
+          session_id: state.sessionId,
+          language: activeLang,
         });
       }
       if (!current()) return;
@@ -63,7 +75,7 @@ export function createChatController(state, elements, {
     } finally {
       if (!current()) return;
       state.isProcessing = false;
-      elements.btnSendMessage.disabled = state.walletMode && !wallet.ready;
+      elements.btnSendMessage.disabled = false;
       elements.chatInput.focus();
       renderWalletGate();
     }

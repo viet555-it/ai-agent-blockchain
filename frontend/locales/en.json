@@ -50,7 +50,9 @@
     "ragTitle": "Knowledge Retrieval (RAG)",
     "ragMatch": "Match: {score}%",
     "ragSource": "Source: {title} ({file})",
-    "ragSimilarity": "Similarity: {score}"
+    "ragSimilarity": "Similarity: {score}",
+    "loadingChart": "Loading chart data...",
+    "chartError": "❌ Unable to load chart: {error}"
   },
   "timeline": {
     "title": "AGENT WORKFLOW TIMELINE",

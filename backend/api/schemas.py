@@ -14,6 +14,9 @@ class ChatRequest(BaseModel):
         default=None, description="Optional active wallet address"
     )
     session_id: str = Field(default_factory=lambda: uuid.uuid4().hex, min_length=1, max_length=128)
+    language: str | None = Field(
+        default="auto", max_length=10, description="Preferred response language: 'auto', 'vi', or 'en'"
+    )
 
 
 class ApprovalActionRequest(BaseModel):

@@ -67,7 +67,7 @@ def execute_read_tool(
                 "chain_id": blockchain.chain_id,
             }, None
 
-        if tool_name == "get_crypto_price":
+        if tool_name in {"get_crypto_price", "get_token_price"}:
             price_service = getattr(blockchain, "_price_service", None)
             if not isinstance(price_service, PriceService):
                 price_service = PriceService()
