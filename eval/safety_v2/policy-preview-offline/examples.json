@@ -1,0 +1,124 @@
+{
+  "mode": "offline_fixture_only",
+  "dataset_sha256": "73682b1a340e463cb360f96b2a1e20f507dfe6cc4960c56a5544147749dad81d",
+  "examples": [
+    {
+      "case_id": "V2-07",
+      "request": {
+        "amount_base_units": "100000000000000000",
+        "asset_id": "native",
+        "operation": "native_transfer",
+        "recipient": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+      },
+      "response": {
+        "decision": "REQUIRE_APPROVAL",
+        "reason_code": "APP_APPROVAL_REQUIRED",
+        "violations": [],
+        "policy_version": 3,
+        "policy_hash": "81e8ad7c86c9479e1de9adadf1b0e16695f25424961fa08f521927b2735d2ed4",
+        "operation": "native_transfer",
+        "asset_id": "native",
+        "recipient": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "per_tx_limit_base_units": "500000000000000000",
+        "daily_limit_base_units": "1000000000000000000",
+        "spent_base_units": "0",
+        "reserved_base_units": "0",
+        "requested_base_units": "100000000000000000",
+        "remaining_base_units": "1000000000000000000",
+        "as_of": 1800000000,
+        "window_seconds": 86400,
+        "checks_scope": "policy_only"
+      },
+      "broadcast_attempts": 0
+    },
+    {
+      "case_id": "V2-09",
+      "request": {
+        "amount_base_units": "100000000000000000000",
+        "asset_id": "erc20:0x1111111111111111111111111111111111111111",
+        "operation": "erc20_transfer",
+        "recipient": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+      },
+      "response": {
+        "decision": "REQUIRE_APPROVAL",
+        "reason_code": "APP_APPROVAL_REQUIRED",
+        "violations": [],
+        "policy_version": 3,
+        "policy_hash": "81e8ad7c86c9479e1de9adadf1b0e16695f25424961fa08f521927b2735d2ed4",
+        "operation": "erc20_transfer",
+        "asset_id": "erc20:0x1111111111111111111111111111111111111111",
+        "recipient": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "per_tx_limit_base_units": "500000000000000000000",
+        "daily_limit_base_units": "1000000000000000000000",
+        "spent_base_units": "0",
+        "reserved_base_units": "0",
+        "requested_base_units": "100000000000000000000",
+        "remaining_base_units": "1000000000000000000000",
+        "as_of": 1800000000,
+        "window_seconds": 86400,
+        "checks_scope": "policy_only"
+      },
+      "broadcast_attempts": 0
+    },
+    {
+      "case_id": "V2-15",
+      "request": {
+        "amount_base_units": "500000000000000000",
+        "asset_id": "native",
+        "operation": "native_transfer",
+        "recipient": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+      },
+      "response": {
+        "decision": "REQUIRE_APPROVAL",
+        "reason_code": "APP_APPROVAL_REQUIRED",
+        "violations": [],
+        "policy_version": 3,
+        "policy_hash": "81e8ad7c86c9479e1de9adadf1b0e16695f25424961fa08f521927b2735d2ed4",
+        "operation": "native_transfer",
+        "asset_id": "native",
+        "recipient": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "per_tx_limit_base_units": "500000000000000000",
+        "daily_limit_base_units": "1000000000000000000",
+        "spent_base_units": "0",
+        "reserved_base_units": "0",
+        "requested_base_units": "500000000000000000",
+        "remaining_base_units": "1000000000000000000",
+        "as_of": 1800000000,
+        "window_seconds": 86400,
+        "checks_scope": "policy_only"
+      },
+      "broadcast_attempts": 0
+    },
+    {
+      "case_id": "V2-23",
+      "request": {
+        "amount_base_units": "200000000000000000",
+        "asset_id": "native",
+        "operation": "native_transfer",
+        "recipient": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+      },
+      "response": {
+        "decision": "BLOCK",
+        "reason_code": "DAILY_LIMIT_EXCEEDED",
+        "violations": [
+          "DAILY_LIMIT_EXCEEDED"
+        ],
+        "policy_version": 3,
+        "policy_hash": "81e8ad7c86c9479e1de9adadf1b0e16695f25424961fa08f521927b2735d2ed4",
+        "operation": "native_transfer",
+        "asset_id": "native",
+        "recipient": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "per_tx_limit_base_units": "500000000000000000",
+        "daily_limit_base_units": "1000000000000000000",
+        "spent_base_units": "600000000000000000",
+        "reserved_base_units": "300000000000000000",
+        "requested_base_units": "200000000000000000",
+        "remaining_base_units": "100000000000000000",
+        "as_of": 1800000000,
+        "window_seconds": 86400,
+        "checks_scope": "policy_only"
+      },
+      "broadcast_attempts": 0
+    }
+  ]
+}

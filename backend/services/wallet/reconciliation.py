@@ -5,7 +5,10 @@ import time
 
 from web3.exceptions import TransactionNotFound
 
+from backend.db.repositories import daily_limits as limit_repository
 from backend.db.repositories import reconciliation as repository
+from backend.services.daily_limits import DailyLimitService, timestamp
+from backend.services.limit_backfill import VERIFIED_TIME
 from backend.services.transactions.serialization import json_safe
 from backend.services.wallet_common import fail, record_audit
 from backend.wallet_errors import WalletErrorKind as ErrorKind
@@ -88,6 +91,7 @@ class WalletReconciler:
                 )
             return
         status, verification, receipt_row = ("UNKNOWN", "UNVERIFIED", None)
+        spent_at = None
         if tx is not None:
             expected = proposal["transaction"]
             matched = (
@@ -131,6 +135,12 @@ class WalletReconciler:
                         )
                     if finalized:
                         status = "FINALIZED"
+                        if matched and number(receipt["status"]) == 1:
+                            spent_at = block.get("timestamp")
+                    receipt_data = json_safe(dict(receipt))
+                    receipt_data.pop(VERIFIED_TIME, None)
+                    if spent_at is not None:
+                        receipt_data[VERIFIED_TIME] = timestamp(spent_at)
                     receipt_row = dict(
                         id=uid(),
                         attempt_id=attempt["id"],
@@ -138,7 +148,7 @@ class WalletReconciler:
                         block_hash=hexdata(receipt["blockHash"]),
                         receipt_status=number(receipt["status"]),
                         confirmations=confirmations,
-                        data=json_safe(dict(receipt)),
+                        data=receipt_data,
                         finalized_at=time.time() if finalized else None,
                     )
         # Recheck the deployment after RPC work, before persisting chain evidence.
@@ -170,6 +180,21 @@ class WalletReconciler:
                 and (str(tx["from"]).lower() == proposal["transaction"]["from"].lower())
                 and (number(tx["nonce"]) == number(proposal["transaction"]["nonce"]))
             ):
+                # Keep a proposal-level reservation through replacements, UNKNOWN,
+                # mismatches and pre-finality reorgs. Only verified final evidence
+                # settles it; proposals created before the ledger have no entry.
+                reservation = limit_repository.find(connection, proposal["id"])
+                if reservation and verification == "MATCHED":
+                    ledger = DailyLimitService()
+                    if receipt_row["receipt_status"] == 1:
+                        ledger.settle_success(
+                            connection,
+                            proposal["id"],
+                            block_timestamp=timestamp(spent_at),
+                            now=time.time(),
+                        )
+                    else:
+                        ledger.release_reverted(connection, proposal["id"])
                 repository.release_send_lock(connection, attempt)
             if current["status"] != status or current["verification_status"] != verification:
                 record_audit(

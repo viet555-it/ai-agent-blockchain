@@ -35,6 +35,21 @@ class GuardrailPolicyEngineTests(unittest.TestCase):
         self.assertEqual(res.operation_type, "READ")
         self.assertEqual(len(res.violations), 0)
 
+    def test_price_read_and_token_approval_keep_distinct_permissions_after_merge(self):
+        price = self.engine.evaluate_request("get_crypto_price", {"timeframe": "24h"})
+        self.assertTrue(price.is_allowed)
+        self.assertEqual(price.operation_type, "READ")
+        self.assertFalse(price.requires_approval)
+        self.assertIsNone(price.pending_approval)
+        approval = self.engine.evaluate_request(
+            "erc20_approve",
+            {"recipient": self.whitelisted_addr, "spender": self.whitelisted_addr, "amount": "1"},
+        )
+        self.assertTrue(approval.is_allowed)
+        self.assertEqual(approval.operation_type, "WRITE")
+        self.assertTrue(approval.requires_approval)
+        self.assertIsNotNone(approval.pending_approval)
+
     def test_concurrent_reviews_mutate_an_approval_only_once(self):
         decision = self.engine.evaluate_request(
             "native_transfer", {"recipient": self.whitelisted_addr, "amount": "0.1"}

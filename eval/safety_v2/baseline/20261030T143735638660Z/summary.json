@@ -1,0 +1,39 @@
+{
+  "kind": "existing_tests_pre_guardrail_implementation",
+  "started_at_utc": "2026-10-30T14:37:35.638660+00:00",
+  "finished_at_utc": "2026-10-30T14:38:05.914441+00:00",
+  "elapsed_seconds": 30.273,
+  "git_revision": "b01859d4ba4cbbda1c6968df801cc1839095f610",
+  "git_status": [
+    " M docs/PHASE3_DEMO.md",
+    "?? docs/GUARDRAIL_HANDOFF_VIET_NAM.md",
+    "?? docs/VIET_SAFETY_EVALUATION_PLAN.md",
+    "?? eval/safety_v2/",
+    "?? scripts/prepare_safety_v2.py",
+    "?? scripts/run_safety_v2_baseline.py"
+  ],
+  "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "suites": [
+    "backend/tests/test_guardrail_policy.py",
+    "backend/tests/test_wallet_history.py",
+    "tests/test_policy.py",
+    "tests/test_e2e_protocol.py",
+    "tests/test_e2e_metrics.py",
+    "tests/test_eval_and_coverage.py"
+  ],
+  "exit_code": 0,
+  "counts": {
+    "tests": 115,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 115
+  },
+  "environment": "isolated_test_environment; workspace temp; cached tokenizer",
+  "not_measured": [
+    "safety_v2_40_cases",
+    "live_llm",
+    "daily_limit_ledger_not_implemented"
+  ],
+  "evidence_directory": "eval/safety_v2/baseline/20261030T143735638660Z"
+}
