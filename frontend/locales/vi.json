@@ -163,5 +163,22 @@
     "wrongOrigin": "Mở đúng địa chỉ APP_ORIGIN được cấu hình trên server, ví dụ http://127.0.0.1:8000.",
     "confirmInWallet": "Đang kết nối…",
     "addNetworkFirst": "Thêm mạng của app vào MetaMask trước (Hardhat local: chain 31337, RPC http://127.0.0.1:8545)."
+  },
+  "prices": {
+    "title": "THEO DÕI GIÁ ETH / USD",
+    "comparison": "Bảng So Sánh Tỷ Giá",
+    "currency": "Cặp Tiền Tệ",
+    "rate": "Tỷ Giá",
+    "alerts": "Cảnh Báo Giá",
+    "above": "Vượt trên",
+    "below": "Xuống dưới",
+    "addAlert": "Đặt Cảnh Báo",
+    "noAlerts": "Chưa có cảnh báo nào được đặt.",
+    "alertTriggered": "Cảnh báo: Giá ETH đã {direction} mức !",
+    "source": "Nguồn",
+    "updatedAt": "Cập nhật lúc {time}",
+    "apiError": "Dữ liệu giá tạm thời không khả dụng",
+    "chainlinkLabel": "Chainlink Sepolia",
+    "coingeckoLabel": "CoinGecko"
   }
 }

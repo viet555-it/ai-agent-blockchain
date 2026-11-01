@@ -23,6 +23,7 @@ READ_OPERATIONS = {
     "get_gas_price",
     "read_contract",
     "simulate_transfer",
+    "get_crypto_price",
 }
 
 

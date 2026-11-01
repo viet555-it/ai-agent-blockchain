@@ -1,6 +1,7 @@
 import { icons } from '../icons.js';
 import { t } from '../i18n.js';
 import { escapeHtml, formatMarkdown } from './format.js';
+import { api } from '../api.js';
 
 function renderCitation(data) {
   let ragCitationHtml = '';
@@ -21,7 +22,7 @@ function renderCitation(data) {
   return ragCitationHtml;
 }
 
-export function createChatView(state, elements) {
+export function createChatView(state, elements, priceChartView = null) {
   function appendMessage(sender, text, extraHtml = '') {
     const msgDiv = document.createElement('div');
     msgDiv.className = `chat-message ${sender}`;
@@ -32,7 +33,40 @@ export function createChatView(state, elements) {
 
     const bubble = document.createElement('div');
     bubble.className = 'message-bubble';
-    bubble.innerHTML = `<div>${formatMarkdown(text)}</div>${extraHtml}`;
+
+    let cleanText = text || '';
+    let chartTf = null;
+
+    if (sender === 'agent' && cleanText.includes('[CHART:ETH:')) {
+      const match = cleanText.match(/\[CHART:ETH:(1h|24h|7d)\]/i);
+      if (match) chartTf = match[1].toLowerCase();
+      cleanText = cleanText.replace(/\[CHART:ETH:[^\]]+\]/g, '').trim();
+    }
+
+    bubble.innerHTML = `<div>${formatMarkdown(cleanText)}</div>${extraHtml}`;
+
+    if (chartTf && priceChartView && priceChartView.createChatChartComponent) {
+      const chartPlaceholder = document.createElement('div');
+      chartPlaceholder.style.minHeight = '60px';
+      chartPlaceholder.style.display = 'flex';
+      chartPlaceholder.style.alignItems = 'center';
+      chartPlaceholder.style.justifyContent = 'center';
+      chartPlaceholder.style.fontSize = 'var(--text-xs)';
+      chartPlaceholder.style.color = 'var(--text-dim)';
+      chartPlaceholder.textContent = 'Đang tải biểu đồ...';
+      bubble.appendChild(chartPlaceholder);
+
+      api(`/prices/history?timeframe=${encodeURIComponent(chartTf)}`)
+        .then(historyData => {
+          chartPlaceholder.remove();
+          const chartElement = priceChartView.createChatChartComponent(historyData);
+          bubble.appendChild(chartElement);
+          elements.chatHistory.scrollTop = elements.chatHistory.scrollHeight;
+        })
+        .catch(err => {
+          chartPlaceholder.textContent = `❌ Không thể tải biểu đồ: ${err.message}`;
+        });
+    }
 
     msgDiv.appendChild(avatar);
     msgDiv.appendChild(bubble);

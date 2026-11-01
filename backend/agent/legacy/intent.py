@@ -46,6 +46,17 @@ def analyze_intent(query: str, active_wallet: str) -> tuple[str, dict[str, Any]]
     if any(w in q for w in ["recent transactions", "giao dịch", "history", "tx"]):
         return "recent_transactions", params
 
+    if any(w in q for w in ["price", "giá", "biểu đồ", "chart", "tỷ giá", "market"]):
+        if "chainlink" in q or "oracle" in q:
+            params["source"] = "chainlink"
+        if "7d" in q or "7 ngày" in q or "tuần" in q:
+            params["timeframe"] = "7d"
+        elif "1h" in q or "1 giờ" in q:
+            params["timeframe"] = "1h"
+        else:
+            params["timeframe"] = "24h"
+        return "get_crypto_price", params
+
     return "general_query", params
 
 
@@ -60,5 +71,6 @@ def select_tool(intent: str) -> str:
         "send_token": "erc20_transfer",
         "simulate_transfer": "simulate_transfer",
         "recent_transactions": "get_recent_transactions",
+        "get_crypto_price": "get_crypto_price",
     }
     return mapping.get(intent, "none")
