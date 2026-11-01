@@ -44,7 +44,7 @@ class Database:
         with self.engine.connect() as connection:
             if (
                 connection.execute(text("SELECT version_num FROM alembic_version")).scalar()
-                != "0001"
+                != "0002_limits"
             ):
                 raise RuntimeError("Application database schema is not supported")
 

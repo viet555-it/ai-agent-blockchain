@@ -70,6 +70,7 @@ class TransactionPreparer:
             "abi_hash": self.verifier.abi_hash,
             "runtime_hash": self.verifier.runtime_hash,
             "raw_amount": str(units),
+            "token_decimals": decimals,
         }
         preliminary = self.policy.evaluate_request(operation, parameters, create_approval=False)
         if not preliminary.is_allowed:

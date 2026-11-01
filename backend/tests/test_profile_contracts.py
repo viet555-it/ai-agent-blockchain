@@ -111,11 +111,20 @@ class ProfileContractTests(unittest.TestCase):
                         self.assertEqual(response.headers["cache-control"], "no-store")
                         self.assertRegex(response.headers["x-request-id"], r"^[0-9a-f]{32}$")
 
-    def test_openapi_matches_pre_agent_refactor_baselines(self):
+    def test_openapi_matches_refactor_baselines_with_price_extension(self):
+        # Price routes are additive; preserve the original API snapshots and
+        # verify both their contracts and the new extension in each profile.
+        prices = json.loads((FIXTURES / "openapi_prices.json").read_text(encoding="utf-8"))
         for history, fixture in (("off", "openapi_legacy.json"), ("write", "openapi_wallet.json")):
             with self.subTest(history=history):
                 app = factory("unit", "llm", False, history, False)
                 expected = json.loads((FIXTURES / fixture).read_text(encoding="utf-8"))
+                self.assertFalse(expected["paths"].keys() & prices["paths"].keys())
+                self.assertFalse(
+                    expected["components"]["schemas"].keys() & prices["schemas"].keys()
+                )
+                expected["paths"].update(prices["paths"])
+                expected["components"]["schemas"].update(prices["schemas"])
                 self.assertEqual(app.openapi(), expected)
 
     def test_explicit_factory_flags_override_environment_defaults(self):

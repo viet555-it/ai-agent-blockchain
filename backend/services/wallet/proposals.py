@@ -4,9 +4,11 @@ import time
 
 from backend.db.repositories import proposals as repository
 from backend.guardrail.policy_engine import PolicyEngine
+from backend.services.daily_limits import DailyLimitService
 from backend.services.transactions.models import TransactionError
 from backend.services.transactions.preparation import BrowserPreparer
 from backend.services.transactions.serialization import digest
+from backend.services.wallet.limits import transfer_limit_request
 from backend.services.wallet.scope import proposal_scope
 from backend.services.wallet_common import fail, record_audit, require_context
 from backend.wallet_errors import WalletErrorKind as ErrorKind
@@ -71,6 +73,7 @@ class WalletProposals:
                     "CONVERSATION_CONTEXT",
                     "Start a conversation on the current deployment.",
                 )
+        policy_config = self.policy.config.model_copy(deep=True)
         preparer = BrowserPreparer(
             self.blockchain, self.policy_for(principal.address, operation), principal.address
         )
@@ -112,6 +115,28 @@ class WalletProposals:
                 active_turn = repository.find_processing_turn(connection, scope)
                 if not active_turn:
                     fail(ErrorKind.CONFLICT, "CHAT_INTERRUPTED", "Chat turn is no longer active.")
+            if digest(self.policy.config.model_dump(mode="json")) != digest(
+                policy_config.model_dump(mode="json")
+            ):
+                fail(ErrorKind.CONFLICT, "POLICY_CHANGED", "Policy changed. Create a new proposal.")
+            limit_request = transfer_limit_request(
+                principal.wallet_id, deployment_id, operation, parameters, policy_config
+            )
+            if limit_request:
+                limit = DailyLimitService.evaluate(connection, **limit_request, now=now)
+                if not limit.allowed:
+                    decision.is_allowed = False
+                    decision.requires_approval = False
+                    decision.pending_approval = None
+                    decision.violations = [limit.reason_code]
+                    record_audit(
+                        connection,
+                        principal.wallet_id,
+                        "PROPOSAL_BLOCKED",
+                        operation=operation,
+                        violations=decision.violations,
+                    )
+                    return decision
             repository.insert_proposal(
                 connection,
                 decision=decision,
@@ -120,7 +145,7 @@ class WalletProposals:
                 operation=operation,
                 parameters=parameters,
                 pending=pending,
-                policy_hash=digest(self.policy.config.model_dump(mode="json")),
+                policy_hash=digest(policy_config.model_dump(mode="json")),
                 principal=principal,
                 scope=scope,
                 transaction=transaction,

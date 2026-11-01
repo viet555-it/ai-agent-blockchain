@@ -1,0 +1,13 @@
+{
+  "suite": "scripts.run_phase3 --suite unit",
+  "passed": 429,
+  "subtests_passed": 207,
+  "skipped": 3,
+  "deselected": 1,
+  "warnings": 1,
+  "git_revision": "c085862fceb64b61a6b620cefc3008e87fe0fb1f",
+  "working_tree_changes": true,
+  "additional_real_api_requests": 0,
+  "real_budget_reservations": 45,
+  "real_budget_sha256_unchanged": "e22f6da340ee852006b8d59621e79ae538374d4d0f483102b75a0d3f3122902a"
+}

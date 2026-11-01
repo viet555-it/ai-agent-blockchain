@@ -1,0 +1,262 @@
+{
+  "paths": {
+    "/api/prices/alerts": {
+      "get": {
+        "description": "List all registered price alerts.",
+        "operationId": "get_alerts_api_prices_alerts_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response Get Alerts Api Prices Alerts Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Alerts",
+        "tags": [
+          "prices"
+        ]
+      },
+      "post": {
+        "description": "Register a new price alert.",
+        "operationId": "add_alert_api_prices_alerts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddAlertRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Add Alert Api Prices Alerts Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Add Alert",
+        "tags": [
+          "prices"
+        ]
+      }
+    },
+    "/api/prices/alerts/{alert_id}": {
+      "delete": {
+        "description": "Remove a price alert by ID.",
+        "operationId": "remove_alert_api_prices_alerts__alert_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "alert_id",
+            "required": true,
+            "schema": {
+              "title": "Alert Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Remove Alert Api Prices Alerts  Alert Id  Delete",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Remove Alert",
+        "tags": [
+          "prices"
+        ]
+      }
+    },
+    "/api/prices/chainlink": {
+      "get": {
+        "description": "Read latest ETH/USD price directly from Chainlink Sepolia Aggregator.",
+        "operationId": "get_chainlink_price_api_prices_chainlink_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Chainlink Price Api Prices Chainlink Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Chainlink Price",
+        "tags": [
+          "prices"
+        ]
+      }
+    },
+    "/api/prices/comparison": {
+      "get": {
+        "description": "Get ETH comparison rates against USD, EUR, JPY, BTC.",
+        "operationId": "get_price_comparison_api_prices_comparison_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Price Comparison Api Prices Comparison Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Price Comparison",
+        "tags": [
+          "prices"
+        ]
+      }
+    },
+    "/api/prices/current": {
+      "get": {
+        "description": "Get current ETH/USD price with source, updated timestamp, and check alerts.",
+        "operationId": "get_current_price_api_prices_current_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Current Price Api Prices Current Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Current Price",
+        "tags": [
+          "prices"
+        ]
+      }
+    },
+    "/api/prices/history": {
+      "get": {
+        "description": "Get historical prices for 3 timeframes: 1h, 24h, 7d.",
+        "operationId": "get_price_history_api_prices_history_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "timeframe",
+            "required": false,
+            "schema": {
+              "default": "24h",
+              "title": "Timeframe",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Price History Api Prices History Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Price History",
+        "tags": [
+          "prices"
+        ]
+      }
+    }
+  },
+  "schemas": {
+    "AddAlertRequest": {
+      "properties": {
+        "direction": {
+          "enum": [
+            "above",
+            "below"
+          ],
+          "title": "Direction",
+          "type": "string"
+        },
+        "threshold": {
+          "description": "Target price threshold in USD",
+          "exclusiveMinimum": 0.0,
+          "title": "Threshold",
+          "type": "number"
+        }
+      },
+      "required": [
+        "direction",
+        "threshold"
+      ],
+      "title": "AddAlertRequest",
+      "type": "object"
+    }
+  }
+}

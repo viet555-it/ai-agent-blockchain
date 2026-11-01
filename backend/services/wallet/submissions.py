@@ -7,8 +7,10 @@ from backend.db.pagination import page
 from backend.db.repositories import submissions as repository
 from backend.db.schema_v1 import attempts
 from backend.guardrail.policy_engine import PolicyEngine
+from backend.services.daily_limits import DailyLimitService
 from backend.services.transactions.preparation import BrowserPreparer
 from backend.services.transactions.serialization import digest
+from backend.services.wallet.limits import transfer_limit_request
 from backend.services.wallet_common import fail, record_audit, require_context
 from backend.wallet_errors import WalletErrorKind as ErrorKind
 from backend.wallet_values import hashed, number, token, uid
@@ -93,7 +95,6 @@ class WalletSubmissions:
         submission_id, report_token, now = (uid(), token(), time.time())
         # Recheck context and claim the proposal/send lock in one atomic transaction.
         with self.db.transaction() as connection:
-            require_context(connection, principal, context_id, generation, deployment_id)
             updated = repository.claim_pending_proposal(connection, now, proposal, proposal_id)
             if updated.rowcount != 1:
                 fail(
@@ -101,6 +102,19 @@ class WalletSubmissions:
                     "ALREADY_REVIEWED",
                     "Proposal state changed. Do not submit again.",
                 )
+            require_context(connection, principal, context_id, generation, deployment_id)
+            # Recheck after the write lock: a configuration change during RPC/preflight
+            # invalidates the old proposal. The DB policy provider will plug in here.
+            config = self.policy.config.model_copy(deep=True)
+            if digest(config.model_dump(mode="json")) != proposal["policy_hash"]:
+                fail(ErrorKind.CONFLICT, "POLICY_CHANGED", "Policy changed. Create a new proposal.")
+            limit_request = transfer_limit_request(
+                principal.wallet_id,
+                deployment_id,
+                proposal["operation"],
+                proposal["parameters"],
+                config,
+            )
             repository.insert_submission(
                 connection, deployment_id, now, proposal_id, report_token, submission_id
             )
@@ -111,6 +125,16 @@ class WalletSubmissions:
                     "WALLET_BUSY",
                     "A previous submission needs reconciliation before sending another transaction.",
                 )
+            if limit_request:
+                limit = DailyLimitService().reserve(
+                    connection, reservation_id=proposal_id, **limit_request, now=now
+                )
+                if not limit.allowed:
+                    fail(
+                        ErrorKind.CONFLICT,
+                        limit.reason_code,
+                        "Transfer exceeds the remaining 24-hour limit.",
+                    )
             repository.insert_approval(connection, now, parameter_hash, principal, proposal_id)
             record_audit(
                 connection,

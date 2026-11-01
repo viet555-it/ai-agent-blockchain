@@ -1,7 +1,9 @@
 """Integration test for Price API endpoints and AI Agent intent."""
 
 from unittest.mock import MagicMock, patch
+
 from fastapi.testclient import TestClient
+
 from backend.api.server import create_app
 
 mock_blockchain = MagicMock()
@@ -30,7 +32,21 @@ mock_history = {
 
 
 def test_integration():
-    with patch("httpx.AsyncClient.get") as mock_get:
+    with (
+        patch("httpx.AsyncClient.get") as mock_get,
+        patch("httpx.AsyncClient.post") as mock_post,
+    ):
+        # Chainlink uses POST, independently of the mocked CoinGecko GETs.
+        # Keep the merged integration suite offline for both upstreams.
+        mock_rpc = MagicMock()
+        mock_rpc.raise_for_status.return_value = None
+        mock_rpc.json.return_value = {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": "0x"
+            + "".join(f"{number:064x}" for number in (1, 250075000000, 1730000000, 1730000000, 1)),
+        }
+        mock_post.return_value = mock_rpc
         mock_resp = MagicMock()
         mock_resp.raise_for_status.return_value = None
 
@@ -78,7 +94,9 @@ def test_integration():
             print("GET /api/prices/comparison:", comp.json())
 
             # 4. Alerts lifecycle
-            post_alert = client.post("/api/prices/alerts", json={"direction": "above", "threshold": 2400.0})
+            post_alert = client.post(
+                "/api/prices/alerts", json={"direction": "above", "threshold": 2400.0}
+            )
             assert post_alert.status_code == 200
             alert_obj = post_alert.json()
             assert alert_obj["direction"] == "above"
@@ -107,10 +125,13 @@ def test_integration():
             print("Alerts lifecycle tested successfully.")
 
             # 5. Agent Chat: Price query
-            chat_resp = client.post("/api/chat", json={
-                "query": "Giá ETH hiện tại thế nào?",
-                "wallet_address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-            })
+            chat_resp = client.post(
+                "/api/chat",
+                json={
+                    "query": "Giá ETH hiện tại thế nào?",
+                    "wallet_address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+                },
+            )
             assert chat_resp.status_code == 200
             res = chat_resp.json()
             assert res["intent"] == "get_crypto_price"
@@ -120,13 +141,18 @@ def test_integration():
             print("\nAgent Price reply:\n", res["reply"])
 
             # 6. Agent Chat: Chainlink Oracle query
-            chat_chainlink = client.post("/api/chat", json={
-                "query": "Kiểm tra giá ETH từ Chainlink oracle",
-                "wallet_address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-            })
+            chat_chainlink = client.post(
+                "/api/chat",
+                json={
+                    "query": "Kiểm tra giá ETH từ Chainlink oracle",
+                    "wallet_address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+                },
+            )
             assert chat_chainlink.status_code == 200
             cl_res = chat_chainlink.json()
             assert cl_res["intent"] == "get_crypto_price"
+            assert "$2,500.75" in cl_res["reply"]
+            mock_post.assert_awaited_once()
             print("\nAgent Chainlink reply:\n", cl_res["reply"])
 
 

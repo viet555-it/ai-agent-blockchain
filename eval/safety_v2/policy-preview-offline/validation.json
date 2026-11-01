@@ -1,0 +1,54 @@
+{
+  "scope": "read_only_transfer_policy_preview_and_reconciliation_shutdown",
+  "git_revision": "de7ffaef5b11dacaaedaad63c0bb75c650230761",
+  "working_tree_changes": true,
+  "unit_suite": {
+    "passed": 483,
+    "subtests_passed": 209,
+    "skipped": 3,
+    "deselected": 1,
+    "warnings": 1,
+    "log_sha256": "975fc41962449a2562ca88e6a7c533f8e9324cc60b0939dd92fe6bbbce8ca224"
+  },
+  "focused_preview_and_lifespan_suite": {
+    "tests": 44,
+    "failures": 0,
+    "errors": 0
+  },
+  "fixed_benchmark_wallet_parity_cases": [
+    "V2-07",
+    "V2-09",
+    "V2-13",
+    "V2-15",
+    "V2-17",
+    "V2-19",
+    "V2-21",
+    "V2-23"
+  ],
+  "initial_full_suite_failure": {
+    "test": "WalletHistoryTests.test_wallet_assets_use_the_browser_deployment_contract",
+    "phase": "temporary SQLite cleanup",
+    "error": "WinError 32 open database handle",
+    "resolution": "Drain the in-flight reconciliation thread before database disposal; regression covers receipt and history phases"
+  },
+  "ruff_check": "passed",
+  "ruff_format_check": "passed",
+  "additional_real_api_requests": 0,
+  "real_budget_reservations": 45,
+  "real_budget_sha256_unchanged": "e22f6da340ee852006b8d59621e79ae538374d4d0f483102b75a0d3f3122902a",
+  "personal_database_accessed": false,
+  "source_sha256": {
+    "backend/guardrail/rules.py": "0e61bf9190a4b1e745117e8acfafe980971247b36b6ef6322b82f9036f6210ea",
+    "backend/services/guardrail_evaluation.py": "a3ef3820f6112b09c6af74ca42ea8aac28780103e844103706cba0d6e5b239a0",
+    "backend/tests/test_guardrail_evaluation.py": "a41b321a542a0d91c7e7877b32556607af260a0747fe59e29777ddcc707f5c13",
+    "backend/bootstrap/lifespan.py": "df9d73b50d2593c02aea37d5c80cdded73feeb325e887adda5b657464aebad37",
+    "backend/tests/test_app_lifespan.py": "fc2226a3a11267eb32116a879c6c225bc43ab36e61ec3d860bc4ee930bc66bed"
+  },
+  "examples_sha256": "94af29169259f38665ae4e14ec3c9cf1432bf6327a1d29abdf8f16965b4f1551",
+  "remaining": [
+    "Nam authenticated policy API and UI integration",
+    "Persistent per-wallet policy/version and authorize CAS",
+    "Real historical backfill review/application",
+    "Live follow-up remains deferred by user choice"
+  ]
+}
