@@ -12,10 +12,9 @@ def transfer_limit_request(wallet_id, deployment_id, operation, parameters, conf
     asset = "native" if native else "erc20:" + parameters["contract_address"].lower()
     scope = LimitScope(wallet_id, deployment_id, asset)
     scope.values()
-    per_tx = config.max_native_transfer_limit if native else config.max_token_transfer_limit
-    daily = (
-        config.max_daily_native_transfer_limit if native else config.max_daily_token_transfer_limit
-    )
+    contract_addr = None if native else parameters.get("contract_address")
+    per_tx = config.get_per_tx_limit(operation, contract_addr)
+    daily = config.get_daily_limit(operation, contract_addr)
     return {
         "scope": scope,
         "amount": amount_units(parameters["raw_amount"], positive=True),

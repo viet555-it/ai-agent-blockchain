@@ -22,10 +22,24 @@ class WalletProposals:
         self.policy = policy
         self.deployment_service = deployment_service
 
-    def policy_for(self, sender, operation):
+    def get_wallet_policy_config(self, wallet_address: str | None):
         config = self.policy.config.model_copy(deep=True)
+        if wallet_address:
+            try:
+                with self.db.transaction() as connection:
+                    from backend.db.repositories import guardrail_configs as gc_repo
+
+                    custom = gc_repo.find_config(connection, wallet_address)
+                    if custom:
+                        config = gc_repo.row_to_policy_config(custom, base_config=config)
+            except Exception:
+                pass
+        return config
+
+    def policy_for(self, sender, operation):
+        config = self.get_wallet_policy_config(sender)
         # Faucet mints only to its caller; this does not expand transfer recipients.
-        if operation == "faucet_claim" and sender.lower() not in {
+        if operation == "faucet_claim" and sender and sender.lower() not in {
             item.lower() for item in config.recipient_whitelist
         }:
             config.recipient_whitelist.append(sender)
@@ -73,7 +87,7 @@ class WalletProposals:
                     "CONVERSATION_CONTEXT",
                     "Start a conversation on the current deployment.",
                 )
-        policy_config = self.policy.config.model_copy(deep=True)
+        policy_config = self.get_wallet_policy_config(principal.address)
         preparer = BrowserPreparer(
             self.blockchain, self.policy_for(principal.address, operation), principal.address
         )
@@ -115,7 +129,8 @@ class WalletProposals:
                 active_turn = repository.find_processing_turn(connection, scope)
                 if not active_turn:
                     fail(ErrorKind.CONFLICT, "CHAT_INTERRUPTED", "Chat turn is no longer active.")
-            if digest(self.policy.config.model_dump(mode="json")) != digest(
+            current_config = self.get_wallet_policy_config(principal.address)
+            if digest(current_config.model_dump(mode="json")) != digest(
                 policy_config.model_dump(mode="json")
             ):
                 fail(ErrorKind.CONFLICT, "POLICY_CHANGED", "Policy changed. Create a new proposal.")

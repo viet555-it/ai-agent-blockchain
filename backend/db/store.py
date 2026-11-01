@@ -42,10 +42,8 @@ class Database:
                 "Run python -m scripts.migrate_app_db before enabling wallet history"
             )
         with self.engine.connect() as connection:
-            if (
-                connection.execute(text("SELECT version_num FROM alembic_version")).scalar()
-                != "0002_limits"
-            ):
+            version = connection.execute(text("SELECT version_num FROM alembic_version")).scalar()
+            if version not in ("0002_limits", "0003_guardrails"):
                 raise RuntimeError("Application database schema is not supported")
 
     @contextmanager

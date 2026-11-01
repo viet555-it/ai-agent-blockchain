@@ -45,6 +45,63 @@ async function signIn(page) {
   await expect(page.locator('#chat-input')).toBeEnabled();
 }
 
+async function checkGuestChat(page, query) {
+  await expect(page.locator('#chat-input')).toBeEnabled();
+  await expect(page.locator('#btn-send-message')).toBeEnabled();
+  await page.route('**/api/chat', async route => {
+    expect(route.request().postDataJSON().query).toBe(query);
+    await route.fulfill({ json: {
+      reply: 'Guest reply received', timeline: [], requires_approval: false,
+    } });
+  });
+  await page.locator('#chat-input').fill(query);
+  await page.locator('#chat-form').evaluate(form => form.requestSubmit());
+  await expect(page.locator('#chat-history')).toContainText('Guest reply received');
+  await expect(page.locator('#btn-send-message')).toBeEnabled();
+  await page.unroute('**/api/chat');
+}
+
+test('AGNT guardrail form persists limits for the active contract and blocks excess amounts', async ({ page }) => {
+  await installWallet(page);
+  await page.goto('/');
+  await signIn(page);
+  await expect(page.locator('#input-per-tx-token')).not.toHaveValue('');
+  await page.locator('#input-per-tx-token').fill('7');
+  await page.locator('#input-daily-token').fill('21');
+  const saved = page.waitForResponse(r => r.url().endsWith('/api/guardrail/config') && r.request().method() === 'PUT');
+  await page.locator('#btn-save-guardrail-config').click();
+  expect((await saved).status()).toBe(200);
+  await expect(page.locator('#btn-save-guardrail-config')).toBeEnabled();
+  await page.reload();
+  await expect(page.locator('#wallet-status')).toContainText('Agent ready');
+  await expect(page.locator('#input-per-tx-token')).toHaveValue('7');
+  await expect(page.locator('#input-daily-token')).toHaveValue('21');
+  await page.locator('#select-test-operation').selectOption('erc20_transfer');
+  await page.locator('#input-test-amount').fill('8');
+  await page.locator('#input-test-recipient').fill('0x70997970C51812dc3A010C7d01b50e0d17dc79C8');
+  const checked = page.waitForResponse(r => r.url().endsWith('/api/guardrail/test-block'));
+  await page.locator('#btn-run-test-block').click();
+  const result = await (await checked).json();
+  expect(result.decision).toBe('BLOCK');
+  expect(Number(result.details.per_tx_limit)).toBe(7);
+  await page.locator('#input-test-recipient').fill('0x9965...A4dF');
+  const invalidCheck = page.waitForResponse(r => r.url().endsWith('/api/guardrail/test-block'));
+  await page.locator('#btn-run-test-block').click();
+  expect((await invalidCheck).status()).toBe(200);
+  await page.locator('#btn-toggle-lang').click();
+  await expect(page.locator('#test-block-decision-badge')).toHaveText('CHẶN');
+  await expect(page.locator('#test-block-reasons-list')).toContainText('Địa chỉ người nhận không đúng định dạng EVM');
+  await expect(page.locator('#test-block-reasons-list')).toContainText('Số lượng 8 token vượt hạn mức 7 token');
+  await expect(page.locator('#test-block-reasons-list')).not.toContainText('exceeds');
+  // Translate the already displayed result without another API request.
+  await page.locator('#btn-toggle-lang').click();
+  await page.locator('#btn-toggle-lang').click();
+  await expect(page.locator('#test-block-decision-badge')).toHaveText('BLOCK');
+  await expect(page.locator('#test-block-reasons-list')).toContainText('Invalid EVM recipient address');
+  await expect(page.locator('#test-block-reasons-list')).toContainText('Amount 8 tokens exceeds the per-transaction limit of 7 tokens.');
+  expect(await page.evaluate(() => window.__testWallet.sends)).toBe(0);
+});
+
 test('legacy chat, timeline, approval and theme work with native browser modules', async ({ page }) => {
   await page.route(/https:\/\/fonts\.(googleapis|gstatic)\.com\//, route => route.abort());
   await page.route('**/api/health', route => route.fulfill({ json: {
@@ -152,7 +209,7 @@ test('a delayed A response cannot reopen or overwrite the B conversation', async
   await expect(page.locator('#approval-modal')).not.toHaveClass(/open/);
 });
 
-test('logout from one tab clears private history in the other tab', async ({ page, context }) => {
+test('logout clears private history in the other tab and preserves guest chat', async ({ page, context }) => {
   await installWallet(page);
   await page.goto('/');
   await signIn(page);
@@ -164,7 +221,8 @@ test('logout from one tab clears private history in the other tab', async ({ pag
   await page.locator('#wallet-disconnect').click();
   await expect(second.locator('#wallet-status')).toContainText('Wallet disconnected');
   await expect(second.locator('#chat-history .chat-message')).toHaveCount(0);
-  await expect(second.locator('#btn-send-message')).toBeDisabled();
+  expect((await second.request.get('/api/history/conversations')).status()).toBe(401);
+  await checkGuestChat(second, 'Guest question after logout');
 });
 
 test('wallet controls and history fit a mobile viewport and support Vietnamese', async ({ page }) => {
@@ -184,14 +242,17 @@ test('the same Connect wallet action restores access when a login cookie expires
   await expect(page.locator('#wallet-connect')).toBeVisible();
   await expect(page.locator('#wallet-chat-gate')).toBeVisible();
   await expect(page.locator('#header-wallet-address')).toContainText('0xf39');
-  await expect(page.locator('#chat-input')).toBeDisabled();
+  await checkGuestChat(page, 'Guest question before login');
   await signIn(page);
   await context.clearCookies();
   await page.reload();
   await expect(page.locator('#wallet-connect')).toBeVisible();
   await expect(page.locator('#wallet-chat-guidance')).toContainText('Click Connect wallet');
+  expect((await page.request.get('/api/history/conversations')).status()).toBe(401);
+  await checkGuestChat(page, 'Guest question after cookie expiry');
   await signIn(page);
   await expect(page.locator('#wallet-chat-gate')).toBeHidden();
+  await expect(page.locator('#chat-history')).not.toContainText('Guest question after cookie expiry');
 });
 
 test('one app click connects a fresh wallet, verifies its signature and opens Agent', async ({ page }) => {

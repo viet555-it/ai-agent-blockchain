@@ -218,38 +218,142 @@
           </details>
         </div>
 
-        <!-- Guardrail Engine Policies Card -->
-        <div class="info-card gold-bordered">
+        <!-- Guardrail Configuration Card -->
+        <div class="info-card gold-bordered" id="guardrail-management-card">
           <div class="info-label primary-color">
             <span id="icon-guardrail-badge"></span>
-            <span data-i18n="network.guardrailsActive">Guardrail Policies Active</span>
+            <span data-i18n="guardrail.title">CẤU HÌNH GUARDRAIL VÍ</span>
           </div>
-          <div class="policy-card safe">
-            <div class="policy-title">
-              <span data-i18n="network.maxTxLimit">Max Tx Limit:</span>
-              <span id="policy-max-limit" class="font-mono">500 AGNT</span>
-            </div>
-            <div class="policy-desc" data-i18n="network.maxTxLimitDesc">
-              Transfers exceeding 500 AGNT are automatically rejected by smart contract guardrails.
-            </div>
+
+          <!-- Smart contract disclaimer note -->
+          <div class="guardrail-disclaimer" data-i18n="guardrail.smartContractNote">
+            Lưu ý: Việc thay đổi cấu hình trong ứng dụng không tự động làm thay đổi giới hạn được thiết lập trong smart contract (ví dụ: trần 500 AGNT của AgentToken).
           </div>
-          <div class="policy-card">
-            <div class="policy-title">
-              <span data-i18n="network.recipientWhitelist">Recipient Whitelist:</span>
-              <span class="primary-color" data-i18n="network.enforced">Enforced</span>
+
+          <form id="guardrail-config-form" class="guardrail-form">
+            <!-- Native ETH Limits -->
+            <div class="guardrail-group">
+              <div class="guardrail-group-title" data-i18n="guardrail.ethLimits">Hạn mức Native ETH</div>
+              <div class="form-row-2">
+                <div class="form-field">
+                  <label for="input-per-tx-native" data-i18n="guardrail.perTxLimit">Hạn mức mỗi GD</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="input-per-tx-native" step="0.001" min="0" placeholder="0.1" required />
+                    <span class="input-unit">ETH</span>
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label for="input-daily-native" data-i18n="guardrail.dailyLimit">Hạn mức 24h</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="input-daily-native" step="0.001" min="0" placeholder="0.5" required />
+                    <span class="input-unit">ETH</span>
+                  </div>
+                </div>
+              </div>
+              <div class="limit-usage-status">
+                <span data-i18n="guardrail.spent24h">Đã dùng</span>: <b id="val-guardrail-spent-native">0</b> ETH |
+                <span data-i18n="guardrail.remaining24h">Còn lại</span>: <b id="val-guardrail-rem-native" class="success-text">0.5</b> ETH
+              </div>
             </div>
-            <div class="policy-desc" data-i18n="network.whitelistDesc">
-              Only pre-approved destination addresses are allowed for fund transfers.
+
+            <!-- AGNT Token Limits -->
+            <div class="guardrail-group">
+              <div class="guardrail-group-title" data-i18n="guardrail.tokenLimits">Hạn mức Token AGNT</div>
+              <div class="form-row-2">
+                <div class="form-field">
+                  <label for="input-per-tx-token" data-i18n="guardrail.perTxLimit">Hạn mức mỗi GD</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="input-per-tx-token" step="1" min="0" placeholder="100" required />
+                    <span class="input-unit">AGNT</span>
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label for="input-daily-token" data-i18n="guardrail.dailyLimit">Hạn mức 24h</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="input-daily-token" step="1" min="0" placeholder="500" required />
+                    <span class="input-unit">AGNT</span>
+                  </div>
+                </div>
+              </div>
+              <div class="limit-usage-status">
+                <span data-i18n="guardrail.spent24h">Đã dùng</span>: <b id="val-guardrail-spent-token">0</b> AGNT |
+                <span data-i18n="guardrail.remaining24h">Còn lại</span>: <b id="val-guardrail-rem-token" class="success-text">500</b> AGNT
+              </div>
             </div>
+
+            <!-- Whitelist Management -->
+            <div class="guardrail-group">
+              <div class="guardrail-group-title" data-i18n="guardrail.whitelistTitle">Danh sách người nhận (Whitelist)</div>
+              <div class="form-checkbox-row">
+                <input type="checkbox" id="check-enforce-whitelist" />
+                <label for="check-enforce-whitelist" data-i18n="guardrail.enforceWhitelist">Bắt buộc áp dụng Whitelist</label>
+              </div>
+              <div id="guardrail-whitelist-tags" class="whitelist-tags-container"></div>
+              <div class="whitelist-add-row">
+                <input type="text" id="input-whitelist-address" placeholder="0x..." data-i18n-placeholder="guardrail.whitelistPlaceholder" />
+                <button type="button" id="btn-add-whitelist" class="action-pill-btn sm" data-i18n="guardrail.addAddress">Thêm</button>
+              </div>
+            </div>
+
+            <!-- Always Require In-App Approval Switch -->
+            <div class="guardrail-group">
+              <div class="form-checkbox-row">
+                <input type="checkbox" id="check-require-app-approval" checked />
+                <label for="check-require-app-approval" style="font-weight: 600;" data-i18n="guardrail.requireAppApproval">Luôn yêu cầu duyệt trên ứng dụng</label>
+              </div>
+              <div class="guardrail-subnote" data-i18n="guardrail.requireAppApprovalNote">
+                Tắt tính năng này không bỏ qua bước ký trong MetaMask.
+              </div>
+            </div>
+
+            <!-- Save Button & Feedback -->
+            <div class="guardrail-actions">
+              <button type="submit" id="btn-save-guardrail-config" class="action-pill-btn full-width" data-i18n="guardrail.saveConfig">Lưu cấu hình Guardrail</button>
+              <div id="guardrail-save-status" class="guardrail-save-status" role="status"></div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Dry-Run Test Block Card ("Thử chặn") -->
+        <div class="info-card" id="guardrail-test-block-card">
+          <div class="info-label primary-color">
+            <span class="panel-icon">🧪</span>
+            <span data-i18n="guardrail.testBlockTitle">THỬ CHẶN (DRY-RUN)</span>
           </div>
-          <div class="policy-card safe">
-            <div class="policy-title">
-              <span data-i18n="network.hitl">Human-in-the-Loop:</span>
-              <span class="success-badge" data-i18n="network.required">Required</span>
+          <p class="guardrail-subnote" data-i18n="guardrail.testBlockDesc">
+            Kiểm tra quy tắc Guardrail và hạn mức ngày mà không tạo giao dịch thật và không trừ hạn mức.
+          </p>
+
+          <form id="form-test-block" class="guardrail-form">
+            <div class="form-field">
+              <label for="select-test-operation" data-i18n="guardrail.testAsset">Tài sản</label>
+              <select id="select-test-operation">
+                <option value="native_transfer">ETH (Native)</option>
+                <option value="erc20_transfer">AGNT (ERC-20 Token)</option>
+              </select>
             </div>
-            <div class="policy-desc" data-i18n="network.hitlDesc">
-              All state-modifying write operations strictly require explicit approval.
+            <div class="form-field">
+              <label for="input-test-amount" data-i18n="guardrail.testAmount">Số lượng</label>
+              <input type="number" id="input-test-amount" placeholder="0.05" step="0.001" min="0" required />
             </div>
+            <div class="form-field">
+              <label for="input-test-recipient" data-i18n="guardrail.testRecipient">Người nhận</label>
+              <input type="text" id="input-test-recipient" placeholder="0x..." required />
+            </div>
+            <button type="submit" id="btn-run-test-block" class="action-pill-btn full-width secondary-btn" data-i18n="guardrail.btnTestBlock">Thử chặn</button>
+          </form>
+
+          <!-- Result Display Box -->
+          <div id="test-block-result-box" class="test-block-result" hidden>
+            <div class="test-block-decision-row">
+              <span class="decision-label">Trạng thái:</span>
+              <span id="test-block-decision-badge" class="panel-badge">--</span>
+            </div>
+            <div class="test-block-reasons-wrap">
+              <div class="test-block-reasons-title" data-i18n="guardrail.reasonsTitle">Lý do / Đánh giá:</div>
+              <ul id="test-block-reasons-list" class="test-block-reasons-list"></ul>
+            </div>
+            <div class="test-block-details-grid" id="test-block-details-grid"></div>
           </div>
         </div>
       </div>
