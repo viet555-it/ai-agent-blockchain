@@ -7,7 +7,13 @@ from backend.db.schema_v1 import approvals, attempts, proposals, receipts, send_
 from backend.wallet_values import hashed, uid
 
 
-def claim_pending_proposal(connection, now, proposal, proposal_id):
+def claim_pending_proposal(connection, now, proposal, proposal_id, new_policy_hash=None):
+    values = {
+        "status": "AWAITING_SIGNATURE",
+        "version": proposal["version"] + 1,
+    }
+    if new_policy_hash is not None:
+        values["policy_hash"] = new_policy_hash
     return connection.execute(
         update(proposals)
         .where(
@@ -16,7 +22,7 @@ def claim_pending_proposal(connection, now, proposal, proposal_id):
             proposals.c.version == proposal["version"],
             proposals.c.expires_at > now,
         )
-        .values(status="AWAITING_SIGNATURE", version=proposals.c.version + 1)
+        .values(**values)
     )
 
 

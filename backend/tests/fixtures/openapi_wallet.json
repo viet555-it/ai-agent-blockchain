@@ -1,9 +1,1359 @@
 {
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AI Agent with Blockchain Tools API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/auth/challenge": {
+      "post": {
+        "summary": "Challenge",
+        "operationId": "challenge_api_auth_challenge_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Challenge"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/verify": {
+      "post": {
+        "summary": "Verify",
+        "operationId": "verify_api_auth_verify_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Verify"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "summary": "Me",
+        "operationId": "me_api_auth_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "summary": "Logout",
+        "operationId": "logout_api_auth_logout_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/wallet-contexts": {
+      "post": {
+        "summary": "Context",
+        "operationId": "context_api_wallet_contexts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Context"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/wallet-contexts/{context_id}/revoke": {
+      "post": {
+        "summary": "Revoke",
+        "operationId": "revoke_api_wallet_contexts__context_id__revoke_post",
+        "parameters": [
+          {
+            "name": "context_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Context Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/history/conversations": {
+      "get": {
+        "summary": "List Conversations",
+        "operationId": "list_conversations_api_history_conversations_get",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "deployment_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Deployment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create Conversation",
+        "operationId": "create_conversation_api_history_conversations_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Conversation"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/history/conversations/{conversation_id}": {
+      "patch": {
+        "summary": "Edit Conversation",
+        "operationId": "edit_conversation_api_history_conversations__conversation_id__patch",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Conversation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Edit"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/history/conversations/{conversation_id}/messages": {
+      "get": {
+        "summary": "Conversation Messages",
+        "operationId": "conversation_messages_api_history_conversations__conversation_id__messages_get",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Conversation Id"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/history/turns/{turn_id}": {
+      "get": {
+        "summary": "Get Turn",
+        "operationId": "get_turn_api_history_turns__turn_id__get",
+        "parameters": [
+          {
+            "name": "turn_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Turn Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/history/conversations/{conversation_id}/turns": {
+      "post": {
+        "summary": "Chat",
+        "operationId": "chat_api_history_conversations__conversation_id__turns_post",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Conversation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Turn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/wallet-proposals": {
+      "post": {
+        "summary": "Propose",
+        "operationId": "propose_api_wallet_proposals_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Proposal"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/wallet-proposals/{proposal_id}": {
+      "get": {
+        "summary": "Get Proposal",
+        "operationId": "get_proposal_api_wallet_proposals__proposal_id__get",
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Proposal Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/wallet-proposals/{proposal_id}/reject": {
+      "post": {
+        "summary": "Reject",
+        "operationId": "reject_api_wallet_proposals__proposal_id__reject_post",
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Proposal Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Review"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/wallet-proposals/{proposal_id}/authorize": {
+      "post": {
+        "summary": "Authorize",
+        "operationId": "authorize_api_wallet_proposals__proposal_id__authorize_post",
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Proposal Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Review"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/wallet-submissions/{submission_id}/report": {
+      "post": {
+        "summary": "Report",
+        "operationId": "report_api_wallet_submissions__submission_id__report_post",
+        "parameters": [
+          {
+            "name": "submission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Submission Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Report"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/history/transactions": {
+      "get": {
+        "summary": "Transactions",
+        "operationId": "transactions_api_history_transactions_get",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/wallet-submissions/{submission_id}/recover": {
+      "post": {
+        "summary": "Recover Hash",
+        "operationId": "recover_hash_api_wallet_submissions__submission_id__recover_post",
+        "parameters": [
+          {
+            "name": "submission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Submission Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecoverHash"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/history/transactions/{proposal_id}": {
+      "get": {
+        "summary": "Transaction",
+        "operationId": "transaction_api_history_transactions__proposal_id__get",
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Proposal Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/history/audits": {
+      "get": {
+        "summary": "Audits",
+        "operationId": "audits_api_history_audits_get",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/guardrail/config": {
+      "get": {
+        "summary": "Get Guardrail Config",
+        "operationId": "get_guardrail_config_api_guardrail_config_get",
+        "parameters": [
+          {
+            "name": "wallet_address",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Wallet Address"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update Guardrail Config",
+        "operationId": "update_guardrail_config_api_guardrail_config_put",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuardrailConfigUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/guardrail/test-block": {
+      "post": {
+        "summary": "Test Block",
+        "operationId": "test_block_api_guardrail_test_block_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestBlock"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "summary": "Get Health",
+        "operationId": "get_health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/network/status": {
+      "get": {
+        "summary": "Get Network Status",
+        "operationId": "get_network_status_api_network_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/network/switch": {
+      "post": {
+        "summary": "Switch Network",
+        "operationId": "switch_network_api_network_switch_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwitchNetworkRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/wallet/info": {
+      "get": {
+        "summary": "Get Wallet Info",
+        "operationId": "get_wallet_info_api_wallet_info_get",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Address"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/guardrail/policies": {
+      "get": {
+        "summary": "Get Guardrail Policies",
+        "operationId": "get_guardrail_policies_api_guardrail_policies_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/guardrail/audits": {
+      "get": {
+        "summary": "Get Audit Logs",
+        "operationId": "get_audit_logs_api_guardrail_audits_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 30,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chat": {
+      "post": {
+        "summary": "Handle Chat",
+        "description": "Handle guest chats and read-only AI interactions.\n\nAuthenticated wallet sessions must use /api/history/conversations/{id}/turns.",
+        "operationId": "handle_chat_api_chat_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/approval/{approval_id}": {
+      "get": {
+        "summary": "Get Approval",
+        "operationId": "get_approval_api_approval__approval_id__get",
+        "parameters": [
+          {
+            "name": "approval_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Approval Id"
+            }
+          },
+          {
+            "name": "X-Session-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Session-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/approval/action": {
+      "post": {
+        "summary": "Handle Approval Action",
+        "operationId": "handle_approval_action_api_approval_action_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/transactions/propose": {
+      "post": {
+        "summary": "Propose Transaction",
+        "operationId": "propose_transaction_api_transactions_propose_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposalRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "components": {
     "schemas": {
       "AgentResponse": {
-        "description": "Standardized response from the AI Agent.",
         "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "query": {
+            "type": "string",
+            "title": "Query"
+          },
+          "reply": {
+            "type": "string",
+            "title": "Reply"
+          },
+          "intent": {
+            "type": "string",
+            "title": "Intent"
+          },
+          "tool_selected": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Selected"
+          },
+          "timeline": {
+            "items": {
+              "$ref": "#/components/schemas/TimelineStep"
+            },
+            "type": "array",
+            "title": "Timeline"
+          },
+          "guardrail_result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GuardrailResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rag_result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RAGSearchResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "requires_approval": {
+            "type": "boolean",
+            "title": "Requires Approval",
+            "default": false
+          },
           "approval_id": {
             "anyOf": [
               {
@@ -37,95 +1387,36 @@
               }
             ],
             "title": "Error"
-          },
-          "guardrail_result": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/GuardrailResult"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "intent": {
-            "title": "Intent",
-            "type": "string"
-          },
-          "query": {
-            "title": "Query",
-            "type": "string"
-          },
-          "rag_result": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/RAGSearchResult"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "reply": {
-            "title": "Reply",
-            "type": "string"
-          },
-          "request_id": {
-            "title": "Request Id",
-            "type": "string"
-          },
-          "requires_approval": {
-            "default": false,
-            "title": "Requires Approval",
-            "type": "boolean"
-          },
-          "timeline": {
-            "items": {
-              "$ref": "#/components/schemas/TimelineStep"
-            },
-            "title": "Timeline",
-            "type": "array"
-          },
-          "tool_selected": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Tool Selected"
           }
         },
+        "type": "object",
         "required": [
           "query",
           "reply",
           "intent"
         ],
         "title": "AgentResponse",
-        "type": "object"
+        "description": "Standardized response from the AI Agent."
       },
       "ApprovalActionRequest": {
-        "additionalProperties": false,
         "properties": {
+          "approval_id": {
+            "type": "string",
+            "title": "Approval Id"
+          },
           "action": {
+            "type": "string",
             "enum": [
               "APPROVE",
               "REJECT"
             ],
-            "title": "Action",
-            "type": "string"
-          },
-          "approval_id": {
-            "title": "Approval Id",
-            "type": "string"
+            "title": "Action"
           },
           "parameters": {
             "additionalProperties": true,
-            "description": "Exact parameters bound to this approval",
+            "type": "object",
             "title": "Parameters",
-            "type": "object"
+            "description": "Exact parameters bound to this approval"
           },
           "reviewer_comment": {
             "anyOf": [
@@ -141,9 +1432,9 @@
           "session_id": {
             "anyOf": [
               {
+                "type": "string",
                 "maxLength": 128,
-                "minLength": 1,
-                "type": "string"
+                "minLength": 1
               },
               {
                 "type": "null"
@@ -152,48 +1443,43 @@
             "title": "Session Id"
           }
         },
+        "additionalProperties": false,
+        "type": "object",
         "required": [
           "approval_id",
           "action",
           "parameters"
         ],
-        "title": "ApprovalActionRequest",
-        "type": "object"
+        "title": "ApprovalActionRequest"
       },
       "Challenge": {
-        "additionalProperties": false,
         "properties": {
           "address": {
+            "type": "string",
             "maxLength": 42,
-            "title": "Address",
-            "type": "string"
+            "title": "Address"
           },
           "chain_id": {
-            "title": "Chain Id",
-            "type": "integer"
+            "type": "integer",
+            "title": "Chain Id"
           }
         },
+        "additionalProperties": false,
+        "type": "object",
         "required": [
           "address",
           "chain_id"
         ],
-        "title": "Challenge",
-        "type": "object"
+        "title": "Challenge"
       },
       "ChatRequest": {
         "properties": {
           "query": {
-            "description": "User prompt or blockchain command",
+            "type": "string",
             "maxLength": 2000,
             "minLength": 1,
             "title": "Query",
-            "type": "string"
-          },
-          "session_id": {
-            "maxLength": 128,
-            "minLength": 1,
-            "title": "Session Id",
-            "type": "string"
+            "description": "User prompt or blockchain command"
           },
           "wallet_address": {
             "anyOf": [
@@ -204,60 +1490,92 @@
                 "type": "null"
               }
             ],
-            "description": "Optional active wallet address",
-            "title": "Wallet Address"
+            "title": "Wallet Address",
+            "description": "Optional active wallet address"
+          },
+          "session_id": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Session Id"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language",
+            "description": "Preferred response language: 'auto', 'vi', or 'en'",
+            "default": "auto"
           }
         },
+        "type": "object",
         "required": [
           "query"
         ],
-        "title": "ChatRequest",
-        "type": "object"
+        "title": "ChatRequest"
       },
       "Context": {
-        "additionalProperties": false,
         "properties": {
           "chain_id": {
-            "title": "Chain Id",
-            "type": "integer"
+            "type": "integer",
+            "title": "Chain Id"
           }
         },
+        "additionalProperties": false,
+        "type": "object",
         "required": [
           "chain_id"
         ],
-        "title": "Context",
-        "type": "object"
+        "title": "Context"
       },
       "Conversation": {
-        "additionalProperties": false,
         "properties": {
           "context_id": {
+            "type": "string",
             "maxLength": 36,
-            "title": "Context Id",
-            "type": "string"
+            "title": "Context Id"
           },
           "generation": {
-            "title": "Generation",
-            "type": "integer"
+            "type": "integer",
+            "title": "Generation"
           },
           "title": {
-            "default": "New chat",
+            "type": "string",
             "maxLength": 120,
             "minLength": 1,
             "title": "Title",
-            "type": "string"
+            "default": "New chat"
           }
         },
+        "additionalProperties": false,
+        "type": "object",
         "required": [
           "context_id",
           "generation"
         ],
-        "title": "Conversation",
-        "type": "object"
+        "title": "Conversation"
       },
       "Edit": {
-        "additionalProperties": false,
         "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
           "archived": {
             "anyOf": [
               {
@@ -268,38 +1586,100 @@
               }
             ],
             "title": "Archived"
-          },
-          "title": {
-            "anyOf": [
-              {
-                "maxLength": 120,
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Title"
           }
         },
-        "title": "Edit",
-        "type": "object"
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Edit"
+      },
+      "GuardrailConfigUpdate": {
+        "properties": {
+          "wallet_address": {
+            "type": "string",
+            "maxLength": 42,
+            "minLength": 42,
+            "title": "Wallet Address"
+          },
+          "per_tx_native_limit": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Per Tx Native Limit"
+          },
+          "daily_native_limit": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Daily Native Limit"
+          },
+          "token_limits": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Token Limits"
+          },
+          "recipient_whitelist": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Recipient Whitelist"
+          },
+          "enforce_whitelist": {
+            "type": "boolean",
+            "title": "Enforce Whitelist",
+            "default": false
+          },
+          "require_app_approval": {
+            "type": "boolean",
+            "title": "Require App Approval",
+            "default": true
+          },
+          "approval_timeout_seconds": {
+            "type": "integer",
+            "maximum": 86400.0,
+            "minimum": 10.0,
+            "title": "Approval Timeout Seconds",
+            "default": 600
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "wallet_address",
+          "per_tx_native_limit",
+          "daily_native_limit"
+        ],
+        "title": "GuardrailConfigUpdate"
       },
       "GuardrailResult": {
-        "description": "Structured response returned to caller/frontend on policy evaluation.",
         "properties": {
           "is_allowed": {
-            "title": "Is Allowed",
-            "type": "boolean"
+            "type": "boolean",
+            "title": "Is Allowed"
+          },
+          "requires_approval": {
+            "type": "boolean",
+            "title": "Requires Approval"
           },
           "operation": {
-            "title": "Operation",
-            "type": "string"
+            "type": "string",
+            "title": "Operation"
           },
           "operation_type": {
-            "title": "Operation Type",
-            "type": "string"
+            "type": "string",
+            "title": "Operation Type"
+          },
+          "violations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Violations"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
           },
           "pending_approval": {
             "anyOf": [
@@ -310,15 +1690,6 @@
                 "type": "null"
               }
             ]
-          },
-          "requires_approval": {
-            "title": "Requires Approval",
-            "type": "boolean"
-          },
-          "sanitized_parameters": {
-            "additionalProperties": true,
-            "title": "Sanitized Parameters",
-            "type": "object"
           },
           "simulation_result": {
             "anyOf": [
@@ -332,21 +1703,13 @@
             ],
             "title": "Simulation Result"
           },
-          "violations": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Violations",
-            "type": "array"
-          },
-          "warnings": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Warnings",
-            "type": "array"
+          "sanitized_parameters": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Sanitized Parameters"
           }
         },
+        "type": "object",
         "required": [
           "is_allowed",
           "requires_approval",
@@ -354,7 +1717,7 @@
           "operation_type"
         ],
         "title": "GuardrailResult",
-        "type": "object"
+        "description": "Structured response returned to caller/frontend on policy evaluation."
       },
       "HTTPValidationError": {
         "properties": {
@@ -362,44 +1725,48 @@
             "items": {
               "$ref": "#/components/schemas/ValidationError"
             },
-            "title": "Detail",
-            "type": "array"
+            "type": "array",
+            "title": "Detail"
           }
         },
-        "title": "HTTPValidationError",
-        "type": "object"
+        "type": "object",
+        "title": "HTTPValidationError"
       },
       "PendingApproval": {
-        "description": "Represents a write transaction pending explicit human approval.",
         "properties": {
           "approval_id": {
-            "title": "Approval Id",
-            "type": "string"
-          },
-          "created_at": {
-            "title": "Created At",
-            "type": "number"
-          },
-          "description": {
-            "title": "Description",
-            "type": "string"
-          },
-          "expires_at": {
-            "title": "Expires At",
-            "type": "number"
+            "type": "string",
+            "title": "Approval Id"
           },
           "operation": {
-            "title": "Operation",
-            "type": "string"
+            "type": "string",
+            "title": "Operation"
           },
-          "parameter_hash": {
-            "title": "Parameter Hash",
-            "type": "string"
+          "created_at": {
+            "type": "number",
+            "title": "Created At"
+          },
+          "expires_at": {
+            "type": "number",
+            "title": "Expires At"
           },
           "parameters": {
             "additionalProperties": true,
-            "title": "Parameters",
-            "type": "object"
+            "type": "object",
+            "title": "Parameters"
+          },
+          "parameter_hash": {
+            "type": "string",
+            "title": "Parameter Hash"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "PENDING"
           },
           "reviewed_at": {
             "anyOf": [
@@ -423,11 +1790,6 @@
             ],
             "title": "Reviewer Comment"
           },
-          "status": {
-            "default": "PENDING",
-            "title": "Status",
-            "type": "string"
-          },
           "tx_hash": {
             "anyOf": [
               {
@@ -440,6 +1802,7 @@
             "title": "Tx Hash"
           }
         },
+        "type": "object",
         "required": [
           "operation",
           "expires_at",
@@ -448,40 +1811,39 @@
           "description"
         ],
         "title": "PendingApproval",
-        "type": "object"
+        "description": "Represents a write transaction pending explicit human approval."
       },
       "Proposal": {
-        "additionalProperties": false,
         "properties": {
-          "amount": {
-            "maxLength": 100,
-            "title": "Amount",
-            "type": "string"
+          "conversation_id": {
+            "type": "string",
+            "maxLength": 36,
+            "title": "Conversation Id"
           },
           "context_id": {
+            "type": "string",
             "maxLength": 36,
-            "title": "Context Id",
-            "type": "string"
-          },
-          "conversation_id": {
-            "maxLength": 36,
-            "title": "Conversation Id",
-            "type": "string"
+            "title": "Context Id"
           },
           "generation": {
-            "title": "Generation",
-            "type": "integer"
+            "type": "integer",
+            "title": "Generation"
           },
           "operation": {
+            "type": "string",
             "maxLength": 32,
-            "title": "Operation",
-            "type": "string"
+            "title": "Operation"
+          },
+          "amount": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Amount"
           },
           "recipient": {
             "anyOf": [
               {
-                "maxLength": 42,
-                "type": "string"
+                "type": "string",
+                "maxLength": 42
               },
               {
                 "type": "null"
@@ -492,8 +1854,8 @@
           "token_address": {
             "anyOf": [
               {
-                "maxLength": 42,
-                "type": "string"
+                "type": "string",
+                "maxLength": 42
               },
               {
                 "type": "null"
@@ -502,6 +1864,8 @@
             "title": "Token Address"
           }
         },
+        "additionalProperties": false,
+        "type": "object",
         "required": [
           "conversation_id",
           "context_id",
@@ -509,24 +1873,22 @@
           "operation",
           "amount"
         ],
-        "title": "Proposal",
-        "type": "object"
+        "title": "Proposal"
       },
       "ProposalRequest": {
-        "additionalProperties": false,
         "properties": {
-          "amount": {
-            "title": "Amount",
-            "type": "string"
-          },
           "operation": {
+            "type": "string",
             "enum": [
               "native_transfer",
               "erc20_transfer",
               "faucet_claim"
             ],
-            "title": "Operation",
-            "type": "string"
+            "title": "Operation"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
           },
           "recipient": {
             "anyOf": [
@@ -538,12 +1900,6 @@
               }
             ],
             "title": "Recipient"
-          },
-          "session_id": {
-            "maxLength": 128,
-            "minLength": 1,
-            "title": "Session Id",
-            "type": "string"
           },
           "token_address": {
             "anyOf": [
@@ -566,39 +1922,28 @@
               }
             ],
             "title": "Wallet Address"
+          },
+          "session_id": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Session Id"
           }
         },
+        "additionalProperties": false,
+        "type": "object",
         "required": [
           "operation",
           "amount",
           "session_id"
         ],
-        "title": "ProposalRequest",
-        "type": "object"
+        "title": "ProposalRequest"
       },
       "RAGSearchResult": {
-        "description": "Result of context retrieval for an agent query.",
         "properties": {
-          "documents": {
-            "items": {
-              "$ref": "#/components/schemas/RetrievedDocument"
-            },
-            "title": "Documents",
-            "type": "array"
-          },
-          "has_relevant_context": {
-            "default": false,
-            "title": "Has Relevant Context",
-            "type": "boolean"
-          },
-          "provider": {
-            "default": "curated_knowledge_adapter",
-            "title": "Provider",
-            "type": "string"
-          },
           "query": {
-            "title": "Query",
-            "type": "string"
+            "type": "string",
+            "title": "Query"
           },
           "retrieval_query": {
             "anyOf": [
@@ -611,99 +1956,117 @@
             ],
             "title": "Retrieval Query"
           },
+          "documents": {
+            "items": {
+              "$ref": "#/components/schemas/RetrievedDocument"
+            },
+            "type": "array",
+            "title": "Documents"
+          },
+          "has_relevant_context": {
+            "type": "boolean",
+            "title": "Has Relevant Context",
+            "default": false
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider",
+            "default": "curated_knowledge_adapter"
+          },
           "status": {
-            "default": "ok",
+            "type": "string",
             "title": "Status",
-            "type": "string"
+            "default": "ok"
           }
         },
+        "type": "object",
         "required": [
           "query"
         ],
         "title": "RAGSearchResult",
-        "type": "object"
+        "description": "Result of context retrieval for an agent query."
       },
       "RecoverHash": {
-        "additionalProperties": false,
         "properties": {
           "tx_hash": {
+            "type": "string",
             "maxLength": 66,
             "minLength": 66,
-            "title": "Tx Hash",
-            "type": "string"
+            "title": "Tx Hash"
           }
         },
+        "additionalProperties": false,
+        "type": "object",
         "required": [
           "tx_hash"
         ],
-        "title": "RecoverHash",
-        "type": "object"
+        "title": "RecoverHash"
       },
       "Report": {
-        "additionalProperties": false,
         "properties": {
-          "rejected": {
-            "default": false,
-            "title": "Rejected",
-            "type": "boolean"
-          },
           "report_token": {
+            "type": "string",
             "maxLength": 128,
             "minLength": 20,
-            "title": "Report Token",
-            "type": "string"
+            "title": "Report Token"
           },
           "tx_hash": {
             "anyOf": [
               {
-                "maxLength": 66,
-                "type": "string"
+                "type": "string",
+                "maxLength": 66
               },
               {
                 "type": "null"
               }
             ],
             "title": "Tx Hash"
+          },
+          "rejected": {
+            "type": "boolean",
+            "title": "Rejected",
+            "default": false
           }
         },
+        "additionalProperties": false,
+        "type": "object",
         "required": [
           "report_token"
         ],
-        "title": "Report",
-        "type": "object"
+        "title": "Report"
       },
       "RetrievedDocument": {
-        "description": "Represents a chunk of retrieved knowledge context.",
         "properties": {
           "doc_id": {
-            "title": "Doc Id",
-            "type": "string"
+            "type": "string",
+            "title": "Doc Id"
           },
-          "excerpt": {
-            "title": "Excerpt",
-            "type": "string"
+          "title": {
+            "type": "string",
+            "title": "Title"
           },
-          "metadata": {
-            "additionalProperties": true,
-            "title": "Metadata",
-            "type": "object"
+          "source_file": {
+            "type": "string",
+            "title": "Source File"
           },
           "score": {
-            "default": 0.9,
+            "type": "number",
             "maximum": 1.0,
             "minimum": -1.0,
             "title": "Score",
-            "type": "number"
+            "default": 0.9
           },
-          "source_file": {
-            "title": "Source File",
-            "type": "string"
+          "excerpt": {
+            "type": "string",
+            "title": "Excerpt"
           },
-          "title": {
-            "title": "Title",
-            "type": "string"
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata"
           }
         },
+        "type": "object",
         "required": [
           "doc_id",
           "title",
@@ -711,51 +2074,123 @@
           "excerpt"
         ],
         "title": "RetrievedDocument",
-        "type": "object"
+        "description": "Represents a chunk of retrieved knowledge context."
       },
       "Review": {
-        "additionalProperties": false,
         "properties": {
-          "context_id": {
-            "maxLength": 36,
-            "title": "Context Id",
-            "type": "string"
-          },
-          "generation": {
-            "title": "Generation",
-            "type": "integer"
-          },
           "parameter_hash": {
+            "type": "string",
             "maxLength": 64,
             "minLength": 64,
-            "title": "Parameter Hash",
-            "type": "string"
+            "title": "Parameter Hash"
+          },
+          "context_id": {
+            "type": "string",
+            "maxLength": 36,
+            "title": "Context Id"
+          },
+          "generation": {
+            "type": "integer",
+            "title": "Generation"
           }
         },
+        "additionalProperties": false,
+        "type": "object",
         "required": [
           "parameter_hash",
           "context_id",
           "generation"
         ],
-        "title": "Review",
-        "type": "object"
+        "title": "Review"
       },
       "SwitchNetworkRequest": {
         "properties": {
           "chain_id": {
-            "title": "Chain Id",
-            "type": "integer"
+            "type": "integer",
+            "title": "Chain Id"
           }
         },
+        "type": "object",
         "required": [
           "chain_id"
         ],
-        "title": "SwitchNetworkRequest",
-        "type": "object"
+        "title": "SwitchNetworkRequest"
+      },
+      "TestBlock": {
+        "properties": {
+          "wallet_address": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 42
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wallet Address"
+          },
+          "operation": {
+            "type": "string",
+            "maxLength": 32,
+            "title": "Operation"
+          },
+          "amount": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Amount"
+          },
+          "recipient": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 42
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recipient"
+          },
+          "token_address": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 42
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Address"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "operation",
+          "amount"
+        ],
+        "title": "TestBlock"
       },
       "TimelineStep": {
-        "description": "Step in the 9-stage Agent workflow timeline.",
         "properties": {
+          "step_number": {
+            "type": "integer",
+            "title": "Step Number"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "timestamp": {
+            "type": "number",
+            "title": "Timestamp"
+          },
           "duration_ms": {
             "anyOf": [
               {
@@ -767,7 +2202,7 @@
             ],
             "title": "Duration Ms"
           },
-          "error": {
+          "tool_name": {
             "anyOf": [
               {
                 "type": "string"
@@ -776,20 +2211,7 @@
                 "type": "null"
               }
             ],
-            "title": "Error"
-          },
-          "name": {
-            "title": "Name",
-            "type": "string"
-          },
-          "result": {
-            "anyOf": [
-              {},
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Result"
+            "title": "Tool Name"
           },
           "sanitized_parameters": {
             "anyOf": [
@@ -803,19 +2225,16 @@
             ],
             "title": "Sanitized Parameters"
           },
-          "status": {
-            "title": "Status",
-            "type": "string"
+          "result": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
           },
-          "step_number": {
-            "title": "Step Number",
-            "type": "integer"
-          },
-          "timestamp": {
-            "title": "Timestamp",
-            "type": "number"
-          },
-          "tool_name": {
+          "error": {
             "anyOf": [
               {
                 "type": "string"
@@ -824,60 +2243,67 @@
                 "type": "null"
               }
             ],
-            "title": "Tool Name"
+            "title": "Error"
           }
         },
+        "type": "object",
         "required": [
           "step_number",
           "name",
           "status"
         ],
         "title": "TimelineStep",
-        "type": "object"
+        "description": "Step in the 9-stage Agent workflow timeline."
       },
       "Turn": {
-        "additionalProperties": false,
         "properties": {
-          "client_request_id": {
-            "maxLength": 128,
-            "minLength": 1,
-            "title": "Client Request Id",
-            "type": "string"
-          },
-          "context_id": {
-            "maxLength": 36,
-            "title": "Context Id",
-            "type": "string"
-          },
-          "generation": {
-            "title": "Generation",
-            "type": "integer"
-          },
           "query": {
+            "type": "string",
             "maxLength": 2000,
             "minLength": 1,
-            "title": "Query",
-            "type": "string"
+            "title": "Query"
+          },
+          "context_id": {
+            "type": "string",
+            "maxLength": 36,
+            "title": "Context Id"
+          },
+          "generation": {
+            "type": "integer",
+            "title": "Generation"
+          },
+          "client_request_id": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Client Request Id"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language",
+            "default": "auto"
           }
         },
+        "additionalProperties": false,
+        "type": "object",
         "required": [
           "query",
           "context_id",
           "generation",
           "client_request_id"
         ],
-        "title": "Turn",
-        "type": "object"
+        "title": "Turn"
       },
       "ValidationError": {
         "properties": {
-          "ctx": {
-            "title": "Context",
-            "type": "object"
-          },
-          "input": {
-            "title": "Input"
-          },
           "loc": {
             "items": {
               "anyOf": [
@@ -889,1223 +2315,53 @@
                 }
               ]
             },
-            "title": "Location",
-            "type": "array"
+            "type": "array",
+            "title": "Location"
           },
           "msg": {
-            "title": "Message",
-            "type": "string"
+            "type": "string",
+            "title": "Message"
           },
           "type": {
-            "title": "Error Type",
-            "type": "string"
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
           }
         },
+        "type": "object",
         "required": [
           "loc",
           "msg",
           "type"
         ],
-        "title": "ValidationError",
-        "type": "object"
+        "title": "ValidationError"
       },
       "Verify": {
-        "additionalProperties": false,
         "properties": {
           "challenge_id": {
+            "type": "string",
             "maxLength": 36,
-            "title": "Challenge Id",
-            "type": "string"
+            "title": "Challenge Id"
           },
           "signature": {
+            "type": "string",
             "maxLength": 1024,
-            "title": "Signature",
-            "type": "string"
+            "title": "Signature"
           }
         },
+        "additionalProperties": false,
+        "type": "object",
         "required": [
           "challenge_id",
           "signature"
         ],
-        "title": "Verify",
-        "type": "object"
-      }
-    }
-  },
-  "info": {
-    "title": "AI Agent with Blockchain Tools API",
-    "version": "1.0.0"
-  },
-  "openapi": "3.1.0",
-  "paths": {
-    "/api/approval/action": {
-      "post": {
-        "operationId": "handle_approval_action_api_approval_action_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ApprovalActionRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Handle Approval Action"
-      }
-    },
-    "/api/approval/{approval_id}": {
-      "get": {
-        "operationId": "get_approval_api_approval__approval_id__get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "approval_id",
-            "required": true,
-            "schema": {
-              "title": "Approval Id",
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-Session-ID",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "X-Session-Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Get Approval"
-      }
-    },
-    "/api/auth/challenge": {
-      "post": {
-        "operationId": "challenge_api_auth_challenge_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Challenge"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Challenge"
-      }
-    },
-    "/api/auth/logout": {
-      "post": {
-        "operationId": "logout_api_auth_logout_post",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "Logout"
-      }
-    },
-    "/api/auth/me": {
-      "get": {
-        "operationId": "me_api_auth_me_get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "Me"
-      }
-    },
-    "/api/auth/verify": {
-      "post": {
-        "operationId": "verify_api_auth_verify_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Verify"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Verify"
-      }
-    },
-    "/api/chat": {
-      "post": {
-        "operationId": "handle_chat_api_chat_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ChatRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AgentResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Handle Chat"
-      }
-    },
-    "/api/guardrail/audits": {
-      "get": {
-        "operationId": "get_audit_logs_api_guardrail_audits_get",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "limit",
-            "required": false,
-            "schema": {
-              "default": 30,
-              "title": "Limit",
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Get Audit Logs"
-      }
-    },
-    "/api/guardrail/policies": {
-      "get": {
-        "operationId": "get_guardrail_policies_api_guardrail_policies_get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "Get Guardrail Policies"
-      }
-    },
-    "/api/health": {
-      "get": {
-        "operationId": "get_health_api_health_get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "Get Health"
-      }
-    },
-    "/api/history/audits": {
-      "get": {
-        "operationId": "audits_api_history_audits_get",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "cursor",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Cursor"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Audits"
-      }
-    },
-    "/api/history/conversations": {
-      "get": {
-        "operationId": "list_conversations_api_history_conversations_get",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "cursor",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Cursor"
-            }
-          },
-          {
-            "in": "query",
-            "name": "deployment_id",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Deployment Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "List Conversations"
-      },
-      "post": {
-        "operationId": "create_conversation_api_history_conversations_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Conversation"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Create Conversation"
-      }
-    },
-    "/api/history/conversations/{conversation_id}": {
-      "patch": {
-        "operationId": "edit_conversation_api_history_conversations__conversation_id__patch",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "conversation_id",
-            "required": true,
-            "schema": {
-              "title": "Conversation Id",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Edit"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Edit Conversation"
-      }
-    },
-    "/api/history/conversations/{conversation_id}/messages": {
-      "get": {
-        "operationId": "conversation_messages_api_history_conversations__conversation_id__messages_get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "conversation_id",
-            "required": true,
-            "schema": {
-              "title": "Conversation Id",
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "cursor",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Cursor"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Conversation Messages"
-      }
-    },
-    "/api/history/conversations/{conversation_id}/turns": {
-      "post": {
-        "operationId": "chat_api_history_conversations__conversation_id__turns_post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "conversation_id",
-            "required": true,
-            "schema": {
-              "title": "Conversation Id",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Turn"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Chat"
-      }
-    },
-    "/api/history/transactions": {
-      "get": {
-        "operationId": "transactions_api_history_transactions_get",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "cursor",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Cursor"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Transactions"
-      }
-    },
-    "/api/history/transactions/{proposal_id}": {
-      "get": {
-        "operationId": "transaction_api_history_transactions__proposal_id__get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "proposal_id",
-            "required": true,
-            "schema": {
-              "title": "Proposal Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Transaction"
-      }
-    },
-    "/api/history/turns/{turn_id}": {
-      "get": {
-        "operationId": "get_turn_api_history_turns__turn_id__get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "turn_id",
-            "required": true,
-            "schema": {
-              "title": "Turn Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Get Turn"
-      }
-    },
-    "/api/network/status": {
-      "get": {
-        "operationId": "get_network_status_api_network_status_get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "Get Network Status"
-      }
-    },
-    "/api/network/switch": {
-      "post": {
-        "operationId": "switch_network_api_network_switch_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SwitchNetworkRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Switch Network"
-      }
-    },
-    "/api/transactions/propose": {
-      "post": {
-        "operationId": "propose_transaction_api_transactions_propose_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProposalRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Propose Transaction"
-      }
-    },
-    "/api/wallet-contexts": {
-      "post": {
-        "operationId": "context_api_wallet_contexts_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Context"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Context"
-      }
-    },
-    "/api/wallet-contexts/{context_id}/revoke": {
-      "post": {
-        "operationId": "revoke_api_wallet_contexts__context_id__revoke_post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "context_id",
-            "required": true,
-            "schema": {
-              "title": "Context Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Revoke"
-      }
-    },
-    "/api/wallet-proposals": {
-      "post": {
-        "operationId": "propose_api_wallet_proposals_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Proposal"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Propose"
-      }
-    },
-    "/api/wallet-proposals/{proposal_id}": {
-      "get": {
-        "operationId": "get_proposal_api_wallet_proposals__proposal_id__get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "proposal_id",
-            "required": true,
-            "schema": {
-              "title": "Proposal Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Get Proposal"
-      }
-    },
-    "/api/wallet-proposals/{proposal_id}/authorize": {
-      "post": {
-        "operationId": "authorize_api_wallet_proposals__proposal_id__authorize_post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "proposal_id",
-            "required": true,
-            "schema": {
-              "title": "Proposal Id",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Review"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Authorize"
-      }
-    },
-    "/api/wallet-proposals/{proposal_id}/reject": {
-      "post": {
-        "operationId": "reject_api_wallet_proposals__proposal_id__reject_post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "proposal_id",
-            "required": true,
-            "schema": {
-              "title": "Proposal Id",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Review"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Reject"
-      }
-    },
-    "/api/wallet-submissions/{submission_id}/recover": {
-      "post": {
-        "operationId": "recover_hash_api_wallet_submissions__submission_id__recover_post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "submission_id",
-            "required": true,
-            "schema": {
-              "title": "Submission Id",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RecoverHash"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Recover Hash"
-      }
-    },
-    "/api/wallet-submissions/{submission_id}/report": {
-      "post": {
-        "operationId": "report_api_wallet_submissions__submission_id__report_post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "submission_id",
-            "required": true,
-            "schema": {
-              "title": "Submission Id",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Report"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Report"
-      }
-    },
-    "/api/wallet/info": {
-      "get": {
-        "operationId": "get_wallet_info_api_wallet_info_get",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "address",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Address"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Get Wallet Info"
+        "title": "Verify"
       }
     }
   }

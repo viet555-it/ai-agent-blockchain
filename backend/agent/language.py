@@ -10,8 +10,23 @@ VI_KEYWORDS = {
     "là", "gì", "không", "cho", "của", "tôi", "bạn", "giá", "ví", "tiền",
     "số", "dư", "xem", "kiểm", "tra", "bao", "nhiêu", "chào", "xin",
     "gửi", "chuyển", "phí", "thế", "nào", "hôm", "nay", "tuần", "này",
-    "tháng", "này", "được", "có", "hãy", "giúp", "với", "nhé", "nào",
-    "tài", "khoản", "lệnh", "giao", "dịch", "chặn", "duyệt", "hạn", "mức"
+    "tháng", "này", "được", "có", "hãy", "giúp", "với", "nhé",
+    "tài", "khoản", "lệnh", "giao", "dịch", "chặn", "duyệt", "hạn", "mức",
+    "la", "gi", "khong", "cua", "toi", "ban", "gia", "vi", "tien",
+    "so", "du", "kiem", "tra", "bao", "nhieu", "chao", "xin",
+    "gui", "chuyen", "phi", "the", "nao", "hom", "nay", "tuan",
+    "duoc", "hay", "giup", "voi", "nhe", "tai", "khoan", "lenh",
+    "giao", "dich", "chan", "duyet", "han", "muc",
+}
+
+EN_KEYWORDS = {
+    "hello", "hi", "hey", "how", "what", "why", "where", "when", "who", "which",
+    "is", "are", "am", "was", "were", "be", "been", "being",
+    "the", "a", "an", "this", "that", "these", "those",
+    "my", "your", "his", "her", "its", "our", "their",
+    "balance", "price", "wallet", "check", "send", "transfer", "gas", "fee",
+    "please", "can", "could", "would", "should", "will", "do", "does", "did",
+    "have", "has", "had", "for", "with", "from", "about", "week", "today",
 }
 
 CONVERSATIONAL_GREETINGS = {
@@ -49,10 +64,14 @@ def detect_query_language(query: str) -> str:
     # Word-level keyword frequency check
     words = set(re.findall(r"\w+", text))
     vi_match_count = len(words.intersection(VI_KEYWORDS))
-    if vi_match_count >= 2:
-        return "vi"
+    en_match_count = len(words.intersection(EN_KEYWORDS))
 
-    return "en"
+    # Detect English if there is substantial English keyword presence
+    if en_match_count >= 2 and en_match_count > vi_match_count:
+        return "en"
+
+    # Default to Vietnamese for ambiguous or local queries
+    return "vi"
 
 
 def resolve_language(preference: str | None, query: str) -> str:
@@ -146,7 +165,7 @@ MESSAGES = {
     },
     "DOC_NOT_FOUND": {
         "vi": "Chưa tìm thấy tài liệu phù hợp để trả lời câu hỏi này. Bạn hãy nêu rõ chức năng hoặc tên hàm cần tra cứu.",
-        "en": "Chưa tìm thấy tài liệu phù hợp để trả lời câu hỏi này (No matching documentation found). Please specify the contract function or topic to look up.",
+        "en": "No matching documentation found to answer this question. Please specify the contract function or topic to look up.",
     },
     "PROPOSAL_READY": {
         "vi": "Giao dịch đã được chuẩn bị. Hãy kiểm tra và duyệt trong cửa sổ xác nhận; chưa có giao dịch nào được gửi.",

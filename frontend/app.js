@@ -69,6 +69,7 @@ async function bootstrap() {
     closeApprovalModal: approval.closeApprovalModal,
   });
   prices.bindEvents();
+  assets.bindGuardrailEvents();
   chat.appendMessage('agent', t('chat.welcomeGreeting'));
 
   try {
@@ -83,6 +84,7 @@ async function bootstrap() {
     assets.loadNetworkStatus(),
     assets.loadWalletInfo(),
     assets.loadPolicies(),
+    assets.loadGuardrailConfig(),
     prices.loadCurrentPrice(),
     prices.loadPriceHistory('24h'),
     prices.loadComparison(),

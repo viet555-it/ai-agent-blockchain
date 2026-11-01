@@ -14,7 +14,7 @@ export function createWalletSession(state, elements, { appendMessage, renderTime
     elements.timelineList.style.display = 'none';
     elements.timelineEmptyState.style.display = '';
     elements.timelineStepCount.textContent = '0 / 9';
-    elements.btnSendMessage.disabled = state.walletMode && (!state.walletController.ready || state.historyView?.readOnly);
+    elements.btnSendMessage.disabled = state.isProcessing || Boolean(state.walletController?.ready && state.historyView?.readOnly);
     renderWalletGate();
   }
 
@@ -77,7 +77,7 @@ export function createWalletSession(state, elements, { appendMessage, renderTime
       document.getElementById('wallet-disconnect').hidden = !wallet.address;
       document.getElementById('wallet-provider').disabled = wallet.connecting || wallet.authenticating || wallet.signing;
       document.getElementById('wallet-provider').hidden = wallet.ready || wallet.providers.size <= 1;
-      elements.btnSendMessage.disabled = !wallet.ready || state.isProcessing || history.readOnly;
+      elements.btnSendMessage.disabled = state.isProcessing || Boolean(wallet.ready && history.readOnly);
       if (wallet.ready && contextId !== wallet.context.id) {
         contextId = wallet.context.id;
         const expectedGeneration = wallet.generation;

@@ -161,6 +161,22 @@ class WalletReconciler:
             # A report arriving during RPC work must not have its new hash overwritten.
             if current["tx_hash"] and tx_hash and (current["tx_hash"] != tx_hash):
                 fail(ErrorKind.CONFLICT, "TX_HASH", "Concurrent report needs reconciliation.")
+            reservation = (
+                limit_repository.find(connection, proposal["id"])
+                if status == "FINALIZED"
+                else None
+            )
+            if (
+                reservation
+                and verification == "MATCHED"
+                and spent_at is not None
+                and timestamp(spent_at) > time.time()
+            ):
+                # Preserve verified RPC evidence and the reservation until the local
+                # clock catches up. MINED_SUCCESS remains eligible for retry.
+                status = "MINED_SUCCESS"
+                receipt_row["finalized_at"] = None
+                receipt_row["data"].pop(VERIFIED_TIME, None)
             repository.update_observation(
                 connection, attempt, current, status, tx_hash, verification
             )
@@ -183,7 +199,6 @@ class WalletReconciler:
                 # Keep a proposal-level reservation through replacements, UNKNOWN,
                 # mismatches and pre-finality reorgs. Only verified final evidence
                 # settles it; proposals created before the ledger have no entry.
-                reservation = limit_repository.find(connection, proposal["id"])
                 if reservation and verification == "MATCHED":
                     ledger = DailyLimitService()
                     if receipt_row["receipt_status"] == 1:

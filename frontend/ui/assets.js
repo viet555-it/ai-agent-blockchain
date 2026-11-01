@@ -1,15 +1,25 @@
-import { t } from '../i18n.js';
+import { t, onLanguageChange } from '../i18n.js';
+import { guardrailReasons } from './guardrail-reasons.js';
 import { displayDecimal } from '../api.js';
 import { shortenAddress } from './format.js';
 
 export function createAssetsView(state, elements) {
+  let currentWhitelist = [];
+  let lastTestBlockResult = null;
+  onLanguageChange(() => {
+    if (lastTestBlockResult) renderTestBlockResult(lastTestBlockResult);
+  });
+
   function updateNetworkLabels() {
     if (!state.network) return;
     elements.headerNetworkName.textContent = state.network.name;
     elements.modalNetwork.textContent = `${state.network.name} (${state.network.chain_id})`;
-    document.getElementById('contract-network-label').textContent = t('network.smartContractOn', {
-      network: state.network.name,
-    });
+    const contractNetworkLabel = document.getElementById('contract-network-label');
+    if (contractNetworkLabel) {
+      contractNetworkLabel.textContent = t('network.smartContractOn', {
+        network: state.network.name,
+      });
+    }
   }
 
   function renderNetwork(data) {
@@ -64,7 +74,130 @@ export function createAssetsView(state, elements) {
 
   function renderPolicies(data) {
     state.policies = data;
-    elements.policyMaxLimit.textContent = `${data.max_token_transfer_limit} AGNT`;
+    if (elements.policyMaxLimit) {
+      elements.policyMaxLimit.textContent = `${data.max_token_transfer_limit} AGNT`;
+    }
+  }
+
+  function renderWhitelistTags(whitelist, onRemove) {
+    currentWhitelist = [...whitelist];
+    const container = document.getElementById('guardrail-whitelist-tags');
+    if (!container) return;
+    container.replaceChildren();
+
+    if (currentWhitelist.length === 0) {
+      const emptyNote = document.createElement('span');
+      emptyNote.style.fontSize = '0.72rem';
+      emptyNote.style.color = 'var(--text-dim)';
+      emptyNote.textContent = '(Chưa có địa chỉ nào / Empty)';
+      container.appendChild(emptyNote);
+      return;
+    }
+
+    currentWhitelist.forEach((addr, idx) => {
+      const tag = document.createElement('span');
+      tag.className = 'whitelist-tag';
+      tag.textContent = shortenAddress(addr);
+      tag.title = addr;
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.textContent = '×';
+      removeBtn.title = t('guardrail.remove');
+      removeBtn.addEventListener('click', () => {
+        currentWhitelist.splice(idx, 1);
+        renderWhitelistTags(currentWhitelist, onRemove);
+        if (onRemove) onRemove(currentWhitelist);
+      });
+
+      tag.appendChild(removeBtn);
+      container.appendChild(tag);
+    });
+  }
+
+  function renderGuardrailConfig(config, onWhitelistChange) {
+    const inputPerTxNative = document.getElementById('input-per-tx-native');
+    const inputDailyNative = document.getElementById('input-daily-native');
+    const spentNative = document.getElementById('val-guardrail-spent-native');
+    const remNative = document.getElementById('val-guardrail-rem-native');
+
+    const inputPerTxToken = document.getElementById('input-per-tx-token');
+    const inputDailyToken = document.getElementById('input-daily-token');
+    const spentToken = document.getElementById('val-guardrail-spent-token');
+    const remToken = document.getElementById('val-guardrail-rem-token');
+
+    const checkEnforceWhitelist = document.getElementById('check-enforce-whitelist');
+    const checkRequireAppApproval = document.getElementById('check-require-app-approval');
+
+    if (inputPerTxNative) inputPerTxNative.value = config.per_tx_native_limit ?? 0.1;
+    if (inputDailyNative) inputDailyNative.value = config.daily_native_limit ?? 0.5;
+    if (spentNative) spentNative.textContent = config.daily_native_spent ?? '0';
+    if (remNative) remNative.textContent = config.daily_native_remaining ?? config.daily_native_limit ?? '0.5';
+
+    if (inputPerTxToken) inputPerTxToken.value = config.per_tx_token_limit ?? 100;
+    if (inputDailyToken) inputDailyToken.value = config.daily_token_limit ?? 500;
+    if (spentToken) spentToken.textContent = config.daily_token_spent ?? '0';
+    if (remToken) remToken.textContent = config.daily_token_remaining ?? config.daily_token_limit ?? '500';
+
+    if (checkEnforceWhitelist) checkEnforceWhitelist.checked = Boolean(config.enforce_whitelist);
+    if (checkRequireAppApproval) checkRequireAppApproval.checked = config.require_app_approval !== false;
+
+    renderWhitelistTags(config.recipient_whitelist || [], onWhitelistChange);
+  }
+
+  function setGuardrailSaveStatus(message, isError = false) {
+    const statusEl = document.getElementById('guardrail-save-status');
+    if (!statusEl) return;
+    statusEl.textContent = message;
+    statusEl.style.color = isError ? 'var(--danger, #ef4444)' : 'var(--success, #22c55e)';
+    setTimeout(() => {
+      if (statusEl.textContent === message) statusEl.textContent = '';
+    }, 4000);
+  }
+
+  function renderTestBlockResult(data) {
+    lastTestBlockResult = data;
+    const resultBox = document.getElementById('test-block-result-box');
+    const badge = document.getElementById('test-block-decision-badge');
+    const reasonsList = document.getElementById('test-block-reasons-list');
+    const detailsGrid = document.getElementById('test-block-details-grid');
+    if (!resultBox || !badge || !reasonsList) return;
+
+    resultBox.hidden = false;
+    badge.className = 'panel-badge';
+
+    if (data.decision === 'ALLOW') {
+      badge.textContent = t('guardrail.decisionAllow');
+      badge.classList.add('badge-allow');
+    } else if (data.decision === 'REQUIRE_APPROVAL') {
+      badge.textContent = t('guardrail.decisionRequireApproval');
+      badge.classList.add('badge-require-approval');
+    } else {
+      badge.textContent = t('guardrail.decisionBlock');
+      badge.classList.add('badge-block');
+    }
+
+    reasonsList.replaceChildren();
+    guardrailReasons(data).forEach(r => {
+      const li = document.createElement('li');
+      li.textContent = r;
+      reasonsList.appendChild(li);
+    });
+
+    if (detailsGrid && data.details) {
+      detailsGrid.replaceChildren();
+      const items = [
+        { label: t('guardrail.perTxLimit'), val: data.details.per_tx_limit },
+        { label: t('guardrail.dailyLimit'), val: data.details.daily_limit },
+        { label: t('guardrail.spent24h'), val: data.details.daily_spent },
+        { label: t('guardrail.remaining24h'), val: data.details.daily_remaining },
+      ];
+      items.forEach(item => {
+        const d = document.createElement('div');
+        d.innerHTML = `<span style="color:var(--text-dim);">${item.label}:</span> <b>${item.val}</b>`;
+        detailsGrid.appendChild(d);
+      });
+    }
   }
 
   function showNetworkError() {
@@ -72,5 +205,16 @@ export function createAssetsView(state, elements) {
     elements.networkPulse.style.background = 'var(--danger)';
   }
 
-  return { updateNetworkLabels, renderNetwork, renderWallet, renderPolicies, showNetworkError };
+  return {
+    updateNetworkLabels,
+    renderNetwork,
+    renderWallet,
+    renderPolicies,
+    renderGuardrailConfig,
+    renderWhitelistTags,
+    setGuardrailSaveStatus,
+    renderTestBlockResult,
+    showNetworkError,
+    getCurrentWhitelist: () => currentWhitelist,
+  };
 }

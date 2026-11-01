@@ -147,17 +147,18 @@ def check_write_request(
                 violations.append("Transaction amount must be strictly greater than 0.")
             else:
                 if operation == "native_transfer":
-                    if amount_dec > config.max_native_transfer_limit:
+                    per_tx = config.get_per_tx_limit(operation)
+                    if amount_dec > per_tx:
                         violations.append(
-                            f"Amount {amount_dec} ETH exceeds native transfer limit of {config.max_native_transfer_limit} ETH."
+                            f"Amount {amount_dec} ETH exceeds native transfer limit of {per_tx} ETH."
                         )
-                elif (
-                    operation in ("erc20_transfer", "erc20_approve", "faucet_claim")
-                    and amount_dec > config.max_token_transfer_limit
-                ):
-                    violations.append(
-                        f"Amount {amount_dec} tokens exceeds token policy limit of {config.max_token_transfer_limit} tokens."
-                    )
+                elif operation in ("erc20_transfer", "erc20_approve", "faucet_claim"):
+                    contract_addr = parameters.get("contract_address") or parameters.get("token_address")
+                    per_tx = config.get_per_tx_limit(operation, contract_addr)
+                    if amount_dec > per_tx:
+                        violations.append(
+                            f"Amount {amount_dec} tokens exceeds token policy limit of {per_tx} tokens."
+                        )
         except Exception as e:
             violations.append(f"Invalid numerical amount '{amount_raw}': {e}")
 

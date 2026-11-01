@@ -11,6 +11,9 @@ from pydantic import BaseModel, Field
 class PolicyConfig(BaseModel):
     """Configurable security policy for blockchain operations."""
 
+    wallet_address: str | None = Field(
+        default=None, description="Optional wallet address bound to this configuration"
+    )
     max_native_transfer_limit: Decimal = Field(
         default=Decimal("0.5"),
         description="Maximum native ETH allowed per transaction in ether units",
@@ -29,6 +32,10 @@ class PolicyConfig(BaseModel):
         ge=0,
         allow_inf_nan=False,
         description="Rolling 24-hour outgoing cap, accounted independently per ERC20 contract",
+    )
+    token_limits: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Per-token limits mapped by contract address or symbol",
     )
     recipient_whitelist: list[str] = Field(
         default_factory=lambda: [
@@ -53,6 +60,41 @@ class PolicyConfig(BaseModel):
         default=600,
         description="Time-to-live in seconds before a pending approval expires (default 10 minutes)",
     )
+    version: int = Field(
+        default=1, description="Configuration revision version number"
+    )
+
+    def get_per_tx_limit(self, operation: str, contract_address: str | None = None) -> Decimal:
+        if operation == "native_transfer":
+            return self.max_native_transfer_limit
+        if contract_address:
+            addr = contract_address.lower()
+            if addr in self.token_limits:
+                lim = self.token_limits[addr].get("per_tx_limit")
+                if lim is not None:
+                    return Decimal(str(lim))
+            for k, v in self.token_limits.items():
+                if isinstance(v, dict) and (k.lower() == addr or v.get("symbol", "").lower() == addr):
+                    lim = v.get("per_tx_limit")
+                    if lim is not None:
+                        return Decimal(str(lim))
+        return self.max_token_transfer_limit
+
+    def get_daily_limit(self, operation: str, contract_address: str | None = None) -> Decimal:
+        if operation == "native_transfer":
+            return self.max_daily_native_transfer_limit
+        if contract_address:
+            addr = contract_address.lower()
+            if addr in self.token_limits:
+                lim = self.token_limits[addr].get("daily_limit")
+                if lim is not None:
+                    return Decimal(str(lim))
+            for k, v in self.token_limits.items():
+                if isinstance(v, dict) and (k.lower() == addr or v.get("symbol", "").lower() == addr):
+                    lim = v.get("daily_limit")
+                    if lim is not None:
+                        return Decimal(str(lim))
+        return self.max_daily_token_transfer_limit
 
 
 class AuditEvent(BaseModel):

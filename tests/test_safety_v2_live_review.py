@@ -43,7 +43,20 @@ def test_review_contains_only_intended_inputs_and_matches_scope(tmp_path, monkey
     packet = build_review("test-model")
     review = validate_review(packet)
     assert len(review["cases"]) == 40
-    assert len(review["tools"]) == 9
+    assert sorted(tool["name"] for tool in review["tools"]) == sorted(
+        [
+            "get_native_balance",
+            "get_erc20_balance",
+            "get_token_info",
+            "get_gas_price",
+            "get_block",
+            "get_transaction",
+            "get_token_price",
+            "transfer_eth",
+            "transfer_erc20",
+            "faucet_claim",
+        ]
+    )
     text = json.dumps(packet)
     assert "private-canary-not-for-payload" not in text
     assert "expected_policy_decision" not in text

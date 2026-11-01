@@ -6,7 +6,6 @@ import logging
 from fastapi import APIRouter, HTTPException, Request
 
 from backend.agent.models import AgentResponse
-from backend.api.dependencies import legacy_only
 from backend.api.schemas import ChatRequest
 
 logger = logging.getLogger("backend.api")
@@ -16,7 +15,15 @@ router = APIRouter()
 
 @router.post("/api/chat", response_model=AgentResponse)
 async def handle_chat(request: Request, req: ChatRequest):
-    legacy_only(request)
+    """Handle guest chats and read-only AI interactions.
+
+    Authenticated wallet sessions must use /api/history/conversations/{id}/turns.
+    """
+    if request.app.state.history_enabled and request.cookies.get("ati_session"):
+        raise HTTPException(
+            status_code=403,
+            detail="Legacy demo endpoints are disabled in wallet-history mode",
+        )
     try:
         wallet = req.wallet_address or request.app.state.demo_wallet
         lang = req.language or "auto"

@@ -837,6 +837,47 @@ class WalletHistoryTests(unittest.TestCase):
             data = connection.execute(select(receipts.c.data)).scalar_one()
             self.assertEqual(data["_app_verified_block_timestamp"], row["spent_at"])
 
+    def test_future_block_time_keeps_verified_receipt_until_clock_catches_up(self):
+        proposal, submission, _, _ = self.submitted()
+        now = time.time()
+        block_time = int(now) + 60
+        self.chain.w3.eth.get_block.side_effect = lambda height, **kw: {
+            "number": 10,
+            "hash": b"\x11" * 32,
+            "transactions": [],
+            "timestamp": block_time,
+        }
+        with patch("backend.services.wallet.reconciliation.time") as clock:
+            clock.time.return_value = now
+            self.poll_now()
+            result = self.client.get(f"/api/wallet-proposals/{proposal['approval_id']}").json()
+            attempt = result["attempts"][0]
+            self.assertEqual(attempt["verification_status"], "MATCHED", result)
+            self.assertEqual(attempt["status"], "MINED_SUCCESS", result)
+            self.assertIsNone(attempt["error_code"])
+            self.assertEqual(attempt["receipt"]["receipt_status"], 1)
+            self.assertIsNone(attempt["receipt"]["finalized_at"])
+            self.assertNotIn("_app_verified_block_timestamp", attempt["receipt"]["data"])
+            self.assertEqual(self.ledger_rows()[0]["status"], "RESERVED")
+            with self.app.state.wallet_db.transaction() as connection:
+                self.assertEqual(
+                    connection.execute(select(send_locks.c.attempt_id)).scalar_one(),
+                    submission["submission_id"],
+                )
+
+            # Retry normally once both the block time and next-check time have passed.
+            clock.time.return_value = block_time + 1
+            self.app.state.browser_wallet.reconcile_batch()
+            result = self.client.get(f"/api/wallet-proposals/{proposal['approval_id']}").json()
+            self.assertEqual(result["attempts"][0]["status"], "FINALIZED", result)
+            (row,) = self.ledger_rows()
+            self.assertEqual(row["status"], "SPENT")
+            self.assertEqual(row["spent_at"], block_time)
+            with self.app.state.wallet_db.transaction() as connection:
+                self.assertIsNone(
+                    connection.execute(select(send_locks.c.attempt_id)).scalar_one()
+                )
+
     def test_legacy_receipt_cannot_supply_its_own_verified_block_time(self):
         _, _, _, receipt = self.submitted()
         receipt["_app_verified_block_timestamp"] = 123

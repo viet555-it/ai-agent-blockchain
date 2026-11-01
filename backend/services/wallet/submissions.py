@@ -52,8 +52,11 @@ class WalletSubmissions:
                 )
             if proposal["expires_at"] <= time.time():
                 fail(ErrorKind.CONFLICT, "EXPIRED", "Proposal expired. Create a new proposal.")
-        if digest(self.policy.config.model_dump(mode="json")) != proposal["policy_hash"]:
-            fail(ErrorKind.CONFLICT, "POLICY_CHANGED", "Policy changed. Create a new proposal.")
+
+        current_config = self.proposal_service.get_wallet_policy_config(principal.address)
+        current_policy_hash = digest(current_config.model_dump(mode="json"))
+        policy_changed = current_policy_hash != proposal["policy_hash"]
+
         if (
             PolicyEngine.compute_parameter_hash(proposal["operation"], proposal["parameters"])
             != proposal["parameter_hash"]
@@ -88,26 +91,28 @@ class WalletSubmissions:
                 "PREFLIGHT_CHANGED",
                 "Nonce, balance, gas or chain state changed. Create a new proposal.",
             )
-        if not policy.evaluate_request(
+        eval_result = policy.evaluate_request(
             proposal["operation"], proposal["parameters"], simulation, create_approval=False
-        ).is_allowed:
-            fail(ErrorKind.CONFLICT, "POLICY_CHANGED", "Proposal no longer passes policy.")
+        )
+        if not eval_result.is_allowed:
+            fail(
+                ErrorKind.CONFLICT,
+                "POLICY_CHANGED",
+                f"Proposal no longer passes policy: {', '.join(eval_result.violations)}",
+            )
         submission_id, report_token, now = (uid(), token(), time.time())
         # Recheck context and claim the proposal/send lock in one atomic transaction.
         with self.db.transaction() as connection:
-            updated = repository.claim_pending_proposal(connection, now, proposal, proposal_id)
-            if updated.rowcount != 1:
+            # Recheck after acquiring transaction lock:
+            config = self.proposal_service.get_wallet_policy_config(principal.address)
+            latest_hash = digest(config.model_dump(mode="json"))
+            if latest_hash != current_policy_hash:
                 fail(
                     ErrorKind.CONFLICT,
-                    "ALREADY_REVIEWED",
-                    "Proposal state changed. Do not submit again.",
+                    "POLICY_CHANGED",
+                    "Policy changed during authorization. Create a new proposal.",
                 )
-            require_context(connection, principal, context_id, generation, deployment_id)
-            # Recheck after the write lock: a configuration change during RPC/preflight
-            # invalidates the old proposal. The DB policy provider will plug in here.
-            config = self.policy.config.model_copy(deep=True)
-            if digest(config.model_dump(mode="json")) != proposal["policy_hash"]:
-                fail(ErrorKind.CONFLICT, "POLICY_CHANGED", "Policy changed. Create a new proposal.")
+
             limit_request = transfer_limit_request(
                 principal.wallet_id,
                 deployment_id,
@@ -115,6 +120,29 @@ class WalletSubmissions:
                 proposal["parameters"],
                 config,
             )
+            if limit_request and policy_changed:
+                limit_eval = DailyLimitService.evaluate(connection, **limit_request, now=now)
+                if not limit_eval.allowed:
+                    fail(
+                        ErrorKind.CONFLICT,
+                        "POLICY_CHANGED",
+                        f"Proposal exceeds limit under updated policy ({limit_eval.reason_code}).",
+                    )
+
+            updated = repository.claim_pending_proposal(
+                connection,
+                now,
+                proposal,
+                proposal_id,
+                new_policy_hash=current_policy_hash if policy_changed else None,
+            )
+            if updated.rowcount != 1:
+                fail(
+                    ErrorKind.CONFLICT,
+                    "ALREADY_REVIEWED",
+                    "Proposal state changed. Do not submit again.",
+                )
+            require_context(connection, principal, context_id, generation, deployment_id)
             repository.insert_submission(
                 connection, deployment_id, now, proposal_id, report_token, submission_id
             )
