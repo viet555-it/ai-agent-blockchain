@@ -17,18 +17,25 @@ export function createWalletGate(state, elements) {
     const button = document.getElementById('wallet-chat-action');
     button.textContent = t(`wallet.${action}`);
     button.disabled = busy;
-    elements.chatInput.disabled = blocked || state.isProcessing;
-    elements.btnSendMessage.disabled = blocked || state.isProcessing;
-    elements.promptChips.querySelectorAll('button').forEach(button => { button.disabled = blocked || state.isProcessing; });
+
+    // Allow typing & guest chat questions even before connecting wallet
+    const inputDisabled = Boolean(state.historyView?.readOnly || state.isProcessing || state.historyLoading);
+    elements.chatInput.disabled = inputDisabled;
+    elements.btnSendMessage.disabled = inputDisabled;
+    elements.promptChips.querySelectorAll('button').forEach(button => { button.disabled = inputDisabled; });
+
     for (const id of ['history-new', 'history-rename', 'history-archive', 'conversation-list']) {
-      document.getElementById(id).disabled = !wallet.ready || state.historyLoading;
+      const el = document.getElementById(id);
+      if (el) el.disabled = !wallet.ready || state.historyLoading;
     }
     const controls = document.getElementById('wallet-controls');
     const agentReady = wallet.ready && wallet.conversation && !state.historyLoading && !state.historyView?.readOnly;
-    controls.dataset.ready = String(Boolean(agentReady));
-    if (wallet.ready) document.getElementById('wallet-status').textContent = t(`wallet.${state.historyLoading ? 'loadingChat' : agentReady ? 'ready' : 'gateNewChat'}`);
+    if (controls) controls.dataset.ready = String(Boolean(agentReady));
+    if (wallet.ready) {
+      const statusEl = document.getElementById('wallet-status');
+      if (statusEl) statusEl.textContent = t(`wallet.${state.historyLoading ? 'loadingChat' : agentReady ? 'ready' : 'gateNewChat'}`);
+    }
   }
-
 
   return { renderWalletGate };
 }

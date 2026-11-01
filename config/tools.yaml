@@ -13,6 +13,7 @@ enabled:
   - get_gas_price
   - estimate_gas
   - read_contract
+  - get_token_price
 
   # ── WRITE tools (require guardrail + confirmation) ───────
   - transfer_eth

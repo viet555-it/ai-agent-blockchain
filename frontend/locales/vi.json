@@ -50,7 +50,9 @@
     "ragTitle": "Truy xuất tri thức (RAG)",
     "ragMatch": "Độ tương đồng: {score}%",
     "ragSource": "Nguồn: {title} ({file})",
-    "ragSimilarity": "Độ tương đồng: {score}"
+    "ragSimilarity": "Độ tương đồng: {score}",
+    "loadingChart": "Đang tải biểu đồ...",
+    "chartError": "❌ Không thể tải biểu đồ: {error}"
   },
   "timeline": {
     "title": "TIẾN TRÌNH QUY TRÌNH AGENT",

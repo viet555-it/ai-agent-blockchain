@@ -1,36 +1,65 @@
 """Map public agent events to API responses without exposing thought events."""
 
+from __future__ import annotations
+
 import re
 import time
+from typing import Any
 
+from backend.agent.language import (
+    get_localized_message,
+    is_conversational_query,
+    resolve_language,
+)
 from backend.agent.models import AgentResponse, TimelineStep
 
 
-def map_agent_response(*, events, query, rag, request_context, timeline, start) -> AgentResponse:
-    reply = "Không có phản hồi cuối cùng từ Agent."
+def map_agent_response(
+    *,
+    events: list[Any],
+    query: str,
+    rag: Any,
+    request_context: dict[str, Any],
+    timeline: list[TimelineStep],
+    start: float,
+    language: str = "auto",
+) -> AgentResponse:
+    lang = resolve_language(language, query)
+    reply = get_localized_message("NO_FINAL_RESPONSE", lang)
     selected = None
     tool_result = None
     balance_results = {}
+    price_result = None
     error = None
+    has_final_llm_reply = False
+    safe_status = None
+
     for event in events:
-        if event.type == "tool_call":
-            selected = event.data["name"]
+        event_type = getattr(event, "type", None) or (event.get("type") if isinstance(event, dict) else None)
+        event_data = getattr(event, "data", None) or (event.get("data") if isinstance(event, dict) else {})
+
+        if event_type == "tool_call":
+            selected = event_data.get("name")
             timeline.append(
                 TimelineStep(
                     step_number=3,
                     name="Tool selected",
                     status="SUCCESS",
                     tool_name=selected,
-                    sanitized_parameters=event.data["arguments"],
+                    sanitized_parameters=event_data.get("arguments"),
                 )
             )
-        elif event.type == "tool_result":
-            row = event.data["result"]
+        elif event_type == "tool_result":
+            row = event_data.get("result", {})
             ok = row.get("ok", False)
             if not ok:
                 error = "READ_TOOL_FAILED_OR_DISABLED"
             tool_result = row.get("data")
-            name = event.data["name"]
+            name = event_data.get("name")
+
+            if ok and name == "get_token_price" and isinstance(tool_result, dict):
+                price_result = tool_result
+
             if (
                 ok
                 and name in {"get_native_balance", "get_erc20_balance"}
@@ -39,26 +68,31 @@ def map_agent_response(*, events, query, rag, request_context, timeline, start) 
                 address = tool_result.get("wallet_address") or tool_result.get("address")
                 key = (name, address, tool_result.get("token_address"))
                 balance_results[key] = tool_result
+
+            step_name = (
+                "Proposal tool result"
+                if name in {"transfer_eth", "transfer_erc20", "faucet_claim"}
+                else "READ tool result"
+            )
             timeline.append(
                 TimelineStep(
                     step_number=7,
-                    name="Proposal tool result"
-                    if name in {"transfer_eth", "transfer_erc20", "faucet_claim"}
-                    else "READ tool result",
+                    name=step_name,
                     status="SUCCESS" if ok else "FAILED",
-                    tool_name=event.data["name"],
+                    tool_name=name,
                     result=row,
-                    duration_ms=event.data.get("duration_ms"),
+                    duration_ms=event_data.get("duration_ms"),
                 )
             )
-        elif event.type == "final":
-            reply = event.data["content"]
-        elif event.type == "error":
+        elif event_type == "final":
+            reply = event_data.get("content", "")
+            has_final_llm_reply = bool(reply and reply.strip())
+        elif event_type == "error":
             error = "LLM_ERROR"
-            diagnostic = event.data.get("diagnostic")
+            diagnostic = event_data.get("diagnostic", {})
             diagnostic = diagnostic if isinstance(diagnostic, dict) else {}
             code = diagnostic.get("http_status")
-            safe_status = code if type(code) is int else None
+            safe_status = code if isinstance(code, int) else None
             timeline.append(
                 TimelineStep(
                     step_number=8,
@@ -71,50 +105,70 @@ def map_agent_response(*, events, query, rag, request_context, timeline, start) 
                     },
                 )
             )
-        # Do not return or persist provider thought events in the API timeline.
+
     if error:
-        reply = "Agent chưa hoàn thành thao tác. Hãy kiểm tra lỗi và các công cụ đang được bật."
         if error == "LLM_ERROR":
-            reasons = {
-                400: "Gemini từ chối nội dung hoặc cấu trúc request (HTTP 400). Cần kiểm tra log API.",
-                401: "API key không được chấp nhận (HTTP 401). Hãy kiểm tra cấu hình provider.",
-                403: "API key hoặc project chưa có quyền gọi model (HTTP 403).",
-                404: "Không tìm thấy model đã cấu hình hoặc endpoint tương ứng (HTTP 404).",
-                429: "Gemini đang giới hạn quota/tốc độ (HTTP 429). Hãy kiểm tra quota trước khi thử lại.",
-            }
-            reply = reasons.get(
-                safe_status,
-                "Lời gọi model thất bại. Xem lỗi ‘LLM call failed’ trong terminal chạy API; chưa có giao dịch nào được gửi bởi lời gọi này.",
+            err_key = (
+                f"LLM_ERROR_{safe_status}"
+                if safe_status in {400, 401, 403, 404, 429}
+                else "LLM_ERROR_DEFAULT"
             )
+            reply = get_localized_message(err_key, lang)
+        else:
+            reply = get_localized_message("AGENT_INCOMPLETE", lang)
+
     elif balance_results:
         # Render authoritative RPC amounts instead of accepting digits rewritten by the LLM.
         summaries = []
         for (name, address, _), balance in balance_results.items():
             symbol = balance.get("symbol", "ETH" if name == "get_native_balance" else "TOKEN")
             summaries.append(
-                f"Số dư của ví `{address}`: **{balance['balance']} {symbol}**.\n"
-                f"Raw balance: `{balance['raw_balance']}`."
+                get_localized_message(
+                    "BALANCE_SUMMARY",
+                    lang,
+                    address=address,
+                    balance=balance.get("balance", "0"),
+                    symbol=symbol,
+                    raw_balance=balance.get("raw_balance", "0"),
+                )
             )
         canonical = "\n\n".join(summaries)
-        # A READ used during transfer planning must not erase a question
-        # asking the user to supply a missing parameter.
         reply = (
             reply + "\n\n" + canonical
             if re.search(r"\b(?:chuyển|gửi|transfer|send)\b", query, re.I)
             else canonical
         )
-    elif selected is None and not rag.documents:
-        # Never echo raw reference headers or invent a documentation answer.
-        reply = "Chưa tìm thấy tài liệu phù hợp để trả lời câu hỏi này. Bạn hãy nêu rõ chức năng hoặc tên hàm cần tra cứu."
+
+    elif price_result and selected == "get_token_price":
+        # Ensure chart marker is present if LLM omitted it for ETH
+        marker = price_result.get("chart_marker")
+        sym = price_result.get("symbol", "ETH")
+        if sym == "ETH" and marker and marker not in reply:
+            reply = (reply.strip() + f"\n\n{marker}").strip()
+
+    elif selected is None and not (rag and getattr(rag, "documents", None)):
+        # For purely conversational queries (greetings, identity, pleasantries),
+        # keep the natural conversational reply.
+        # For non-conversational documentation lookups with no matches,
+        # never echo raw reference headers or invent documentation answers.
+        if not is_conversational_query(query):
+            reply = get_localized_message("DOC_NOT_FOUND", lang)
+        elif not has_final_llm_reply:
+            reply = get_localized_message("GREETING_DEFAULT", lang)
+
+    # Policy guardrail handling
     guardrail = (
-        request_context["proposal_results"][-1] if request_context["proposal_results"] else None
+        request_context.get("proposal_results")[-1]
+        if request_context.get("proposal_results")
+        else None
     )
     if guardrail is not None:
-        reply = (
-            "Giao dịch đã được chuẩn bị. Hãy kiểm tra và duyệt trong cửa sổ xác nhận; chưa có giao dịch nào được gửi."
-            if guardrail.requires_approval
-            else "Yêu cầu bị chặn: " + "; ".join(guardrail.violations)
-        )
+        if guardrail.requires_approval:
+            reply = get_localized_message("PROPOSAL_READY", lang)
+        else:
+            reply = get_localized_message(
+                "REQUEST_BLOCKED", lang, violations="; ".join(guardrail.violations)
+            )
         timeline.append(
             TimelineStep(
                 step_number=5,
@@ -123,6 +177,7 @@ def map_agent_response(*, events, query, rag, request_context, timeline, start) 
                 result=guardrail.model_dump(),
             )
         )
+
     timeline.append(
         TimelineStep(
             step_number=9,
@@ -139,14 +194,23 @@ def map_agent_response(*, events, query, rag, request_context, timeline, start) 
             duration_ms=round((time.perf_counter() - start) * 1000, 2),
         )
     )
+
+    intent = (
+        "llm_write_proposal"
+        if guardrail is not None
+        else "llm_price"
+        if selected == "get_token_price"
+        else "llm_read"
+        if selected
+        else "llm_faq"
+        if (rag and getattr(rag, "documents", None))
+        else "llm_chat"
+    )
+
     return AgentResponse(
         query=query,
         reply=reply,
-        intent="llm_write_proposal"
-        if guardrail is not None
-        else "llm_read"
-        if selected
-        else "llm_faq",
+        intent=intent,
         tool_selected=selected,
         timeline=timeline,
         rag_result=rag,
@@ -155,6 +219,6 @@ def map_agent_response(*, events, query, rag, request_context, timeline, start) 
         guardrail_result=guardrail,
         requires_approval=bool(guardrail and guardrail.requires_approval),
         approval_id=guardrail.pending_approval.approval_id
-        if guardrail and guardrail.pending_approval
+        if guardrail and getattr(guardrail, "pending_approval", None)
         else None,
     )

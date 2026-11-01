@@ -15,6 +15,7 @@ export function collectElements() {
     themeLabelText: document.getElementById('theme-label-text'),
     btnToggleLang: document.getElementById('btn-toggle-lang'),
     iconLangBtn: document.getElementById('icon-lang-btn'),
+    langOptAuto: document.getElementById('lang-opt-auto'),
     langOptEn: document.getElementById('lang-opt-en'),
     langOptVi: document.getElementById('lang-opt-vi'),
 

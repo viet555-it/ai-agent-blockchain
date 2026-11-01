@@ -19,13 +19,17 @@ async def handle_chat(request: Request, req: ChatRequest):
     legacy_only(request)
     try:
         wallet = req.wallet_address or request.app.state.demo_wallet
+        lang = req.language or "auto"
         if request.app.state.read_agent is not None:
             response = await request.app.state.read_agent.process_message(
-                req.query, wallet=wallet, session_id=req.session_id
+                req.query, wallet=wallet, session_id=req.session_id, language=lang
             )
         else:
             response = await asyncio.to_thread(
-                request.app.state.agent.process_message, query=req.query, user_wallet=wallet
+                request.app.state.agent.process_message,
+                query=req.query,
+                user_wallet=wallet,
+                language=lang,
             )
         return response
     except Exception:

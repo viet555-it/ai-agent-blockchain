@@ -7,13 +7,19 @@ import time
 from typing import Any
 
 from agent.service import AgentService
+from backend.agent.language import (
+    get_localized_message,
+    is_conversational_query,
+    resolve_language,
+)
 from backend.agent.models import AgentResponse, TimelineStep
 from backend.agent.prompts import read_system_prompt
-from backend.agent.query_rules import amount_clarification as amount_clarification
-from backend.agent.query_rules import normalize_retrieval_query as normalize_retrieval_query
-from backend.agent.read_tools import BackendReadRegistry as BackendReadRegistry
-from backend.agent.read_tools import BackendReadTool as BackendReadTool
-from backend.agent.read_tools import json_value as json_value
+from backend.agent.query_rules import amount_clarification, normalize_retrieval_query
+from backend.agent.read_tools import (
+    BackendReadRegistry,
+    BackendReadTool,
+    json_value,
+)
 from backend.agent.response_mapper import map_agent_response
 from backend.agent.retrieval_context import build_retrieval_context
 from backend.rag.rag_adapter import RAGSearchResult
@@ -47,39 +53,52 @@ class ReadAgentRuntime:
         self.service.clear_session(session_id)
         self._locks.pop(session_id, None)
 
-    async def process_message(self, query: str, *, wallet: str, session_id: str) -> AgentResponse:
+    async def process_message(
+        self, query: str, *, wallet: str, session_id: str, language: str = "auto"
+    ) -> AgentResponse:
         if session_id not in self._locks:
             if len(self._locks) >= 100:
                 raise RetrievalUnavailable("Maximum local demo sessions reached; restart the demo")
             self._locks[session_id] = asyncio.Lock()
         async with self._locks[session_id]:
-            return await self._process(query, wallet, session_id)
+            return await self._process(query, wallet, session_id, language=language)
 
-    async def _process(self, query: str, wallet: str, session_id: str) -> AgentResponse:
+    async def _process(
+        self, query: str, wallet: str, session_id: str, language: str = "auto"
+    ) -> AgentResponse:
         start = time.perf_counter()
+        effective_lang = resolve_language(language, query)
         timeline = [TimelineStep(step_number=1, name="Request received", status="SUCCESS")]
         retrieval_query = normalize_retrieval_query(query)
+        conversational = is_conversational_query(query)
+
+        chunks = []
         try:
             chunks = await self.retriever.retrieve(retrieval_query, k=5)
         except (InvalidQuery, RetrievalTimeout, RetrievalUnavailable) as exc:
-            result = RAGSearchResult(
-                query=query,
-                retrieval_query=retrieval_query,
-                provider="scoped_vector_db",
-                status=type(exc).__name__,
-            )
-            return AgentResponse(
-                query=query,
-                reply="Không thể truy xuất tài liệu; hãy kiểm tra RAG trước khi thử lại.",
-                intent="retrieval_error",
-                rag_result=result,
-                error=type(exc).__name__,
-                timeline=timeline,
-            )
+            # For conversational pleasantries / general chat, degrade gracefully without failing
+            if conversational:
+                chunks = []
+            else:
+                result = RAGSearchResult(
+                    query=query,
+                    retrieval_query=retrieval_query,
+                    provider="scoped_vector_db",
+                    status=type(exc).__name__,
+                )
+                return AgentResponse(
+                    query=query,
+                    reply=get_localized_message("RAG_UNAVAILABLE", effective_lang),
+                    intent="retrieval_error",
+                    rag_result=result,
+                    error=type(exc).__name__,
+                    timeline=timeline,
+                )
 
         scope = self.retriever.scope
         if any(not scope.accepts(chunk["metadata"]) for chunk in chunks):
             raise RetrievalUnavailable("Retriever returned a chunk outside its bound scope")
+
         memory = self.service.get_session(session_id)
         context, rag = build_retrieval_context(
             query=query,
@@ -91,6 +110,7 @@ class ReadAgentRuntime:
             memory=memory,
             token_budget=self._settings.effective_token_budget,
         )
+
         timeline.append(
             TimelineStep(
                 step_number=2,
@@ -104,6 +124,7 @@ class ReadAgentRuntime:
                 },
             )
         )
+
         clarification = amount_clarification(query)
         if clarification:
             memory.add_user(query)
@@ -123,14 +144,18 @@ class ReadAgentRuntime:
                 rag_result=rag,
                 timeline=timeline,
             )
+
         prompt = read_system_prompt(
-            self.blockchain.chain_id, proposals_enabled=self.transactions is not None
+            self.blockchain.chain_id,
+            proposals_enabled=self.transactions is not None,
+            language=effective_lang,
         )
         request_context = {
             "session_id": session_id,
             "wallet": wallet,
             "proposal_results": [],
             "stop_after_proposal": True,
+            "language": effective_lang,
         }
         events = await self.service.chat(
             session_id,
@@ -146,4 +171,5 @@ class ReadAgentRuntime:
             request_context=request_context,
             timeline=timeline,
             start=start,
+            language=effective_lang,
         )

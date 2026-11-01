@@ -36,7 +36,7 @@ class BlockchainAgent:
         # Fallback to deployer address if no active wallet is passed
         self.default_wallet = default_wallet or "0xeF9F53B00B069782256fC20697E7cf6a3136F9BC"
 
-    def process_message(self, query: str, user_wallet: str | None = None) -> AgentResponse:
+    def process_message(self, query: str, user_wallet: str | None = None, language: str = "auto") -> AgentResponse:
         """Process natural-language prompt and execute full 9-step workflow."""
         start_time = time.perf_counter()
         request_id = f"req-{uuid.uuid4().hex[:8]}"
@@ -89,7 +89,7 @@ class BlockchainAgent:
 
         # If it's a pure conversation / FAQ without tool call:
         if tool_name == "none":
-            reply = self._generate_faq_reply(query, rag_result)
+            reply = self._generate_faq_reply(query, rag_result, language=language)
             timeline.append(
                 TimelineStep(
                     step_number=9,
@@ -331,8 +331,9 @@ class BlockchainAgent:
         result: dict[str, Any] | None,
         error: str | None,
         rag_result: RAGSearchResult,
+        language: str = "auto",
     ) -> str:
-        return replies.format_read_reply(tool_name, result, error, rag_result)
+        return replies.format_read_reply(tool_name, result, error, rag_result, language=language)
 
-    def _generate_faq_reply(self, query: str, rag_result: RAGSearchResult) -> str:
-        return replies.generate_faq_reply(query, rag_result)
+    def _generate_faq_reply(self, query: str, rag_result: RAGSearchResult, language: str = "auto") -> str:
+        return replies.generate_faq_reply(query, rag_result, language=language)
