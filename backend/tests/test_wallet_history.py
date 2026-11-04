@@ -25,6 +25,7 @@ from backend.db.schema_v1 import (
     approvals,
     attempts,
     challenges,
+    conversations,
     messages,
     proposals,
     receipts,
@@ -45,6 +46,71 @@ ORIGIN = "http://testserver"
 
 
 class WalletHistoryTests(unittest.TestCase):
+    def test_archive_can_be_listed_and_restored(self):
+        context, _, _ = self.login()
+        chat = self.conversation(context)
+        path = f"/api/history/conversations/{chat}"
+        self.assertEqual(self.client.patch(path, json={"archived": True}).status_code, 200)
+        self.assertEqual(self.client.get("/api/history/conversations").json()["items"], [])
+        archived = self.client.get("/api/history/conversations?archived=true").json()["items"]
+        self.assertEqual(archived[0]["id"], chat)
+        self.assertEqual(self.client.patch(path, json={"archived": False}).status_code, 200)
+        self.assertEqual(
+            self.client.get("/api/history/conversations").json()["items"][0]["id"], chat
+        )
+
+    def test_delete_removes_messages_and_cancels_pending_proposals(self):
+        context, _, _ = self.login()
+        chat = self.conversation(context)
+        result = self.client.post(
+            f"/api/history/conversations/{chat}/turns",
+            json={
+                "query": "Hello",
+                "context_id": context["id"],
+                "generation": 1,
+                "client_request_id": "delete-turn",
+            },
+        )
+        self.assertEqual(result.status_code, 200, result.text)
+        proposal = self.propose(context, chat)
+        path = f"/api/history/conversations/{chat}"
+        self.assertEqual(self.client.delete(path).status_code, 200)
+        self.assertEqual(self.client.get(path + "/messages").status_code, 404)
+        remaining = self.client.get(f"/api/wallet-proposals/{proposal['approval_id']}").json()
+        self.assertIsNone(remaining["conversation_id"])
+        self.assertEqual(remaining["status"], "CANCELLED")
+        with self.app.state.wallet_db.transaction() as connection:
+            self.assertEqual(list(connection.execute(select(messages))), [])
+            self.assertEqual(list(connection.execute(select(turns))), [])
+
+    def test_delete_keeps_transaction_records_and_blocks_busy_or_other_wallet_chats(self):
+        proposal, submission, tx, receipt = self.submitted()
+        saved = self.client.get(f"/api/wallet-proposals/{proposal['approval_id']}").json()
+        chat = saved["conversation_id"]
+        path = f"/api/history/conversations/{chat}"
+        with self.app.state.wallet_db.transaction() as connection:
+            connection.execute(
+                update(conversations)
+                .where(conversations.c.id == chat)
+                .values(lease_until=time.time() + 60)
+            )
+        self.assertEqual(self.client.delete(path).status_code, 409)
+        with self.app.state.wallet_db.transaction() as connection:
+            connection.execute(
+                update(conversations).where(conversations.c.id == chat).values(lease_until=0)
+            )
+        self.assertEqual(self.client.delete(path).status_code, 200)
+        self.poll_now()
+        remaining = self.client.get(f"/api/wallet-proposals/{proposal['approval_id']}").json()
+        self.assertEqual(remaining["attempts"][0]["id"], submission["submission_id"])
+        self.assertEqual(remaining["attempts"][0]["receipt"]["receipt_status"], 1)
+        context, _, _ = self.login()
+        private_chat = self.conversation(context)
+        self.login(self.b)
+        self.assertEqual(
+            self.client.delete(f"/api/history/conversations/{private_chat}").status_code, 404
+        )
+
     def setUp(self):
         self.folder = Path(self.enterContext(tempfile.TemporaryDirectory()))
         self.url = "sqlite:///" + (self.folder / "history.db").as_posix()
@@ -338,6 +404,10 @@ class WalletHistoryTests(unittest.TestCase):
         result = self.client.post(f"/api/history/conversations/{conversation}/turns", json=body)
         self.assertEqual(result.status_code, 200, result.text)
         self.assertEqual(result.json()["status"], "COMPLETED", result.text)
+        listed = self.client.get("/api/history/conversations").json()["items"]
+        self.assertEqual(
+            next(item["title"] for item in listed if item["id"] == conversation), "private A"
+        )
         repeated = self.client.post(f"/api/history/conversations/{conversation}/turns", json=body)
         self.assertEqual(repeated.json(), result.json())
         self.assertEqual(self.llm.total_calls, 1)
@@ -362,6 +432,44 @@ class WalletHistoryTests(unittest.TestCase):
         with restored.transaction() as connection:
             self.assertEqual(len(list(connection.execute(select(turns)))), 2)
         restored.close()
+
+    def test_new_chat_gets_context_title_and_manual_rename_survives_later_messages(self):
+        context, _, _ = self.login()
+        conversation = self.client.post(
+            "/api/history/conversations",
+            json={
+                "context_id": context["id"],
+                "generation": context["generation"],
+                "title": "Chat mới",
+            },
+        ).json()["id"]
+        body = dict(
+            query="Kiểm tra số dư ví ETH. Sau đó xem giá gas.",
+            context_id=context["id"],
+            generation=context["generation"],
+            client_request_id="title-first",
+        )
+        response = self.client.post(f"/api/history/conversations/{conversation}/turns", json=body)
+        self.assertEqual(response.status_code, 200, response.text)
+        listing = self.client.get("/api/history/conversations").json()["items"]
+        self.assertEqual(listing[0]["title"], "Kiểm tra số dư ví ETH")
+        self.assertEqual(self.llm.total_calls, 1)
+        self.assertEqual(
+            self.client.patch(
+                f"/api/history/conversations/{conversation}", json={"title": "Ví dùng để demo"}
+            ).status_code,
+            200,
+        )
+        body.update(query="Bây giờ xem giá ETH", client_request_id="title-second")
+        response = self.client.post(f"/api/history/conversations/{conversation}/turns", json=body)
+        self.assertEqual(response.status_code, 200, response.text)
+        repeated = self.client.post(f"/api/history/conversations/{conversation}/turns", json=body)
+        self.assertEqual(repeated.json(), response.json())
+        self.assertEqual(self.llm.total_calls, 2)
+        with TestClient(self.make_app()) as restarted:
+            restarted.cookies.update(self.client.cookies)
+            listing = restarted.get("/api/history/conversations").json()["items"]
+            self.assertEqual(listing[0]["title"], "Ví dùng để demo")
 
     def test_authorize_tamper_duplicate_and_never_broadcasts(self):
         context, _, _ = self.login()
@@ -557,6 +665,9 @@ class WalletHistoryTests(unittest.TestCase):
         self.assertEqual(attempt["verification_status"], "MATCHED", result)
         self.assertEqual(attempt["status"], "FINALIZED", result)
         self.assertEqual(attempt["receipt"]["receipt_status"], 0)
+        history = self.client.get("/api/history/transactions").json()["items"]
+        self.assertEqual(history[0]["conversation_id"], result["conversation_id"])
+        self.assertEqual(history[0]["receipt_status"], 0)
 
     def test_reorg_removes_stale_receipt_and_returns_to_submitted(self):
         proposal, submission, tx, receipt = self.submitted()
@@ -874,9 +985,7 @@ class WalletHistoryTests(unittest.TestCase):
             self.assertEqual(row["status"], "SPENT")
             self.assertEqual(row["spent_at"], block_time)
             with self.app.state.wallet_db.transaction() as connection:
-                self.assertIsNone(
-                    connection.execute(select(send_locks.c.attempt_id)).scalar_one()
-                )
+                self.assertIsNone(connection.execute(select(send_locks.c.attempt_id)).scalar_one())
 
     def test_legacy_receipt_cannot_supply_its_own_verified_block_time(self):
         _, _, _, receipt = self.submitted()

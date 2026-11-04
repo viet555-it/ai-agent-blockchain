@@ -1,5 +1,11 @@
 const { test, expect } = require('@playwright/test');
 
+async function settingsAction(page, selector) {
+  await page.locator('#btn-settings').click();
+  await page.locator(selector).click();
+  await page.locator('#close-settings').click();
+}
+
 async function installWallet(page, { connected = true } = {}) {
   // Keep local E2E independent of external font/CDN availability.
   await page.route(/https:\/\/fonts\.(googleapis|gstatic)\.com\//, route => route.abort());
@@ -38,10 +44,10 @@ async function installWallet(page, { connected = true } = {}) {
 async function signIn(page) {
   // A single app action handles extension permission and authenticated login.
   if (!(await page.locator('#wallet-status').textContent()).includes('Agent ready')) {
-    await page.locator('#wallet-connect').click();
+    await page.locator('#wallet-chat-action').click();
   }
   await expect(page.locator('#wallet-status')).toContainText('Agent ready', { timeout: 20000 });
-  await expect(page.locator('#conversation-list option').first()).toBeAttached();
+  await expect(page.locator('#conversation-list .conversation-item').first()).toBeAttached();
   await expect(page.locator('#chat-input')).toBeEnabled();
 }
 
@@ -65,6 +71,7 @@ test('AGNT guardrail form persists limits for the active contract and blocks exc
   await installWallet(page);
   await page.goto('/');
   await signIn(page);
+  await page.locator('[data-page-link=guardrails]').click();
   await expect(page.locator('#input-per-tx-token')).not.toHaveValue('');
   await page.locator('#input-per-tx-token').fill('7');
   await page.locator('#input-daily-token').fill('21');
@@ -76,6 +83,7 @@ test('AGNT guardrail form persists limits for the active contract and blocks exc
   await expect(page.locator('#wallet-status')).toContainText('Agent ready');
   await expect(page.locator('#input-per-tx-token')).toHaveValue('7');
   await expect(page.locator('#input-daily-token')).toHaveValue('21');
+  await page.locator('[data-page-link="dry-run"]').click();
   await page.locator('#select-test-operation').selectOption('erc20_transfer');
   await page.locator('#input-test-amount').fill('8');
   await page.locator('#input-test-recipient').fill('0x70997970C51812dc3A010C7d01b50e0d17dc79C8');
@@ -88,14 +96,14 @@ test('AGNT guardrail form persists limits for the active contract and blocks exc
   const invalidCheck = page.waitForResponse(r => r.url().endsWith('/api/guardrail/test-block'));
   await page.locator('#btn-run-test-block').click();
   expect((await invalidCheck).status()).toBe(200);
-  await page.locator('#btn-toggle-lang').click();
+  await settingsAction(page, '#btn-toggle-lang');
   await expect(page.locator('#test-block-decision-badge')).toHaveText('CHẶN');
   await expect(page.locator('#test-block-reasons-list')).toContainText('Địa chỉ người nhận không đúng định dạng EVM');
   await expect(page.locator('#test-block-reasons-list')).toContainText('Số lượng 8 token vượt hạn mức 7 token');
   await expect(page.locator('#test-block-reasons-list')).not.toContainText('exceeds');
   // Translate the already displayed result without another API request.
-  await page.locator('#btn-toggle-lang').click();
-  await page.locator('#btn-toggle-lang').click();
+  await settingsAction(page, '#btn-toggle-lang');
+  await settingsAction(page, '#btn-toggle-lang');
   await expect(page.locator('#test-block-decision-badge')).toHaveText('BLOCK');
   await expect(page.locator('#test-block-reasons-list')).toContainText('Invalid EVM recipient address');
   await expect(page.locator('#test-block-reasons-list')).toContainText('Amount 8 tokens exceeds the per-transaction limit of 7 tokens.');
@@ -127,7 +135,7 @@ test('legacy chat, timeline, approval and theme work with native browser modules
   await page.goto('/');
   await expect(page.locator('#chat-history')).not.toBeEmpty();
   const theme = await page.locator('html').getAttribute('data-theme');
-  await page.locator('#btn-toggle-theme').click();
+  await settingsAction(page, '#btn-toggle-theme');
   await expect(page.locator('html')).toHaveAttribute('data-theme', theme === 'dark' ? 'light' : 'dark');
   await page.locator('#chat-input').fill('Prepare a transfer');
   await page.locator('#chat-form').evaluate(form => form.requestSubmit());
@@ -230,7 +238,7 @@ test('wallet controls and history fit a mobile viewport and support Vietnamese',
   await installWallet(page);
   await page.goto('/');
   await signIn(page);
-  await page.locator('#btn-toggle-lang').click();
+  await settingsAction(page, '#btn-toggle-lang');
   await expect(page.locator('#wallet-status')).toContainText('Agent sẵn sàng');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: '../.phase3/wallet-e2e/mobile.png', fullPage: true, animations: 'disabled' });
@@ -239,14 +247,14 @@ test('wallet controls and history fit a mobile viewport and support Vietnamese',
 test('the same Connect wallet action restores access when a login cookie expires', async ({ page, context }) => {
   await installWallet(page);
   await page.goto('/');
-  await expect(page.locator('#wallet-connect')).toBeVisible();
+  await expect(page.locator('#wallet-chat-action')).toBeVisible();
   await expect(page.locator('#wallet-chat-gate')).toBeVisible();
   await expect(page.locator('#header-wallet-address')).toContainText('0xf39');
   await checkGuestChat(page, 'Guest question before login');
   await signIn(page);
   await context.clearCookies();
   await page.reload();
-  await expect(page.locator('#wallet-connect')).toBeVisible();
+  await expect(page.locator('#wallet-chat-action')).toBeVisible();
   await expect(page.locator('#wallet-chat-guidance')).toContainText('Click Connect wallet');
   expect((await page.request.get('/api/history/conversations')).status()).toBe(401);
   await checkGuestChat(page, 'Guest question after cookie expiry');
@@ -258,9 +266,9 @@ test('the same Connect wallet action restores access when a login cookie expires
 test('one app click connects a fresh wallet, verifies its signature and opens Agent', async ({ page }) => {
   await installWallet(page, { connected: false });
   await page.goto('/');
-  await expect(page.locator('#wallet-connect')).toBeVisible();
+  await expect(page.locator('#wallet-chat-action')).toBeVisible();
   await expect(page.locator('#wallet-sign-in')).toHaveCount(0);
-  await page.locator('#wallet-connect').click();
+  await page.locator('#wallet-chat-action').click();
   await expect(page.locator('#wallet-status')).toContainText('Agent ready', { timeout: 20000 });
   await expect(page.locator('#chat-input')).toBeEnabled();
   await expect(page.locator('#wallet-connect')).toBeHidden();
@@ -300,11 +308,11 @@ test('header, composer and panels remain inside the viewport at phone, tablet an
   await installWallet(page);
   await page.goto('/');
   await signIn(page);
-  await page.locator('#btn-toggle-lang').click();
+  await settingsAction(page, '#btn-toggle-lang');
   for (const width of [360, 390, 768, 1024, 1280, 1536]) {
     await page.setViewportSize({ width, height: 900 });
     const problems = await page.evaluate(() => {
-      const selectors = ['.app-header', '#panel-chat', '#panel-blockchain', '#panel-activity', '#wallet-controls', '#chat-form', '#chat-input', '#btn-send-message'];
+      const selectors = ['.app-header', '#panel-chat', '#panel-blockchain', '#panel-activity', '#chat-form', '#chat-input', '#btn-send-message'];
       return selectors.filter(selector => {
         const box = document.querySelector(selector).getBoundingClientRect();
         return box.x < -1 || box.right > window.innerWidth + 1 || box.width < 20 || box.height < 15;

@@ -4,6 +4,10 @@ export function observeDashboardLayout(state, elements) {
   const measureHeader = () => document.documentElement.style.setProperty('--app-header-height', `${header.getBoundingClientRect().height}px`);
   new ResizeObserver(measureHeader).observe(header);
   measureHeader();
+  const navigation = document.querySelector('.workspace-nav');
+  const measureNavigation = () => document.documentElement.style.setProperty('--workspace-nav-height', `${navigation.getBoundingClientRect().height}px`);
+  new ResizeObserver(measureNavigation).observe(navigation);
+  measureNavigation();
   let userScrolling = false;
   let scrollTimer;
   const markUserScroll = () => {

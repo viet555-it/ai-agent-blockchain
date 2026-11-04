@@ -116,6 +116,20 @@ async def test_history_timeframe_validation():
             assert len(res["prices"]) > 0
 
 
+@pytest.mark.asyncio
+async def test_one_hour_uses_public_auto_granularity_and_filters_real_points():
+    service = PriceService()
+    latest = 1730007200000
+    response = MagicMock()
+    response.json.return_value = {"prices": [[latest - 7200000, 2490], [latest - 3600000, 2500], [latest - 1800000, 2505], [latest, 2510]]}
+    response.raise_for_status.return_value = None
+    with patch("httpx.AsyncClient.get", new=AsyncMock(return_value=response)) as get:
+        history = await service.get_price_history("1h")
+    assert get.call_args.kwargs["params"] == {"vs_currency": "usd", "days": "1"}
+    assert [point["price"] for point in history["prices"]] == [2500, 2505, 2510]
+    assert history["timeframe"] == "1h"
+
+
 def test_chainlink_parse():
     """Test decoding Chainlink Sepolia latestRoundData() ABI hex."""
     service = PriceService()

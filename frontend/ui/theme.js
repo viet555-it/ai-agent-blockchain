@@ -4,7 +4,6 @@ export function createThemeView(state, elements) {
   function initIcons() {
     elements.appBrandIcon.innerHTML = icons.bot;
     elements.btnCopyHeaderWallet.innerHTML = icons.copy;
-    elements.iconBlockchainPanel.innerHTML = icons.wallet;
     elements.btnRefreshAssets.innerHTML = icons.refresh;
     elements.iconExternalContract.innerHTML = icons.externalLink;
     elements.iconGuardrailBadge.innerHTML = icons.shield;

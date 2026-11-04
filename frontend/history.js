@@ -1,5 +1,5 @@
 import { api } from './api.js';
-import { t } from './i18n.js';
+import { t, onLanguageChange } from './i18n.js';
 
 /** Owner history uses textContent; no server/provider content is inserted as HTML. */
 export class HistoryView {
@@ -7,22 +7,43 @@ export class HistoryView {
     this.wallet = wallet;
     this.hooks = { clear, append, timeline, approval, error };
     this.conversations = [];
+    this.showArchived = false;
     this.readOnly = false;
     this.epoch = 0;
+    this.transactionOutcomes = new Map();
+    this.displayedOutcomes = new Set();
     const run = action => {
       const generation = wallet.generation;
       Promise.resolve().then(action).catch(problem => {
         if (wallet.current(generation)) error(problem);
       });
     };
-    this.nodes = Object.fromEntries(['conversation-list', 'conversation-more', 'history-new', 'history-rename', 'history-archive',
+    this.nodes = Object.fromEntries(['conversation-list', 'conversation-more', 'history-new',
       'history-transactions', 'transactions-more', 'history-audits', 'audits-more', 'history-refresh', 'history-older'].map(id => [id, document.getElementById(id)]));
-    this.nodes['conversation-list'].addEventListener('change', () => run(() => this.open(this.nodes['conversation-list'].value)));
-    this.nodes['history-new'].addEventListener('click', () => run(() => this.create()));
-    this.nodes['history-rename'].addEventListener('click', () => run(() => this.rename()));
-    this.nodes['history-archive'].addEventListener('click', () => run(() => this.archive()));
+    this.nodes['conversation-list'].addEventListener('click', event => {
+      const action = event.target.closest('[data-history-action]');
+      if (action && !action.disabled) {
+        action.closest('details').open = false;
+        const id = action.dataset.id;
+        const handlers = { rename: () => this.rename(id), archive: () => this.archive(id), restore: () => this.restore(id), delete: () => this.delete(id) };
+        run(handlers[action.dataset.historyAction]);
+        return;
+      }
+      const button = event.target.closest('[data-conversation-id]');
+      if (button && !button.disabled) run(async () => {
+        await this.open(button.dataset.conversationId);
+        window.location.hash = 'chat';
+      });
+    });
+    this.nodes['history-new'].addEventListener('click', () => run(async () => {
+      await this.create();
+      window.location.hash = 'chat';
+    }));
+    document.getElementById('history-search').addEventListener('input', () => this.filterConversations());
+    document.getElementById('history-archived-toggle').addEventListener('click', () => run(() => this.setArchivedView(!this.showArchived)));
+    onLanguageChange(() => this.renderConversations());
     this.nodes['history-refresh'].addEventListener('click', () => run(() => Promise.all([
-      this.refreshTransactions(), this.refreshAudit(), this.loadMessages(),
+      this.list(), this.refreshTransactions(), this.refreshAudit(), this.loadMessages(),
     ])));
     this.nodes['transactions-more'].addEventListener('click', () => run(() => this.refreshTransactions(this.txCursor)));
     this.nodes['audits-more'].addEventListener('click', () => run(() => this.refreshAudit(this.auditCursor)));
@@ -34,29 +55,82 @@ export class HistoryView {
     this.epoch++;
     this.wallet.conversation = null;
     this.conversations = [];
+    this.showArchived = false;
     this.readOnly = false;
+    this.transactionOutcomes.clear();
+    this.displayedOutcomes.clear();
     for (const name of ['conversation-list', 'history-transactions', 'history-audits']) this.nodes[name].replaceChildren();
     for (const name of ['history-older', 'transactions-more', 'audits-more', 'conversation-more']) this.nodes[name].hidden = true;
+    document.getElementById('history-search').value = '';
+    document.getElementById('history-no-results').hidden = true;
     this.hooks.clear();
   }
 
   async list(cursor) {
     if (!this.wallet.ready) return;
     const generation = this.wallet.generation;
-    const result = await api(`/history/conversations${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`);
-    if (!this.wallet.current(generation) || !this.wallet.ready) return;
+    const archived = this.showArchived;
+    const params = new URLSearchParams();
+    if (cursor) params.set('cursor', cursor);
+    if (archived) params.set('archived', 'true');
+    const result = await api(`/history/conversations${params.size ? `?${params}` : ''}`);
+    if (!this.wallet.current(generation) || !this.wallet.ready || archived !== this.showArchived) return;
     this.conversations = cursor ? [...this.conversations, ...result.items] : result.items;
     this.conversationCursor = result.next_cursor;
     this.nodes['conversation-more'].hidden = !result.next_cursor;
-    const select = this.nodes['conversation-list'];
-    select.replaceChildren();
+    this.renderConversations();
+  }
+
+  renderConversations() {
+    document.getElementById('history-list-heading').textContent = t(this.showArchived ? 'sidebar.archived' : 'sidebar.recent');
+    document.getElementById('history-archived-toggle').setAttribute('aria-pressed', String(this.showArchived));
+    const list = this.nodes['conversation-list'];
+    list.replaceChildren();
     for (const conversation of this.conversations) {
-      const option = document.createElement('option');
-      option.value = conversation.id;
+      const row = document.createElement('div');
+      row.className = 'conversation-row';
+      row.dataset.active = String(conversation.id === this.wallet.conversation);
+      row.dataset.title = conversation.title.toLocaleLowerCase();
+      const option = document.createElement('button');
+      option.type = 'button';
+      option.className = 'conversation-item';
+      option.dataset.conversationId = conversation.id;
+      option.setAttribute('aria-current', String(conversation.id === this.wallet.conversation));
       option.textContent = conversation.title + (conversation.deployment_id === this.wallet.context.deployment_id ? '' : ` (${t('wallet.previousNetwork')})`);
-      select.append(option);
+      option.title = option.textContent;
+      const menu = document.createElement('details');
+      menu.className = 'conversation-menu';
+      const summary = document.createElement('summary');
+      summary.textContent = '···';
+      summary.setAttribute('aria-label', t('sidebar.actions', { title: conversation.title }));
+      const actions = document.createElement('div');
+      actions.className = 'conversation-menu-items';
+      for (const name of ['rename', this.showArchived ? 'restore' : 'archive', 'delete']) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.dataset.historyAction = name;
+        button.dataset.id = conversation.id;
+        button.textContent = t(`wallet.${name}`);
+        actions.append(button);
+      }
+      menu.append(summary, actions);
+      menu.addEventListener('toggle', () => {
+        if (menu.open) list.querySelectorAll('details[open]').forEach(other => { if (other !== menu) other.open = false; });
+      });
+      row.append(option, menu);
+      list.append(row);
     }
-    if (this.wallet.conversation) select.value = this.wallet.conversation;
+    this.filterConversations();
+  }
+
+  filterConversations() {
+    const query = document.getElementById('history-search').value.trim().toLocaleLowerCase();
+    let visible = 0;
+    this.nodes['conversation-list'].querySelectorAll('.conversation-row').forEach(row => {
+      row.hidden = !row.dataset.title.includes(query);
+      if (!row.hidden) visible++;
+    });
+    document.getElementById('history-no-results').hidden = !query || visible > 0;
   }
 
   async initialize() {
@@ -76,6 +150,7 @@ export class HistoryView {
       context_id: this.wallet.context.id, generation: this.wallet.context.generation, title: t('wallet.newChat'),
     } });
     if (!this.wallet.current(generation)) return;
+    this.showArchived = false;
     await this.list();
     if (!this.wallet.current(generation)) return;
     await this.open(conversation.id);
@@ -85,8 +160,10 @@ export class HistoryView {
     if (!id || !this.wallet.ready) return;
     this.epoch++;
     this.wallet.conversation = id;
-    this.nodes['conversation-list'].value = id;
-    this.readOnly = this.conversations.find(item => item.id === id)?.deployment_id !== this.wallet.context.deployment_id;
+    this.renderConversations();
+    const conversation = this.conversations.find(item => item.id === id);
+    this.archivedReadOnly = Boolean(conversation?.archived_at);
+    this.readOnly = this.archivedReadOnly || conversation?.deployment_id !== this.wallet.context.deployment_id;
     this.hooks.clear();
     this.displayTurns = [];
     await this.loadMessages();
@@ -109,24 +186,63 @@ export class HistoryView {
     }
     const recent = this.displayTurns[0];
     if (recent?.response?.timeline) this.hooks.timeline(recent.response.timeline);
+    this.displayedOutcomes.clear();
+    this.renderTransactionOutcomes();
     // Never reopen old approvals automatically on reload.
   }
 
-  async rename() {
-    if (!this.wallet.ready || !this.wallet.conversation) return;
+  async rename(id = this.wallet.conversation) {
+    if (!this.wallet.ready || !id) return;
+    const generation = this.wallet.generation;
     const title = window.prompt(t('wallet.renamePrompt'));
     if (!title?.trim()) return;
-    await api(`/history/conversations/${this.wallet.conversation}`, { method: 'PATCH', body: { title: title.trim().slice(0, 120) } });
+    if (!this.wallet.current(generation)) return;
+    await api(`/history/conversations/${id}`, { method: 'PATCH', body: { title: title.trim().slice(0, 120) } });
+    if (!this.wallet.current(generation)) return;
     await this.list();
   }
 
-  async archive() {
-    if (!this.wallet.ready || !this.wallet.conversation) return;
+  async archive(id = this.wallet.conversation) {
+    if (!this.wallet.ready || !id) return;
     const generation = this.wallet.generation;
-    await api(`/history/conversations/${this.wallet.conversation}`, { method: 'PATCH', body: { archived: true } });
+    await api(`/history/conversations/${id}`, { method: 'PATCH', body: { archived: true } });
     if (!this.wallet.current(generation)) return;
+    if (id !== this.wallet.conversation) { await this.list(); return; }
     this.wallet.conversation = null;
     await this.initialize();
+  }
+
+  async setArchivedView(archived) {
+    if (!this.wallet.ready) return;
+    this.showArchived = archived;
+    this.conversationCursor = null;
+    await this.list();
+  }
+
+  async restore(id) {
+    if (!this.wallet.ready) return;
+    const generation = this.wallet.generation;
+    await api(`/history/conversations/${id}`, { method: 'PATCH', body: { archived: false } });
+    if (!this.wallet.current(generation)) return;
+    this.showArchived = false;
+    await this.list();
+    if (this.wallet.current(generation)) await this.open(id);
+  }
+
+  async delete(id) {
+    if (!this.wallet.ready || !window.confirm(t('wallet.deleteConfirm'))) return;
+    const generation = this.wallet.generation;
+    await api(`/history/conversations/${id}`, { method: 'DELETE' });
+    if (!this.wallet.current(generation)) return;
+    for (const [key, transaction] of this.transactionOutcomes) {
+      if (transaction.conversation_id === id) this.transactionOutcomes.delete(key);
+    }
+    if (id !== this.wallet.conversation) { await this.list(); return; }
+    this.wallet.conversation = null;
+    this.epoch++;
+    this.hooks.clear();
+    if (this.showArchived) await this.list();
+    else await this.initialize();
   }
 
   async refreshTransactions(cursor) {
@@ -137,6 +253,7 @@ export class HistoryView {
     const container = this.nodes['history-transactions'];
     if (!cursor) container.replaceChildren();
     for (const transaction of result.items) {
+      this.transactionOutcomes.set(transaction.id, transaction);
       const row = document.createElement('button');
       row.type = 'button';
       row.className = 'history-entry';
@@ -148,6 +265,27 @@ export class HistoryView {
     if (!container.childElementCount) container.textContent = t('wallet.noTransactions');
     this.txCursor = result.next_cursor;
     this.nodes['transactions-more'].hidden = !result.next_cursor;
+    this.renderTransactionOutcomes();
+  }
+
+  renderTransactionOutcomes() {
+    for (const transaction of this.transactionOutcomes.values()) {
+      if (transaction.conversation_id !== this.wallet.conversation || transaction.verification_status !== 'MATCHED') continue;
+      const success = transaction.receipt_status === 1 && ['MINED_SUCCESS', 'FINALIZED'].includes(transaction.status);
+      const reverted = transaction.receipt_status === 0 && ['MINED_REVERTED', 'FINALIZED'].includes(transaction.status);
+      if (!success && !reverted) continue;
+      const key = `${this.wallet.conversation}:${transaction.id}:${transaction.receipt_status}`;
+      if (this.displayedOutcomes.has(key)) continue;
+      this.displayedOutcomes.add(key);
+      const parameters = transaction.parameters;
+      let message = `${t(success ? 'modal.confirmedMsg' : 'modal.revertedMsg')}\n\n**${parameters.amount} ${parameters.token_symbol || 'ETH'}**`;
+      if (parameters.recipient) message += `\n${t('modal.recipient')}: \`${parameters.recipient}\``;
+      message += `\n**Tx Hash:** \`${transaction.tx_hash || t('wallet.unknownHash')}\``;
+      if (parameters.chain_id === 11155111 && /^0x[0-9a-f]{64}$/i.test(transaction.tx_hash || '')) {
+        message += `\n[Etherscan](https://sepolia.etherscan.io/tx/${transaction.tx_hash})`;
+      }
+      this.hooks.append('agent', message);
+    }
   }
 
   async showTransaction(proposalId) {

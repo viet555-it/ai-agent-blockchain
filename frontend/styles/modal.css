@@ -50,6 +50,9 @@
   transition: background-color var(--transition-normal);
 }
 
+#btn-close-approval { flex: none; width: 36px; height: 36px; font-size: 1.5rem; }
+.approval-wallet-hint { flex-shrink: 0; padding: .85rem 1.5rem; color: var(--text-muted); background: var(--bg-modal-footer); border-top: 1px solid var(--border-subtle); font-size: .8rem; line-height: 1.6; }
+
 .modal-title {
   font-family: var(--font-heading);
   font-size: 1.05rem;

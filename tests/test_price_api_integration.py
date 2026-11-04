@@ -1,16 +1,19 @@
 """Integration test for Price API endpoints and AI Agent intent."""
 
+import os
 from unittest.mock import MagicMock, patch
 
 from fastapi.testclient import TestClient
 
 from backend.api.server import create_app
+from backend.runtime_profiles import isolated_test_environment
 
 mock_blockchain = MagicMock()
 mock_blockchain.chain_id = 31337
 mock_blockchain.network_manager = MagicMock()
 
-app = create_app(blockchain=mock_blockchain)
+with patch.dict(os.environ, isolated_test_environment(), clear=True):
+    app = create_app(profile="unit", agent_mode="legacy", blockchain=mock_blockchain, enable_local_writes=False)
 
 mock_simple_price = {
     "ethereum": {

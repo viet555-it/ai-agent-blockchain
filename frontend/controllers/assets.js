@@ -5,6 +5,7 @@ export function createAssetsController(state, view, client = dashboardApi) {
   let activeWhitelist = [];
   let activeTokenAddress = null;
   let activeTokenLimits = {};
+  let activeContractLimit = null;
 
   async function loadNetworkStatus() {
     try {
@@ -44,6 +45,7 @@ export function createAssetsController(state, view, client = dashboardApi) {
       const data = await client.getGuardrailConfig(address);
       if (state.walletMode && !state.walletController.current(generation)) return;
       activeTokenAddress = data.token_address;
+      activeContractLimit = data.contract_transfer_limit;
       activeTokenLimits = { ...(data.token_limits || {}) };
       activeWhitelist = [...(data.recipient_whitelist || [])];
       view.renderGuardrailConfig(data, updatedList => {
@@ -73,6 +75,7 @@ export function createAssetsController(state, view, client = dashboardApi) {
     if (btn) btn.disabled = true;
 
     try {
+      if (!activeContractLimit || perTxToken > Number(activeContractLimit.per_tx_limit)) throw new Error(t('guardrail.contractLimitError'));
       const tokenAddress = activeTokenAddress || state.wallet?.token_address || state.network?.contract_address;
       if (!/^0x[0-9a-f]{40}$/i.test(tokenAddress || '') || /^0x0{40}$/i.test(tokenAddress)) {
         throw new Error('AGNT contract is unavailable. Refresh blockchain data and try again.');
@@ -106,7 +109,47 @@ export function createAssetsController(state, view, client = dashboardApi) {
       console.error('Save guardrail config error:', err);
       view.setGuardrailSaveStatus(`${t('guardrail.configSaveError')}: ${err.message}`, true);
     } finally {
-      if (btn) btn.disabled = false;
+      if (btn) btn.disabled = !activeContractLimit;
+    }
+  }
+
+  async function handleContractLimit(e) {
+    e.preventDefault();
+    const wallet = state.walletController;
+    if (!wallet?.ready || state.updatingContractLimit) return;
+    const generation = wallet.generation;
+    const provider = wallet.provider;
+    const status = document.getElementById('contract-limit-status');
+    const button = document.getElementById('btn-save-contract-limit');
+    const amount = document.getElementById('input-contract-limit').value.trim();
+    state.updatingContractLimit = true;
+    let hash;
+    button.disabled = true;
+    status.textContent = t('guardrail.contractWaiting');
+    try {
+      const config = await client.getGuardrailConfig(wallet.address);
+      if (!wallet.current(generation)) return;
+      hash = await wallet.setTransferLimit(config.contract_transfer_limit, amount);
+      if (!wallet.current(generation)) return;
+      status.textContent = t('guardrail.contractPending', { hash });
+      for (let attempt = 0; attempt < 60; attempt++) {
+        const receipt = await provider.request({ method: 'eth_getTransactionReceipt', params: [hash] });
+        if (!wallet.current(generation)) return;
+        if (receipt) {
+          if (BigInt(receipt.status) !== 1n) throw new Error(t('modal.revertedMsg'));
+          status.textContent = t('guardrail.contractUpdated');
+          await loadGuardrailConfig();
+          return;
+        }
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        if (!wallet.current(generation)) return;
+      }
+      // Keep the hash visible; a delayed receipt must never trigger a resend.
+    } catch (error) {
+      if (wallet.current(generation)) status.textContent = hash ? `${t('guardrail.contractPending', { hash })}\n${error.message}` : error.message;
+    } finally {
+      state.updatingContractLimit = false;
+      button.disabled = false;
     }
   }
 
@@ -165,6 +208,7 @@ export function createAssetsController(state, view, client = dashboardApi) {
   }
 
   function bindGuardrailEvents() {
+    document.getElementById('contract-limit-form').addEventListener('submit', handleContractLimit);
     const formConfig = document.getElementById('guardrail-config-form');
     if (formConfig) formConfig.addEventListener('submit', handleSaveGuardrailConfig);
 

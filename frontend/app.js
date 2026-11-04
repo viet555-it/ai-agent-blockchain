@@ -18,8 +18,10 @@ import { createWalletGate } from './ui/wallet-gate.js';
 import { createPriceChartView } from './ui/price-chart.js';
 import { bindDashboardEvents } from './ui/events.js';
 import { observeDashboardLayout } from './ui/layout.js';
+import { initializeWorkspace } from './ui/workspace.js';
 
 async function bootstrap() {
+  initializeWorkspace();
   const state = createDashboardState();
   const elements = collectElements();
   const theme = createThemeView(state, elements);
@@ -96,9 +98,11 @@ async function bootstrap() {
       assets.loadNetworkStatus();
       assets.loadWalletInfo();
       prices.loadCurrentPrice();
-      if (state.walletMode) state.historyView.refreshTransactions().catch(() => {});
     }
   }, 20000);
+  setInterval(() => {
+    if (state.walletMode) state.historyView.refreshTransactions().catch(() => {});
+  }, 5000);
 }
 
 if (document.readyState === 'loading') {

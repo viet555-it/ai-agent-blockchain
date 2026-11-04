@@ -2,6 +2,15 @@ import { api, transactionForProvider } from './api.js';
 
 export const sameAddress = (left, right) => Boolean(left && right && left.toLowerCase() === right.toLowerCase());
 
+export function tokenLimitUnits(value, decimals) {
+  if (!Number.isInteger(decimals) || decimals < 0 || decimals > 255 || !/^\d+(?:\.\d+)?$/.test(value)) throw new Error('Invalid token amount');
+  const [whole, fraction = ''] = value.split('.');
+  if (fraction.length > decimals) throw new Error('Too many decimal places');
+  const raw = BigInt(whole + fraction.padEnd(decimals, '0'));
+  if (raw <= 0n || raw >= 2n ** 256n) throw new Error('Token limit is out of range');
+  return raw;
+}
+
 /** One controller owns account/context generations. Stale responses never update the view. */
 export class WalletController extends EventTarget {
   constructor(chainId) {
@@ -228,6 +237,29 @@ export class WalletController extends EventTarget {
         } }).catch(() => {});
       }
       throw error;
+    } finally { this.signing = false; this.changed(); }
+  }
+
+  async setTransferLimit(contract, amount) {
+    if (!this.ready || this.signing || this.authenticating) throw new Error('Finish the open wallet request first.');
+    if (!contract) throw new Error('Refresh the contract information before changing the limit.');
+    if (!sameAddress(this.address, contract.owner) || contract.chain_id !== this.expectedChain) throw new Error('Only the contract owner on the correct network may change this limit.');
+    if (!/^0x[0-9a-f]{40}$/i.test(contract.address) || !/^0x[0-9a-f]{8}$/i.test(contract.setter_selector)) throw new Error('Invalid contract information');
+    const raw = tokenLimitUnits(amount, contract.decimals);
+    const generation = this.generation;
+    this.signing = true;
+    this.changed();
+    try {
+      await this.assertAccount(generation);
+      const transaction = {
+        from: this.address, to: contract.address, value: '0x0',
+        chainId: `0x${BigInt(this.expectedChain).toString(16)}`,
+        data: contract.setter_selector + raw.toString(16).padStart(64, '0'),
+      };
+      await this.provider.request({ method: 'eth_call', params: [transaction, 'latest'] });
+      transaction.gas = await this.provider.request({ method: 'eth_estimateGas', params: [transaction] });
+      await this.assertAccount(generation);
+      return await this.provider.request({ method: 'eth_sendTransaction', params: [transaction] });
     } finally { this.signing = false; this.changed(); }
   }
 

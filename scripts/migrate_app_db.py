@@ -19,7 +19,7 @@ def main():
     try:
         database.migrate()
         database.check_schema()
-        print("Application schema is up to date (0001).")
+        print("Application schema is up to date.")
     finally:
         database.close()
 

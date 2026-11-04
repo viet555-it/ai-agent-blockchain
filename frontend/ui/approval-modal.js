@@ -5,6 +5,7 @@ export function createApprovalModal(state, elements) {
     document.getElementById('modal-sender').textContent = approval.parameters.sender || state.wallet?.address || '--';
     state.pendingApproval = approval;
     state.activeApprovalParameters = approval.parameters;
+    document.getElementById('approval-wallet-hint').hidden = true;
 
     elements.modalOpName.textContent = approval.operation;
     elements.modalRecipient.textContent = approval.parameters.recipient || 'N/A';
