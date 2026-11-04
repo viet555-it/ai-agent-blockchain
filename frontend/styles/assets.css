@@ -284,6 +284,17 @@
   padding: 0 0.15rem;
 }
 
+.whitelist-tag .whitelist-copy {
+  color: inherit;
+  font: inherit;
+  padding: .15rem 0;
+}
+
+.whitelist-tag .whitelist-copy:hover { color: var(--primary); }
+.whitelist-tag button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+.whitelist-copy-status { color: var(--text-muted); font-size: .75rem; }
+.whitelist-copy-status:empty { display: none; }
+
 .whitelist-add-row {
   display: flex;
   gap: 0.35rem;

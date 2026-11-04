@@ -115,7 +115,8 @@
     "pendingMsg": "Đã gửi giao dịch, đang chờ receipt. Không gửi lại yêu cầu.",
     "unknownMsg": "Chưa xác định kết quả giao dịch. Cần kiểm tra nonce/chain; không gửi lại.",
     "statusMsg": "Trạng thái giao dịch: {status}",
-    "unknownHash": "chưa xác định"
+    "unknownHash": "chưa xác định",
+    "walletPendingHint": "Đang chờ MetaMask. Bạn có thể đóng cửa sổ này; hãy xác nhận hoặc từ chối yêu cầu ký trong MetaMask."
   },
   "wallet": {
     "deploymentUnavailable": "Contract chưa khớp với node Hardhat hiện tại. Giữ node chạy, chạy .\\.venv-phase3\\Scripts\\python.exe -m scripts.setup_local_demo, khởi động lại API rồi kết nối lại ví. Giữ nguyên database lịch sử.",
@@ -164,7 +165,11 @@
     "pendingRequest": "MetaMask đang có yêu cầu chờ. Mở extension để xác nhận hoặc đóng yêu cầu đó.",
     "wrongOrigin": "Mở đúng địa chỉ APP_ORIGIN được cấu hình trên server, ví dụ http://127.0.0.1:8000.",
     "confirmInWallet": "Đang kết nối…",
-    "addNetworkFirst": "Thêm mạng của app vào MetaMask trước (Hardhat local: chain 31337, RPC http://127.0.0.1:8545)."
+    "addNetworkFirst": "Thêm mạng của app vào MetaMask trước (Hardhat local: chain 31337, RPC http://127.0.0.1:8545).",
+    "restore": "Khôi phục",
+    "delete": "Xóa",
+    "deleteConfirm": "Xóa vĩnh viễn đoạn chat và các tin nhắn? Lịch sử giao dịch của ví vẫn được giữ lại.",
+    "archivedChat": "Đoạn chat này đã lưu trữ. Hãy khôi phục trong Chat đã lưu trữ để tiếp tục, hoặc tạo chat mới."
   },
   "prices": {
     "title": "THEO DÕI GIÁ ETH / USD",
@@ -176,12 +181,13 @@
     "below": "Xuống dưới",
     "addAlert": "Đặt Cảnh Báo",
     "noAlerts": "Chưa có cảnh báo nào được đặt.",
-    "alertTriggered": "Cảnh báo: Giá ETH đã {direction} mức !",
+    "alertTriggered": "Cảnh báo: Giá ETH đã {direction} mức ${threshold}.",
     "source": "Nguồn",
     "updatedAt": "Cập nhật lúc {time}",
     "apiError": "Dữ liệu giá tạm thời không khả dụng",
     "chainlinkLabel": "Chainlink Sepolia",
-    "coingeckoLabel": "CoinGecko"
+    "coingeckoLabel": "CoinGecko",
+    "historyUnavailable": "Chưa tải được lịch sử giá. Vui lòng chọn khung thời gian khác hoặc thử lại sau."
   },
   "guardrail": {
     "title": "CẤU HÌNH GUARDRAIL VÍ",
@@ -232,6 +238,43 @@
       "allowed": "Giao dịch hợp lệ và được phép thực hiện.",
       "approvalRequired": "Giao dịch hợp lệ; cần duyệt trên ứng dụng trước khi ký bằng MetaMask.",
       "checkFailed": "Không thể kiểm tra giao dịch lúc này. Vui lòng thử lại."
-    }
+    },
+    "copyFailed": "Không thể sao chép. Vui lòng cho phép truy cập bộ nhớ tạm và thử lại.",
+    "contractCeiling": "Trần smart contract: {limit} AGNT mỗi giao dịch. Chỉ owner có thể đổi trần này trên blockchain. Hạn mức 24 giờ của ứng dụng là độc lập.",
+    "contractUnavailable": "Chưa đọc được trần smart contract. Hãy làm mới mạng trước khi sửa hạn mức token.",
+    "contractOwnerLimit": "Trần smart contract (chỉ owner)",
+    "changeContractLimit": "Cập nhật qua MetaMask",
+    "contractOwnerNote": "Đây là giao dịch on-chain riêng, thay đổi trần chuyển cho tất cả ví. Hạn mức của ứng dụng cần lưu riêng bên dưới.",
+    "contractWaiting": "Vui lòng xác nhận thay đổi trần trong MetaMask.",
+    "contractPending": "Đã gửi thay đổi trần, đang chờ xác nhận. Hash: {hash}",
+    "contractUpdated": "Đã cập nhật trần smart contract. Bạn có thể lưu hạn mức ứng dụng mới.",
+    "contractLimitError": "Hạn mức mỗi giao dịch không được vượt trần đã xác minh của smart contract."
+  },
+  "workspace": {
+    "settings": "Cài đặt",
+    "balance": "Số dư ví",
+    "hideHistory": "Ẩn lịch sử chat",
+    "hideActivity": "Ẩn hoạt động",
+    "activity": "Hoạt động",
+    "chat": "Trò chuyện",
+    "backChat": "Quay lại chat",
+    "close": "Đóng",
+    "historyHint": "Kết nối ví để lưu và xem lại các cuộc trò chuyện.",
+    "history": "Lịch sử chat"
+  },
+  "sidebar": {
+    "recent": "Gần đây",
+    "search": "Tìm kiếm cuộc trò chuyện",
+    "noResults": "Không tìm thấy cuộc trò chuyện.",
+    "account": "Ví của bạn",
+    "actions": "Thao tác với {title}",
+    "archived": "Chat đã lưu trữ"
+  },
+  "preferences": {
+    "appearance": "Giao diện",
+    "language": "Ngôn ngữ",
+    "theme": "Chủ đề",
+    "network": "Trạng thái mạng",
+    "chain": "Mã mạng (Chain ID)"
   }
 }

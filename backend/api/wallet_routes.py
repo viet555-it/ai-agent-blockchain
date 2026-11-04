@@ -17,12 +17,14 @@ from backend.db.schema_v1 import wallets
 from backend.guardrail.policy_engine import PolicyEngine
 from backend.services.browser_wallet import proposal_scope
 from backend.services.daily_limits import DailyLimitService
+from backend.services.contract_limits import read_transfer_ceiling
 from backend.services.wallet.limits import transfer_limit_request
 from backend.services.wallet_common import fail, record_audit, require_context, revoke_contexts
 from backend.token_amounts import format_token_units, to_token_units
 from backend.wallet_errors import WalletErrorKind as ErrorKind
 
 router = APIRouter(prefix="/api")
+logger = logging.getLogger(__name__)
 
 
 class Body(BaseModel):
@@ -153,9 +155,10 @@ def list_conversations(
     request: Request,
     cursor: str | None = None,
     deployment_id: str | None = None,
+    archived: bool = False,
     identity=AUTHENTICATED,
 ):
-    return request.app.state.history.list(identity, cursor, deployment_id)
+    return request.app.state.history.list(identity, cursor, deployment_id, archived)
 
 
 @router.post("/history/conversations")
@@ -177,6 +180,11 @@ def conversation_messages(
     conversation_id: str, request: Request, cursor: str | None = None, identity=AUTHENTICATED
 ):
     return request.app.state.history.list_turns(identity, conversation_id, cursor)
+
+
+@router.delete("/history/conversations/{conversation_id}")
+def delete_conversation(conversation_id: str, request: Request, identity=AUTHENTICATED):
+    return request.app.state.history.delete(identity, conversation_id)
 
 
 @router.get("/history/turns/{turn_id}")
@@ -380,6 +388,13 @@ def get_guardrail_config(
     except Exception:
         pass
     token_per_tx = active_policy.get_per_tx_limit("erc20_transfer", token_addr)
+    contract_limit = None
+    if token_addr:
+        try:
+            contract_limit = read_transfer_ceiling(state.browser_wallet.blockchain, token_addr)
+            token_per_tx = min(token_per_tx, Decimal(contract_limit["per_tx_limit"]))
+        except Exception:
+            logger.warning("AgentToken transfer ceiling unavailable")
     token_daily = active_policy.get_daily_limit("erc20_transfer", token_addr)
     daily_token_remaining = str(token_daily)
 
@@ -420,6 +435,7 @@ def get_guardrail_config(
         "daily_native_spent": daily_native_spent,
         "daily_native_remaining": daily_native_remaining,
         "token_address": token_addr,
+        "contract_transfer_limit": contract_limit,
         "per_tx_token_limit": float(token_per_tx),
         "daily_token_limit": float(token_daily),
         "daily_token_spent": daily_token_spent,
@@ -448,6 +464,21 @@ def update_guardrail_config(
         )
 
     valid_whitelist = []
+    token_addr = state.browser_wallet.contract_address
+    try:
+        ceiling = read_transfer_ceiling(state.browser_wallet.blockchain, token_addr)
+    except Exception:
+        fail(ErrorKind.DEPENDENCY_UNAVAILABLE, "CONTRACT_LIMIT_UNAVAILABLE", "Cannot verify the smart contract transfer limit. Try again after refreshing the network.")
+    default_limit = state.policy_engine.config.get_per_tx_limit("erc20_transfer", token_addr)
+    limits = next((value for address, value in body.token_limits.items() if address.lower() == token_addr.lower()), {})
+    try:
+        per_tx = Decimal(str(limits.get("per_tx_limit", default_limit)))
+        if not per_tx.is_finite() or per_tx < 0:
+            raise ValueError("Invalid limit")
+    except (AttributeError, TypeError, ValueError, ArithmeticError):
+        fail(ErrorKind.INVALID_INPUT, "INVALID_LIMIT", "Token transfer limit must be a finite non-negative number.")
+    if per_tx > Decimal(ceiling["per_tx_limit"]):
+        fail(ErrorKind.INVALID_INPUT, "CONTRACT_TRANSFER_LIMIT", f"Per-transaction limit cannot exceed the smart contract ceiling of {ceiling['per_tx_limit']} AGNT.")
     for w in body.recipient_whitelist:
         if w and isinstance(w, str) and Web3.is_address(w):
             valid_whitelist.append(Web3.to_checksum_address(w))

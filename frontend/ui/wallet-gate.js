@@ -12,7 +12,7 @@ export function createWalletGate(state, elements) {
     if (!wallet.providers.size) { message = 'noProvider'; action = 'detectWallet'; }
     else if (wallet.status === 'wrongNetwork') { message = 'gateNetwork'; }
     else if (wallet.address && !wallet.ready) { message = 'gateSignIn'; }
-    else if (wallet.ready) { message = state.historyLoading ? 'loadingChat' : state.historyView?.readOnly ? 'oldChat' : 'gateNewChat'; action = 'newChat'; }
+    else if (wallet.ready) { message = state.historyLoading ? 'loadingChat' : state.historyView?.archivedReadOnly ? 'archivedChat' : state.historyView?.readOnly ? 'oldChat' : 'gateNewChat'; action = 'newChat'; }
     document.getElementById('wallet-chat-guidance').textContent = t(`wallet.${message}`, { chain: wallet.expectedChain });
     const button = document.getElementById('wallet-chat-action');
     button.textContent = t(`wallet.${action}`);
@@ -24,10 +24,13 @@ export function createWalletGate(state, elements) {
     elements.btnSendMessage.disabled = inputDisabled;
     elements.promptChips.querySelectorAll('button').forEach(button => { button.disabled = inputDisabled; });
 
-    for (const id of ['history-new', 'history-rename', 'history-archive', 'conversation-list']) {
+    for (const id of ['history-new', 'history-archived-toggle', 'conversation-list']) {
       const el = document.getElementById(id);
       if (el) el.disabled = !wallet.ready || state.historyLoading;
     }
+    document.querySelectorAll('#conversation-list button').forEach(button => {
+      button.disabled = !wallet.ready || state.historyLoading;
+    });
     const controls = document.getElementById('wallet-controls');
     const agentReady = wallet.ready && wallet.conversation && !state.historyLoading && !state.historyView?.readOnly;
     if (controls) controls.dataset.ready = String(Boolean(agentReady));

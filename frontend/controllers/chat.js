@@ -43,6 +43,8 @@ export function createChatController(state, elements, {
           language: activeLang,
         });
         if (!current()) return;
+        // The first prompt gives a new conversation its persisted context title.
+        state.historyView.list().catch(error => console.warn('Unable to refresh chat titles:', error));
         data = result.response;
         if (!data) throw new Error(t('wallet.turnStatus', { status: result.status }));
       } else {

@@ -26,50 +26,21 @@
       <span class="brand-tag" data-i18n="brand.tag">GUARDRAIL ENGINE v1.0</span>
     </div>
 
-    <div class="header-status-group">
-      <!-- Network Status Chip -->
-      <div class="status-chip" id="network-chip">
-        <span class="pulse-dot" id="network-pulse"></span>
-        <span id="header-network-name" data-i18n="header.connecting">Connecting...</span>
+    <div class="header-wallet-summary">
+      <div class="balance-summary">
+        <span class="balance-caption" data-i18n="workspace.balance">Wallet balance</span>
+        <div class="balance-values"><span><strong id="val-native-balance">--</strong> <span id="val-native-symbol">ETH</span></span><span><strong id="val-token-balance">--</strong> AGNT</span></div>
       </div>
-
-      <!-- RPC Latency Chip -->
-      <div class="status-chip" id="rpc-chip">
-        <span id="rpc-latency-text">RPC: -- ms</span>
-      </div>
-
-      <!-- Wallet Address Chip -->
       <div class="status-chip" id="wallet-chip">
         <span id="header-wallet-address">0x...</span>
         <button class="icon-button" id="btn-copy-header-wallet" title="Copy Address" data-i18n-title="header.copyWallet"></button>
       </div>
 
-      <!-- Theme Switcher & Language Switcher Controls -->
-      <div class="header-actions">
-        <!-- Language Switcher Toggle -->
-        <button class="action-pill-btn" id="btn-toggle-lang" title="Switch Language (Auto/EN/VI)" data-i18n-title="header.langToggle">
-          <span id="icon-lang-btn"></span>
-          <span class="lang-indicator">
-            <span class="lang-opt" id="lang-opt-auto">AUTO</span>
-            <span>/</span>
-            <span class="lang-opt active" id="lang-opt-en">EN</span>
-            <span>/</span>
-            <span class="lang-opt" id="lang-opt-vi">VI</span>
-          </span>
-        </button>
-
-        <!-- Dynamic Theme Switcher Toggle -->
-        <button class="action-pill-btn" id="btn-toggle-theme" title="Toggle Theme" data-i18n-title="header.themeToggle">
-          <span id="icon-theme-btn"></span>
-          <span id="theme-label-text">Dark</span>
-        </button>
-      </div>
-    </div>
     <div id="wallet-controls" class="wallet-controls" hidden>
       <select id="wallet-provider" aria-label="Wallet provider"></select>
       <button type="button" id="wallet-connect" class="action-pill-btn wallet-primary" data-i18n="wallet.connectSignIn">Connect wallet to use Agent</button>
       <details id="wallet-menu" class="wallet-menu" hidden>
-        <summary aria-label="Wallet actions"><span class="wallet-ready-dot" aria-hidden="true"></span><span id="wallet-menu-address"></span><span aria-hidden="true">⌄</span></summary>
+        <summary aria-label="Wallet actions"><span class="wallet-ready-dot" aria-hidden="true"></span><span id="wallet-menu-address"></span><svg class="dropdown-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
         <div class="wallet-menu-items">
           <button type="button" id="wallet-copy" data-i18n="header.copyWallet">Copy address</button>
           <button type="button" id="wallet-switch" data-i18n="wallet.change">Change account</button>
@@ -78,89 +49,109 @@
       </details>
       <span id="wallet-status" role="status" aria-live="polite"></span>
     </div>
+      <button type="button" class="action-pill-btn settings-trigger" id="btn-settings" aria-haspopup="dialog" aria-controls="settings-dialog"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m9 3-1 3-3 1 1 3-2 2 2 2-1 3 3 1 1 3h6l1-3 3-1-1-3 2-2-2-2 1-3-3-1-1-3Z"/><circle cx="12" cy="12" r="3"/></svg><span data-i18n="workspace.settings">Settings</span></button>
+    </div>
   </header>
 
-  <!-- 3-Column Dashboard Container -->
+  <nav class="workspace-nav" aria-label="Workspace">
+    <button type="button" class="action-pill-btn" id="show-left-panel" aria-controls="panel-blockchain" aria-expanded="true" data-i18n="workspace.history" hidden>Chat history</button>
+    <a class="workspace-link" href="#chat" data-page-link="chat" data-i18n="workspace.chat">Chat</a>
+    <a class="workspace-link" href="#prices" data-page-link="prices" data-i18n="prices.title">ETH / USD Price Tracker</a>
+    <a class="workspace-link" href="#guardrails" data-page-link="guardrails" data-i18n="guardrail.title">Wallet Guardrail Configuration</a>
+    <a class="workspace-link" href="#dry-run" data-page-link="dry-run" data-i18n="guardrail.testBlockTitle">Test Block (Dry-run)</a>
+
+  </nav>
+
+  <!-- Workspace -->
   <main class="app-container">
-    
-    <!-- Column 1: Blockchain & Security Panel -->
-    <aside class="glass-panel" id="panel-blockchain">
+
+    <!-- Conversation history sidebar -->
+    <aside class="glass-panel chat-sidebar" id="panel-blockchain" aria-label="Chat history">
+      <div class="sidebar-heading">
+        <a class="sidebar-brand" href="#chat">AI Agent</a>
+        <div class="sidebar-heading-actions">
+          <button type="button" class="sidebar-icon" id="history-search-toggle" title="Search chats" data-i18n-title="sidebar.search" aria-expanded="false" aria-controls="history-search-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
+          <button type="button" class="sidebar-icon" data-hide-panel="left" title="Hide chat history" data-i18n-title="workspace.hideHistory" aria-controls="panel-blockchain"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m7-7-7 7 7 7"/></svg></button>
+        </div>
+      </div>
+      <div class="sidebar-search" id="history-search-wrap" hidden>
+        <input type="search" id="history-search" placeholder="Search chats" data-i18n-placeholder="sidebar.search" aria-label="Search chats" autocomplete="off" />
+      </div>
+      <button type="button" id="history-new" class="sidebar-new-chat" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 4H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2v-7"/><path d="m16 3 5 5-10 10-5 1 1-5Z"/></svg><span data-i18n="wallet.newChat">New chat</span></button>
+      <button type="button" id="history-archived-toggle" class="sidebar-archive-toggle" aria-pressed="false" disabled><span data-i18n="sidebar.archived">Archived chats</span></button>
+      <div class="sidebar-scroll">
+        <section id="wallet-history" class="wallet-history" hidden>
+          <div class="sidebar-section-heading"><button type="button" id="history-recent-toggle" aria-expanded="true" aria-controls="conversation-list"><span id="history-list-heading" data-i18n="sidebar.recent">Recents</span><svg class="dropdown-chevron recent-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><button type="button" class="sidebar-icon" id="history-refresh" title="Refresh history" data-i18n-title="wallet.refresh">↻</button></div>
+          <div id="conversation-list" class="conversation-list" role="group" aria-label="Conversations"></div>
+          <p id="history-no-results" class="history-empty" data-i18n="sidebar.noResults" hidden>No matching conversations.</p>
+          <button type="button" id="conversation-more" class="sidebar-more" data-i18n="wallet.more" hidden>More</button>
+          <button type="button" id="history-older" class="sidebar-more" data-i18n="wallet.older" hidden>Older messages</button>
+        </section>
+        <p class="history-empty" id="history-empty" data-i18n="workspace.historyHint">Connect your wallet to save and revisit conversations.</p>
+      </div>
+    </aside>
+
+    <!-- Column 2: Main Chat Workspace -->
+    <section class="glass-panel chat-workspace" id="panel-chat">
       <div class="panel-header">
-        <h2 class="panel-title" id="title-blockchain-panel">
-          <span class="panel-icon" id="icon-blockchain-panel"></span>
-          <span data-i18n="network.title">NETWORK &amp; ASSETS</span>
+        <h2 class="panel-title" id="title-chat-panel">
+          <span class="panel-icon" id="icon-chat-panel"></span>
+          <span data-i18n="chat.title">AI AGENT CONVERSATION</span>
         </h2>
-        <button class="icon-button" id="btn-refresh-assets" title="Refresh blockchain info" data-i18n-title="network.refreshTooltip"></button>
+        <div class="chat-header-actions"><span class="panel-badge success-badge" id="agent-mode-badge" data-i18n="chat.agentMode">AUTONOMOUS AGENT ACTIVE</span><button type="button" class="icon-button" id="show-right-panel" aria-controls="panel-activity" aria-expanded="true" data-i18n-title="workspace.activity" title="Activity"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M15 4v16"/></svg></button></div>
       </div>
 
-      <div class="panel-body">
-        <section id="wallet-history" class="info-card wallet-history" hidden>
-          <div class="info-label" data-i18n="wallet.history">Your history</div>
-          <select id="conversation-list" aria-label="Conversations"></select>
-          <div class="history-actions">
-            <button type="button" id="history-new" data-i18n="wallet.newChat">New chat</button>
-            <button type="button" id="history-rename" data-i18n="wallet.rename">Rename</button>
-            <button type="button" id="history-archive" data-i18n="wallet.archive">Archive</button>
-            <button type="button" id="conversation-more" data-i18n="wallet.more" hidden>More</button>
-            <button type="button" id="history-older" data-i18n="wallet.older" hidden>Older messages</button>
-          </div>
-          <button type="button" id="history-refresh" data-i18n="wallet.refresh">Refresh history</button>
-          <details><summary data-i18n="wallet.transactions">Transactions</summary>
-            <div id="history-transactions"></div>
-            <button type="button" id="transactions-more" data-i18n="wallet.more" hidden>More</button>
-          </details>
-          <details><summary data-i18n="wallet.audit">Activity</summary>
-            <div id="history-audits"></div>
-            <button type="button" id="audits-more" data-i18n="wallet.more" hidden>More</button>
-          </details>
-        </section>
-        <!-- Native Balance Card -->
-        <div class="info-card">
-          <div class="info-label" data-i18n="network.nativeBalance">Native Balance</div>
-          <div class="info-value-row">
-            <div>
-              <span class="info-main-val" id="val-native-balance">0.0000</span>
-              <span class="info-unit" id="val-native-symbol">ETH</span>
-            </div>
-            <span class="panel-badge" id="badge-chain-id">Chain --</span>
-          </div>
-        </div>
+      <div id="wallet-chat-gate" class="wallet-chat-gate" hidden>
+        <p id="wallet-chat-guidance" role="status"></p>
+        <button type="button" id="wallet-chat-action" class="action-pill-btn"></button>
+      </div>
+      <!-- Chat History -->
+      <div class="chat-history" id="chat-history">
+        <!-- Messages will be injected by JavaScript -->
+      </div>
 
-        <!-- AGNT Token Balance Card -->
-        <div class="info-card">
-          <div class="info-label" data-i18n="network.tokenBalance">AgentToken (AGNT) Balance</div>
-          <div class="info-value-row">
-            <div>
-              <span class="info-main-val primary-val" id="val-token-balance">0.00</span>
-              <span class="info-unit">AGNT</span>
-            </div>
-            <span class="panel-badge primary-badge">ERC-20</span>
-          </div>
-        </div>
+      <!-- Quick Prompt Suggestions -->
+      <div class="prompt-chips" id="prompt-chips">
+        <button class="prompt-chip" id="chip-prompt-1" data-prompt-key="chat.promptBalanceQuery" data-prompt="Check the balance of this wallet.">
+          <span data-i18n="chat.promptBalance">Check wallet balance</span>
+        </button>
+        <button class="prompt-chip" id="chip-prompt-2" data-prompt-key="chat.promptTokenInfoQuery" data-prompt="Read the token contract information.">
+          <span data-i18n="chat.promptTokenInfo">Read token contract info</span>
+        </button>
+        <button class="prompt-chip" id="chip-prompt-3" data-prompt-key="chat.promptGasQuery" data-prompt="Check current gas prices.">
+          <span data-i18n="chat.promptGas">Check gas prices</span>
+        </button>
+        <button class="prompt-chip" id="chip-prompt-4" data-prompt-key="chat.promptSimulateQuery" data-prompt="Simulate a transfer of 50 AGNT to 0x70997970C51812dc3A010C7d01b50e0d17dc79C8">
+          <span data-i18n="chat.promptSimulate">Simulate 50 AGNT transfer</span>
+        </button>
+        <button class="prompt-chip" id="chip-prompt-5" data-prompt-key="chat.promptTransferQuery" data-prompt="Transfer 25 AGNT to 0x70997970C51812dc3A010C7d01b50e0d17dc79C8">
+          <span data-i18n="chat.promptTransfer">Prepare 25 AGNT transfer</span>
+        </button>
+      </div>
 
-        <!-- Smart Contract Card -->
-        <div class="info-card">
-          <div class="info-label" id="contract-network-label" data-i18n="network.smartContract">Smart Contract</div>
-          <div class="info-mono" id="val-contract-address">0x...</div>
-          <div class="contract-link-row">
-            <a href="#" target="_blank" rel="noopener noreferrer" class="prompt-chip" id="link-contract-explorer">
-              <span data-i18n="network.viewEtherscan">View Etherscan</span>
-              <span id="icon-external-contract"></span>
-            </a>
-          </div>
+      <!-- Message Composer -->
+      <form class="chat-composer" id="chat-form">
+        <div class="composer-input-wrapper">
+          <input
+            type="text"
+            id="chat-input"
+            class="composer-input"
+            placeholder="Instruct the AI Agent (e.g. 'Check balance', 'Transfer 50 AGNT to 0x...')"
+            data-i18n-placeholder="chat.inputPlaceholder"
+            autocomplete="off"
+            required
+          />
         </div>
+        <button type="submit" class="btn-send" id="btn-send-message">
+          <span data-i18n="chat.send">SEND</span>
+          <span id="icon-send-btn"></span>
+        </button>
+      </form>
+    </section>
 
-        <!-- Gas Price Card -->
-        <div class="info-card">
-          <div class="info-label" data-i18n="network.gasTracker">Gas Tracker (EIP-1559)</div>
-          <div class="info-value-row">
-            <span class="info-main-val" id="val-gas-price">--</span>
-            <span class="info-unit">Gwei</span>
-          </div>
-          <div class="info-mono" id="val-base-fee">Base fee: -- Gwei</div>
-        </div>
-
-        <!-- ETH/USD Price Tracker Card -->
+    <section class="glass-panel feature-page" id="page-prices" aria-labelledby="title-prices" hidden>
+      <div class="panel-header"><h2 class="panel-title" id="title-prices" tabindex="-1" data-i18n="prices.title">ETH / USD Price Tracker</h2><a class="workspace-link" href="#chat" data-i18n="workspace.backChat">Back to chat</a></div>
+      <div class="panel-body">        <!-- ETH/USD Price Tracker Card -->
         <div class="info-card price-card" id="price-tracker-card">
           <div class="price-card-header">
             <div class="info-label" style="margin-bottom: 0;" data-i18n="prices.title">ETH / USD Price</div>
@@ -185,6 +176,7 @@
 
           <div class="price-chart-wrapper">
             <canvas id="price-chart-canvas"></canvas>
+            <div id="price-chart-status" class="price-chart-status" role="status" hidden></div>
           </div>
 
           <!-- Multi-Currency Comparison Table -->
@@ -218,7 +210,11 @@
           </details>
         </div>
 
-        <!-- Guardrail Configuration Card -->
+</div>
+    </section>
+    <section class="glass-panel feature-page" id="page-guardrails" aria-labelledby="title-guardrails" hidden>
+      <div class="panel-header"><h2 class="panel-title" id="title-guardrails" tabindex="-1" data-i18n="guardrail.title">Wallet Guardrail Configuration</h2><a class="workspace-link" href="#chat" data-i18n="workspace.backChat">Back to chat</a></div>
+      <div class="panel-body">        <!-- Guardrail Configuration Card -->
         <div class="info-card gold-bordered" id="guardrail-management-card">
           <div class="info-label primary-color">
             <span id="icon-guardrail-badge"></span>
@@ -226,9 +222,13 @@
           </div>
 
           <!-- Smart contract disclaimer note -->
-          <div class="guardrail-disclaimer" data-i18n="guardrail.smartContractNote">
-            Lưu ý: Việc thay đổi cấu hình trong ứng dụng không tự động làm thay đổi giới hạn được thiết lập trong smart contract (ví dụ: trần 500 AGNT của AgentToken).
-          </div>
+          <div class="guardrail-disclaimer" id="contract-limit-note" role="status"></div>
+          <form id="contract-limit-form" class="contract-limit-form" hidden>
+            <label for="input-contract-limit" data-i18n="guardrail.contractOwnerLimit">Smart contract ceiling (owner only)</label>
+            <div class="contract-limit-actions"><input type="number" id="input-contract-limit" min="0" step="any" required /><span>AGNT</span><button type="submit" class="action-pill-btn" id="btn-save-contract-limit" data-i18n="guardrail.changeContractLimit">Update via MetaMask</button></div>
+            <p class="guardrail-subnote" data-i18n="guardrail.contractOwnerNote">This is a separate on-chain transaction that changes the transfer ceiling for all wallets. Application limits are saved separately below.</p>
+            <p id="contract-limit-status" class="guardrail-subnote" role="status"></p>
+          </form>
 
           <form id="guardrail-config-form" class="guardrail-form">
             <!-- Native ETH Limits -->
@@ -263,7 +263,7 @@
                 <div class="form-field">
                   <label for="input-per-tx-token" data-i18n="guardrail.perTxLimit">Hạn mức mỗi GD</label>
                   <div class="input-with-unit">
-                    <input type="number" id="input-per-tx-token" step="1" min="0" placeholder="100" required />
+                    <input type="number" id="input-per-tx-token" step="any" min="0" placeholder="100" required />
                     <span class="input-unit">AGNT</span>
                   </div>
                 </div>
@@ -289,6 +289,7 @@
                 <label for="check-enforce-whitelist" data-i18n="guardrail.enforceWhitelist">Bắt buộc áp dụng Whitelist</label>
               </div>
               <div id="guardrail-whitelist-tags" class="whitelist-tags-container"></div>
+              <div id="whitelist-copy-status" class="whitelist-copy-status" role="status" aria-live="polite"></div>
               <div class="whitelist-add-row">
                 <input type="text" id="input-whitelist-address" placeholder="0x..." data-i18n-placeholder="guardrail.whitelistPlaceholder" />
                 <button type="button" id="btn-add-whitelist" class="action-pill-btn sm" data-i18n="guardrail.addAddress">Thêm</button>
@@ -314,7 +315,11 @@
           </form>
         </div>
 
-        <!-- Dry-Run Test Block Card ("Thử chặn") -->
+</div>
+    </section>
+    <section class="glass-panel feature-page" id="page-dry-run" aria-labelledby="title-dry-run" hidden>
+      <div class="panel-header"><h2 class="panel-title" id="title-dry-run" tabindex="-1" data-i18n="guardrail.testBlockTitle">Test Block (Dry-run)</h2><a class="workspace-link" href="#chat" data-i18n="workspace.backChat">Back to chat</a></div>
+      <div class="panel-body">        <!-- Dry-Run Test Block Card ("Thử chặn") -->
         <div class="info-card" id="guardrail-test-block-card">
           <div class="info-label primary-color">
             <span class="panel-icon">🧪</span>
@@ -356,65 +361,7 @@
             <div class="test-block-details-grid" id="test-block-details-grid"></div>
           </div>
         </div>
-      </div>
-    </aside>
-
-    <!-- Column 2: Main Chat Workspace -->
-    <section class="glass-panel chat-workspace" id="panel-chat">
-      <div class="panel-header">
-        <h2 class="panel-title" id="title-chat-panel">
-          <span class="panel-icon" id="icon-chat-panel"></span>
-          <span data-i18n="chat.title">AI AGENT CONVERSATION</span>
-        </h2>
-        <span class="panel-badge success-badge" id="agent-mode-badge" data-i18n="chat.agentMode">AUTONOMOUS AGENT ACTIVE</span>
-      </div>
-
-      <div id="wallet-chat-gate" class="wallet-chat-gate" hidden>
-        <p id="wallet-chat-guidance" role="status"></p>
-        <button type="button" id="wallet-chat-action" class="action-pill-btn"></button>
-      </div>
-      <!-- Chat History -->
-      <div class="chat-history" id="chat-history">
-        <!-- Messages will be injected by JavaScript -->
-      </div>
-
-      <!-- Quick Prompt Suggestions -->
-      <div class="prompt-chips" id="prompt-chips">
-        <button class="prompt-chip" id="chip-prompt-1" data-prompt-key="chat.promptBalanceQuery" data-prompt="Check the balance of this wallet.">
-          <span data-i18n="chat.promptBalance">Check wallet balance</span>
-        </button>
-        <button class="prompt-chip" id="chip-prompt-2" data-prompt-key="chat.promptTokenInfoQuery" data-prompt="Read the token contract information.">
-          <span data-i18n="chat.promptTokenInfo">Read token contract info</span>
-        </button>
-        <button class="prompt-chip" id="chip-prompt-3" data-prompt-key="chat.promptGasQuery" data-prompt="Check current gas prices.">
-          <span data-i18n="chat.promptGas">Check gas prices</span>
-        </button>
-        <button class="prompt-chip" id="chip-prompt-4" data-prompt-key="chat.promptSimulateQuery" data-prompt="Simulate a transfer of 50 AGNT to 0x70997970C51812dc3A010C7d01b50e0d17dc79C8">
-          <span data-i18n="chat.promptSimulate">Simulate 50 AGNT transfer</span>
-        </button>
-        <button class="prompt-chip" id="chip-prompt-5" data-prompt-key="chat.promptTransferQuery" data-prompt="Transfer 25 AGNT to 0x70997970C51812dc3A010C7d01b50e0d17dc79C8">
-          <span data-i18n="chat.promptTransfer">Prepare 25 AGNT transfer</span>
-        </button>
-      </div>
-
-      <!-- Message Composer -->
-      <form class="chat-composer" id="chat-form">
-        <div class="composer-input-wrapper">
-          <input 
-            type="text" 
-            id="chat-input" 
-            class="composer-input" 
-            placeholder="Instruct the AI Agent (e.g. 'Check balance', 'Transfer 50 AGNT to 0x...')"
-            data-i18n-placeholder="chat.inputPlaceholder"
-            autocomplete="off"
-            required
-          />
-        </div>
-        <button type="submit" class="btn-send" id="btn-send-message">
-          <span data-i18n="chat.send">SEND</span>
-          <span id="icon-send-btn"></span>
-        </button>
-      </form>
+</div>
     </section>
 
     <!-- Column 3: Agent Activity & Tool Execution Timeline -->
@@ -424,10 +371,33 @@
           <span class="panel-icon" id="icon-activity-panel"></span>
           <span data-i18n="timeline.title">AGENT WORKFLOW TIMELINE</span>
         </h2>
-        <span class="panel-badge" id="timeline-step-count">0 / 9 Steps</span>
+        <div class="panel-header-actions"><span class="panel-badge" id="timeline-step-count">0 / 9 Steps</span><button type="button" class="icon-button" data-hide-panel="right" title="Hide activity" data-i18n-title="workspace.hideActivity" aria-controls="panel-activity"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-7-7 7 7-7 7"/></svg><span class="visually-hidden" data-i18n="workspace.hideActivity">Hide activity</span></button></div>
       </div>
 
       <div class="panel-body" id="timeline-container">
+        <section class="network-overview" aria-label="Blockchain information">        <!-- Smart Contract Card -->
+        <div class="info-card network-detail-card">
+          <div class="info-label" id="contract-network-label" data-i18n="network.smartContract">Smart Contract</div>
+          <div class="info-mono" id="val-contract-address">0x...</div>
+          <div class="contract-link-row">
+            <a href="#" target="_blank" rel="noopener noreferrer" class="prompt-chip" id="link-contract-explorer">
+              <span data-i18n="network.viewEtherscan">View Etherscan</span>
+              <span id="icon-external-contract"></span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Gas Price Card -->
+        <div class="info-card network-detail-card">
+          <div class="info-label" data-i18n="network.gasTracker">Gas Tracker (EIP-1559)</div>
+          <div class="info-value-row">
+            <span class="info-main-val" id="val-gas-price">--</span>
+            <span class="info-unit">Gwei</span>
+          </div>
+          <div class="info-mono" id="val-base-fee">Base fee: -- Gwei</div>
+        </div>
+
+</section>
         <!-- Empty state placeholder -->
         <div id="timeline-empty-state" class="timeline-empty-container">
           <div id="icon-empty-timeline" class="timeline-empty-icon"></div>
@@ -437,6 +407,15 @@
           </div>
         </div>
 
+        <section class="wallet-history activity-history" id="wallet-activity-history" hidden>          <details><summary data-i18n="wallet.transactions">Transactions</summary>
+            <div id="history-transactions"></div>
+            <button type="button" id="transactions-more" data-i18n="wallet.more" hidden>More</button>
+          </details>
+          <details><summary data-i18n="wallet.audit">Activity</summary>
+            <div id="history-audits"></div>
+            <button type="button" id="audits-more" data-i18n="wallet.more" hidden>More</button>
+          </details>
+</section>
         <div class="timeline-list" id="timeline-list" style="display: none;">
           <!-- Timeline steps dynamically rendered here -->
         </div>
@@ -444,6 +423,47 @@
     </aside>
 
   </main>
+
+  <dialog id="settings-dialog" class="settings-dialog" aria-labelledby="settings-title">
+    <div class="panel-header"><h2 class="panel-title" id="settings-title" data-i18n="workspace.settings">Settings</h2><button type="button" class="icon-button" id="close-settings" data-i18n-title="workspace.close" title="Close"><span aria-hidden="true">×</span><span class="visually-hidden" data-i18n="workspace.close">Close</span></button></div>
+    <div class="settings-body">
+      <section class="settings-group" aria-labelledby="settings-appearance">
+        <h3 class="settings-group-title" id="settings-appearance" data-i18n="preferences.appearance">Appearance</h3>
+        <div class="settings-row"><span data-i18n="preferences.language">Language</span>        <button class="action-pill-btn" id="btn-toggle-lang" title="Switch Language (Auto/EN/VI)" data-i18n-title="header.langToggle">
+          <span id="icon-lang-btn"></span>
+          <span class="lang-indicator">
+            <span class="lang-opt" id="lang-opt-auto">AUTO</span>
+            <span>/</span>
+            <span class="lang-opt active" id="lang-opt-en">EN</span>
+            <span>/</span>
+            <span class="lang-opt" id="lang-opt-vi">VI</span>
+          </span>
+        </button>
+
+</div>
+        <div class="settings-row"><span data-i18n="preferences.theme">Theme</span>        <button class="action-pill-btn" id="btn-toggle-theme" title="Toggle Theme" data-i18n-title="header.themeToggle">
+          <span id="icon-theme-btn"></span>
+          <span id="theme-label-text">Dark</span>
+        </button>
+</div>
+      </section>
+      <section class="settings-group" aria-labelledby="settings-network">
+        <div class="settings-group-heading"><h3 class="settings-group-title" id="settings-network" data-i18n="preferences.network">Network status</h3><button type="button" class="icon-button" id="btn-refresh-assets" title="Refresh blockchain info" data-i18n-title="network.refreshTooltip"></button></div>
+        <div class="settings-network-status">      <div class="status-chip" id="network-chip">
+        <span class="pulse-dot" id="network-pulse"></span>
+        <span id="header-network-name" data-i18n="header.connecting">Connecting...</span>
+      </div>
+
+      <!-- RPC Latency Chip -->
+      <div class="status-chip" id="rpc-chip">
+        <span id="rpc-latency-text">RPC: -- ms</span>
+      </div>
+
+</div>
+        <div class="settings-row"><span data-i18n="preferences.chain">Chain ID</span><span class="panel-badge" id="badge-chain-id">Chain --</span></div>
+      </section>
+    </div>
+  </dialog>
 
   <!-- Dedicated Transaction Review and Approval Modal -->
   <div class="modal-backdrop" id="approval-modal">
@@ -454,6 +474,7 @@
           <span data-i18n="modal.title">TRANSACTION APPROVAL REQUIRED</span>
         </h3>
         <span class="panel-badge primary-badge" data-i18n="modal.hitlBadge">HUMAN-IN-THE-LOOP</span>
+        <button type="button" class="icon-button" id="btn-close-approval" title="Close" data-i18n-title="workspace.close" aria-label="Close"><span aria-hidden="true">×</span></button>
       </div>
 
       <div class="modal-body">
@@ -510,6 +531,7 @@
         </div>
       </div>
 
+      <p id="approval-wallet-hint" class="approval-wallet-hint" data-i18n="modal.walletPendingHint" hidden>Waiting for MetaMask. You can close this dialog; confirm or reject the signing request in MetaMask.</p>
       <div class="modal-footer">
         <button type="button" class="btn-reject" id="btn-modal-reject" data-i18n="modal.btnReject">
           REJECT TRANSACTION

@@ -137,6 +137,7 @@ def transaction_history_query(principal):
             proposals.c.operation,
             proposals.c.parameters,
             proposals.c.deployment_id,
+            proposals.c.conversation_id,
             receipts.c.receipt_status,
             receipts.c.confirmations,
         )

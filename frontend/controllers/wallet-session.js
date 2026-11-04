@@ -20,13 +20,27 @@ export function createWalletSession(state, elements, { appendMessage, renderTime
 
   async function initializeWalletMode(health) {
     state.walletMode = health.wallet_history_enabled;
-    if (!state.walletMode) return;
+    if (!state.walletMode) {
+      const newChat = document.getElementById('history-new');
+      newChat.disabled = false;
+      newChat.addEventListener('click', () => {
+        clearWalletView();
+        state.sessionId = crypto.randomUUID();
+        state.pendingApproval = null;
+        state.activeApprovalParameters = null;
+        appendMessage('agent', t('chat.welcomeGreeting'));
+        window.location.hash = 'chat';
+        elements.chatInput.value = '';
+      });
+      return;
+    }
     const wallet = new WalletController(health.chain_id);
     state.walletController = wallet;
     const controls = document.getElementById('wallet-controls');
     controls.hidden = false;
     document.getElementById('wallet-chip').hidden = true;
     document.getElementById('wallet-history').hidden = false;
+    document.getElementById('wallet-activity-history').hidden = false;
     const reportError = error => {
       const messages = { 4001: 'rejectedRequest', '-32002': 'pendingRequest', 4902: 'addNetworkFirst', ORIGIN: 'wrongOrigin', AUTH_REQUIRED: 'gateSignIn', DEPLOYMENT_UNAVAILABLE: health.chain_id === 31337 ? 'deploymentUnavailable' : undefined };
       const message = messages[error.code];
@@ -54,6 +68,7 @@ export function createWalletSession(state, elements, { appendMessage, renderTime
       renderWalletGate();
     };
     const update = () => {
+      document.getElementById('history-empty').hidden = wallet.ready;
       if (generation !== wallet.generation) {
         generation = wallet.generation;
         document.getElementById('wallet-menu').open = false;

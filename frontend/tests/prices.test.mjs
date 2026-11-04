@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createPriceController } from '../controllers/prices.js';
+globalThis.document = { cookie: '' };
 
 test('createPriceController loads price data and handles error without fake numbers', async () => {
   let renderedPrice = null;
@@ -41,5 +42,19 @@ test('createPriceController handles alerts without repeating continuously', asyn
   assert.equal(typeof controller.loadComparison, 'function');
   assert.equal(typeof controller.addAlert, 'function');
   assert.equal(typeof controller.removeAlert, 'function');
+});
+
+test('a delayed timeframe response never replaces the chart for the latest selection', async () => {
+  const waiting = new Map();
+  globalThis.fetch = url => new Promise(resolve => waiting.set(url, data => resolve({ ok: true, json: async () => data })));
+  const rendered = [];
+  const controller = createPriceController({}, {}, { renderMainChart: data => rendered.push(data) });
+  const older = controller.loadPriceHistory('24h');
+  const latest = controller.loadPriceHistory('1h');
+  waiting.get('/api/prices/history?timeframe=1h')({ timeframe: '1h', prices: [{ timestamp: 1, price: 2500 }] });
+  await latest;
+  waiting.get('/api/prices/history?timeframe=24h')({ timeframe: '24h', prices: [] });
+  await older;
+  assert.deepEqual(rendered.map(data => data.timeframe), ['1h']);
 });
 

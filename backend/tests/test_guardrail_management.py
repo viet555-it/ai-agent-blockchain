@@ -20,7 +20,7 @@ from agent.llm.fake import FakeLLMProvider
 from backend.api.server import create_app
 from backend.db.repositories import guardrail_configs as gc_repo
 from backend.db.schema_limits_v2 import entries as limit_entries
-from backend.db.schema_v1 import proposals, sessions
+from backend.db.schema_v1 import proposals
 from backend.db.store import Database
 from backend.guardrail.policy_engine import PolicyConfig, PolicyEngine
 from backend.services.blockchain_service import BlockchainService
@@ -32,6 +32,37 @@ ORIGIN = "http://testserver"
 
 
 class GuardrailManagementTests(unittest.TestCase):
+    def test_contract_ceiling_is_read_live_and_enforced_without_capping_daily_limit(self):
+        self.login(self.a, self.client_a)
+        address = "0x" + "aa" * 20
+        config = self.client_a.get("/api/guardrail/config").json()
+        self.assertEqual(config["contract_transfer_limit"]["per_tx_limit"], "500")
+        self.assertEqual(config["contract_transfer_limit"]["owner"], self.a.address)
+        payload = {"wallet_address": self.a.address, "per_tx_native_limit": 1, "daily_native_limit": 2,
+                   "token_limits": {address: {"per_tx_limit": 501, "daily_limit": 1000}}}
+        rejected = self.client_a.put("/api/guardrail/config", json=payload)
+        self.assertEqual(rejected.status_code, 400, rejected.text)
+        self.assertEqual(rejected.json()["detail"]["code"], "CONTRACT_TRANSFER_LIMIT")
+        payload["token_limits"][address]["per_tx_limit"] = 500
+        self.assertEqual(self.client_a.put("/api/guardrail/config", json=payload).status_code, 200)
+        self.chain.get_erc20_contract.return_value.functions.maxTransferLimit.return_value.call.return_value = 750 * 10**18
+        payload["token_limits"][address]["per_tx_limit"] = 700
+        self.assertEqual(self.client_a.put("/api/guardrail/config", json=payload).status_code, 200)
+        updated = self.client_a.get("/api/guardrail/config").json()
+        self.assertEqual(updated["contract_transfer_limit"]["per_tx_limit"], "750")
+        self.assertEqual(updated["per_tx_token_limit"], 700)
+        self.assertEqual(updated["daily_token_limit"], 1000)
+
+    def test_unavailable_contract_ceiling_is_never_assumed_to_be_500(self):
+        self.login(self.a, self.client_a)
+        self.chain.get_erc20_contract.side_effect = ConnectionError("RPC unavailable")
+        self.assertIsNone(self.client_a.get("/api/guardrail/config").json()["contract_transfer_limit"])
+        response = self.client_a.put("/api/guardrail/config", json={
+            "wallet_address": self.a.address, "per_tx_native_limit": 1, "daily_native_limit": 2,
+            "token_limits": {"0x" + "aa" * 20: {"per_tx_limit": 100, "daily_limit": 1000}},
+        })
+        self.assertEqual(response.status_code, 503, response.text)
+
     def setUp(self):
         self.folder = Path(self.enterContext(tempfile.TemporaryDirectory()))
         self.url = "sqlite:///" + (self.folder / "test_guardrail.db").as_posix()
@@ -51,6 +82,10 @@ class GuardrailManagementTests(unittest.TestCase):
         self.chain.w3 = MagicMock()
         self.chain.w3.eth.chain_id = 31337
         self.chain.w3.eth.block_number = 100
+        contract = self.chain.get_erc20_contract.return_value
+        contract.functions.maxTransferLimit.return_value.call.return_value = 500 * 10**18
+        contract.functions.decimals.return_value.call.return_value = 18
+        contract.functions.owner.return_value.call.return_value = self.a.address
         self.chain.w3.eth.get_code.return_value = b""
         self.chain.w3.eth.get_balance.return_value = 10**22
         self.chain.w3.eth.get_transaction_count.return_value = 0

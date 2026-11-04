@@ -2,12 +2,15 @@ import { t, onLanguageChange } from '../i18n.js';
 import { guardrailReasons } from './guardrail-reasons.js';
 import { displayDecimal } from '../api.js';
 import { shortenAddress } from './format.js';
+import { sameAddress } from '../wallet.js';
 
 export function createAssetsView(state, elements) {
   let currentWhitelist = [];
   let lastTestBlockResult = null;
+  let lastContractLimit = null;
   onLanguageChange(() => {
     if (lastTestBlockResult) renderTestBlockResult(lastTestBlockResult);
+    renderContractLimit(lastContractLimit);
   });
 
   function updateNetworkLabels() {
@@ -84,6 +87,8 @@ export function createAssetsView(state, elements) {
     const container = document.getElementById('guardrail-whitelist-tags');
     if (!container) return;
     container.replaceChildren();
+    const copyStatus = document.getElementById('whitelist-copy-status');
+    if (copyStatus) copyStatus.textContent = '';
 
     if (currentWhitelist.length === 0) {
       const emptyNote = document.createElement('span');
@@ -97,25 +102,42 @@ export function createAssetsView(state, elements) {
     currentWhitelist.forEach((addr, idx) => {
       const tag = document.createElement('span');
       tag.className = 'whitelist-tag';
-      tag.textContent = shortenAddress(addr);
       tag.title = addr;
+
+      const copyBtn = document.createElement('button');
+      copyBtn.type = 'button';
+      copyBtn.className = 'whitelist-copy';
+      copyBtn.textContent = shortenAddress(addr);
+      copyBtn.title = `${t('header.copyWallet')}: ${addr}`;
+      copyBtn.setAttribute('aria-label', copyBtn.title);
+      copyBtn.addEventListener('click', async () => {
+        if (copyStatus) copyStatus.textContent = '';
+        try {
+          await navigator.clipboard.writeText(addr);
+          if (copyStatus && copyBtn.isConnected) copyStatus.textContent = t('header.walletCopied');
+        } catch {
+          if (copyStatus && copyBtn.isConnected) copyStatus.textContent = t('guardrail.copyFailed');
+        }
+      });
 
       const removeBtn = document.createElement('button');
       removeBtn.type = 'button';
       removeBtn.textContent = '×';
       removeBtn.title = t('guardrail.remove');
+      removeBtn.setAttribute('aria-label', `${t('guardrail.remove')}: ${addr}`);
       removeBtn.addEventListener('click', () => {
         currentWhitelist.splice(idx, 1);
         renderWhitelistTags(currentWhitelist, onRemove);
         if (onRemove) onRemove(currentWhitelist);
       });
 
-      tag.appendChild(removeBtn);
+      tag.append(copyBtn, removeBtn);
       container.appendChild(tag);
     });
   }
 
   function renderGuardrailConfig(config, onWhitelistChange) {
+    renderContractLimit(config.contract_transfer_limit);
     const inputPerTxNative = document.getElementById('input-per-tx-native');
     const inputDailyNative = document.getElementById('input-daily-native');
     const spentNative = document.getElementById('val-guardrail-spent-native');
@@ -143,6 +165,23 @@ export function createAssetsView(state, elements) {
     if (checkRequireAppApproval) checkRequireAppApproval.checked = config.require_app_approval !== false;
 
     renderWhitelistTags(config.recipient_whitelist || [], onWhitelistChange);
+  }
+
+  function renderContractLimit(ceiling) {
+    lastContractLimit = ceiling;
+    const note = document.getElementById('contract-limit-note');
+    if (!note) return;
+    note.textContent = ceiling ? t('guardrail.contractCeiling', { limit: ceiling.per_tx_limit }) : t('guardrail.contractUnavailable');
+    const input = document.getElementById('input-per-tx-token');
+    input.disabled = !ceiling;
+    if (ceiling) input.max = ceiling.per_tx_limit;
+    else input.removeAttribute('max');
+    document.getElementById('btn-save-guardrail-config').disabled = !ceiling;
+    const wallet = state.walletController;
+    document.getElementById('contract-limit-form').hidden = !(ceiling && wallet?.ready && sameAddress(wallet.address, ceiling.owner));
+    const ownerInput = document.getElementById('input-contract-limit');
+    if (ceiling && ownerInput !== document.activeElement && !state.updatingContractLimit) ownerInput.value = ceiling.per_tx_limit;
+    document.getElementById('btn-save-contract-limit').disabled = Boolean(state.updatingContractLimit);
   }
 
   function setGuardrailSaveStatus(message, isError = false) {

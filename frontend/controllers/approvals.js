@@ -7,20 +7,26 @@ export function createApprovalController(state, elements, {
   async function submitApprovalAction(action) {
     if (!state.pendingApproval) return;
     if (state.walletMode) {
+      const approval = state.pendingApproval;
       const wallet = state.walletController;
       const generation = wallet.generation;
+      const conversation = wallet.conversation;
+      const epoch = state.historyView.epoch;
+      const current = () => wallet.current(generation) && wallet.conversation === conversation && state.historyView.epoch === epoch;
       elements.btnModalApprove.disabled = true;
       elements.btnModalReject.disabled = true;
+      const hint = document.getElementById('approval-wallet-hint');
+      if (hint) hint.hidden = action !== 'APPROVE';
       try {
-        const result = await wallet.submit(state.pendingApproval, action);
-        if (!wallet.current(generation)) return;
-        closeApprovalModal();
+        const result = await wallet.submit(approval, action);
+        if (!current()) return;
+        if (state.pendingApproval === approval) closeApprovalModal();
         appendMessage('agent', action === 'REJECT' ? t('modal.rejectedMsg') : t('wallet.sent', { hash: result.tx_hash }));
         await state.historyView.refreshTransactions();
         await loadWalletInfo();
       } catch (error) {
-        if (!wallet.current(generation)) return;
-        closeApprovalModal();
+        if (!current()) return;
+        if (state.pendingApproval === approval) closeApprovalModal();
         appendMessage('agent', error.message);
         await state.historyView.refreshTransactions().catch(() => {});
       }

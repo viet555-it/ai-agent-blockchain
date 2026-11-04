@@ -45,9 +45,9 @@ TOKEN_ID_MAP: dict[str, str] = {
 # ── Timeframe presets ────────────────────────────────────────────────
 
 _TIMEFRAME_CONFIG: dict[str, dict[str, Any]] = {
-    "1h": {"days": "0.042", "interval": "minutely"},   # ~1 h  → 5-min granularity
-    "24h": {"days": "1", "interval": "hourly"},         # 24 h  → 1-hour granularity
-    "7d": {"days": "7", "interval": "hourly"},          # 7 d   → ~6-hour (post-sampled)
+    "1h": {"days": "1"},  # Public auto-granularity: 5-minute points, filtered below.
+    "24h": {"days": "1"},
+    "7d": {"days": "7"},
     "30d": {"days": "30", "interval": "daily"},         # 30 d  → daily granularity
 }
 
@@ -214,6 +214,12 @@ class PriceService:
                 data = resp.json()
 
             raw_prices: list[list[float]] = data.get("prices", [])
+            raw_prices = sorted(raw_prices, key=lambda point: point[0])
+            if timeframe == "1h" and raw_prices:
+                cutoff = raw_prices[-1][0] - 3600 * 1000
+                raw_prices = [point for point in raw_prices if point[0] >= cutoff]
+            if not raw_prices:
+                raise ValueError("Price history is empty")
 
             # Down-sample 7d data to ~6-hour intervals (CoinGecko returns
             # hourly data for day ranges ≤ 90).

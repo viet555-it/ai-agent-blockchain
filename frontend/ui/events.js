@@ -56,6 +56,10 @@ export function bindDashboardEvents(state, elements, {
   // Modal actions
   elements.btnModalApprove.addEventListener('click', () => submitApprovalAction('APPROVE'));
   elements.btnModalReject.addEventListener('click', () => submitApprovalAction('REJECT'));
+  document.getElementById('btn-close-approval').addEventListener('click', closeApprovalModal);
+  elements.approvalModal.addEventListener('click', event => {
+    if (event.target === elements.approvalModal) closeApprovalModal();
+  });
 
   // Close modal on escape key
   window.addEventListener('keydown', (e) => {

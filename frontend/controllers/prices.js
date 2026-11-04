@@ -4,6 +4,7 @@ import { api } from '../api.js';
 
 export function createPriceController(state, elements, view) {
   let activeTimeframe = '24h';
+  let historyRequest = 0;
   const alertedIds = new Set();
 
   async function loadCurrentPrice() {
@@ -28,12 +29,14 @@ export function createPriceController(state, elements, view) {
 
   async function loadPriceHistory(timeframe = activeTimeframe) {
     activeTimeframe = timeframe;
+    const request = ++historyRequest;
     try {
       const data = await api(`/prices/history?timeframe=${encodeURIComponent(timeframe)}`);
-      view.renderMainChart(data);
+      if (request === historyRequest) view.renderMainChart(data);
       return data;
     } catch (err) {
       console.error('Failed to load price history:', err);
+      if (request === historyRequest) view.renderMainChart({ prices: [], timeframe, error: err.message });
     }
   }
 

@@ -20,7 +20,6 @@ export function collectElements() {
     langOptVi: document.getElementById('lang-opt-vi'),
 
     // Assets Panel
-    iconBlockchainPanel: document.getElementById('icon-blockchain-panel'),
     btnRefreshAssets: document.getElementById('btn-refresh-assets'),
     valNativeBalance: document.getElementById('val-native-balance'),
     valNativeSymbol: document.getElementById('val-native-symbol'),

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { WalletController, sameAddress } from '../wallet.js';
+import { WalletController, sameAddress, tokenLimitUnits } from '../wallet.js';
 import { transactionForProvider, displayDecimal } from '../api.js';
 
 globalThis.BroadcastChannel = undefined;
@@ -35,6 +35,32 @@ test('transaction conversion preserves exact uint256 amounts above JS Number pre
   assert.equal(converted.from, A);
   assert.ok(sameAddress(A, A.toUpperCase()));
   assert.equal(displayDecimal('9999.998698071654296875'), '9999.998698…');
+});
+
+test('only the owner can submit a contract ceiling change, with exact token units', async () => {
+  const injected = provider();
+  const calls = [];
+  const original = injected.request.bind(injected);
+  injected.request = async request => {
+    calls.push(request);
+    if (request.method === 'eth_call') return '0x';
+    if (request.method === 'eth_estimateGas') return '0x10000';
+    return original(request);
+  };
+  const wallet = new WalletController(31337);
+  wallet.attach(injected);
+  wallet.address = A; wallet.chainId = 31337; wallet.context = { id: 'owner' }; wallet.status = 'ready';
+  const contract = { owner: B, address: B, chain_id: 31337, decimals: 18, setter_selector: '0x12345678' };
+  await assert.rejects(wallet.setTransferLimit(contract, '1000'), /owner/);
+  assert.equal(injected.sends, 0);
+  await wallet.setTransferLimit({ ...contract, owner: A }, '1000.000000000000000001');
+  const transaction = calls.find(call => call.method === 'eth_sendTransaction').params[0];
+  assert.equal(BigInt('0x' + transaction.data.slice(10)), 1000000000000000000001n);
+  assert.equal(transaction.to, B);
+  assert.equal(injected.sends, 1);
+  assert.equal(wallet.signing, false);
+  assert.throws(() => tokenLimitUnits('0', 18));
+  assert.throws(() => tokenLimitUnits('1.001', 2));
 });
 
 test('account selection invalidates context immediately and ignores an old generation', async () => {

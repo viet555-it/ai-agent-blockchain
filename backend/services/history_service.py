@@ -1,15 +1,31 @@
 """Owner-scoped history, durable chat leases and bounded context restoration."""
 
 import base64
+import re
 import time
 
-from sqlalchemy import select, update
+from sqlalchemy import case, delete, select, update
 
 from backend.db.pagination import encode_cursor as encode_cursor
 from backend.db.pagination import page as page
 from backend.db.schema_v1 import audit, conversations, messages, proposals, turns
 from backend.services.wallet_common import fail, one, record_audit, require_context, uid
 from backend.wallet_errors import WalletErrorKind as ErrorKind
+
+DEFAULT_CHAT_TITLES = {"new chat", "chat mới", "trò chuyện mới", "cuộc trò chuyện mới"}
+
+
+def conversation_title(query):
+    """Derive a short, local title from the first prompt without another model call."""
+    text = re.sub(r"0x[a-fA-F0-9]{40}\b", lambda match: match[0][:6] + "…" + match[0][-4:], query)
+    text = " ".join(text.split()).strip(" #*`\"'")
+    text = re.split(r"(?<=[.!?])\s+", text, maxsplit=1)[0].rstrip(".!?")
+    if len(text) <= 60:
+        return text or "New chat"
+    shortened = text[:59]
+    if " " in shortened:
+        shortened = shortened.rsplit(" ", 1)[0]
+    return shortened.rstrip() + "…"
 
 
 def protocol_json(value, decode=False):
@@ -55,11 +71,13 @@ class HistoryService:
             connection.execute(conversations.insert().values(**row))
         return row
 
-    def list(self, principal, cursor=None, deployment_id=None):
+    def list(self, principal, cursor=None, deployment_id=None, archived=False):
         with self.db.transaction() as connection:
             query = select(conversations).where(
                 conversations.c.wallet_id == principal.wallet_id,
-                conversations.c.archived_at.is_(None),
+                conversations.c.archived_at.is_not(None)
+                if archived
+                else conversations.c.archived_at.is_(None),
             )
             if deployment_id:
                 query = query.where(conversations.c.deployment_id == deployment_id)
@@ -77,6 +95,37 @@ class HistoryService:
                 update(conversations).where(conversations.c.id == conversation_id).values(**values)
             )
         return {"status": "UPDATED"}
+
+    def delete(self, principal, conversation_id):
+        with self.db.transaction() as connection:
+            conversation = self.conversation(connection, principal, conversation_id)
+            if conversation["lease_until"] > time.time():
+                fail(
+                    ErrorKind.CONFLICT,
+                    "CHAT_BUSY",
+                    "Wait for the current reply before deleting this conversation.",
+                )
+            # Financial records remain owner-scoped and reconcilable after chat removal.
+            connection.execute(
+                update(proposals)
+                .where(proposals.c.conversation_id == conversation_id)
+                .values(
+                    conversation_id=None,
+                    turn_id=None,
+                    status=case(
+                        (proposals.c.status == "PENDING_REVIEW", "CANCELLED"),
+                        else_=proposals.c.status,
+                    ),
+                )
+            )
+            turn_ids = select(turns.c.id).where(turns.c.conversation_id == conversation_id)
+            connection.execute(delete(messages).where(messages.c.turn_id.in_(turn_ids)))
+            connection.execute(delete(turns).where(turns.c.conversation_id == conversation_id))
+            connection.execute(delete(conversations).where(conversations.c.id == conversation_id))
+            record_audit(
+                connection, principal.wallet_id, "CHAT_DELETED", conversation_id=conversation_id
+            )
+        return {"status": "DELETED"}
 
     def list_turns(self, principal, conversation_id, cursor=None):
         with self.db.transaction() as connection:
@@ -152,10 +201,20 @@ class HistoryService:
                     "CONVERSATION_CONTEXT",
                     "Start a conversation on the current deployment.",
                 )
+            claim_values = dict(lease_until=now + 300, lease_id=turn_id, updated_at=now)
+            if conversation["title"].strip().casefold() in DEFAULT_CHAT_TITLES and not one(
+                connection,
+                select(turns.c.id).where(turns.c.conversation_id == conversation_id).limit(1),
+            ):
+                # Preserve a manual rename committed while this request was starting.
+                claim_values["title"] = case(
+                    (conversations.c.title == conversation["title"], conversation_title(query)),
+                    else_=conversations.c.title,
+                )
             claimed = connection.execute(
                 update(conversations)
                 .where(conversations.c.id == conversation_id, conversations.c.lease_until < now)
-                .values(lease_until=now + 300, lease_id=turn_id, updated_at=now)
+                .values(**claim_values)
             )
             if claimed.rowcount != 1:
                 fail(

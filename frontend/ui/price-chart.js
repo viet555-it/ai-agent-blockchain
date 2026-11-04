@@ -49,7 +49,7 @@ export function createPriceChartView(state, elements) {
           backgroundColor: gradient,
           fill: true,
           tension: 0.25,
-          pointRadius: 0,
+          pointRadius: prices.length === 1 ? 3 : 0,
           pointHoverRadius: isMini ? 2 : 4,
           pointHoverBackgroundColor: primaryColor,
         }],
@@ -106,7 +106,14 @@ export function createPriceChartView(state, elements) {
       mainChartInstance = null;
     }
 
-    const prices = historyData?.prices || [];
+    const prices = (historyData?.prices || []).filter(point => Number.isFinite(point.timestamp) && Number.isFinite(point.price));
+    const status = document.getElementById('price-chart-status');
+    if (status) {
+      status.hidden = prices.length > 0;
+      status.textContent = prices.length ? '' : t('prices.historyUnavailable');
+    }
+    elements.priceChartCanvas.hidden = !prices.length;
+    if (!prices.length) return;
     const tf = historyData?.timeframe || '24h';
     mainChartInstance = initChart(elements.priceChartCanvas, prices, tf, false);
   }
@@ -181,7 +188,7 @@ export function createPriceChartView(state, elements) {
 
     elements.priceAlertsList.innerHTML = alerts.map(a => `
       <div class="price-alert-item ${a.triggered ? 'triggered' : ''}">
-        <span>${a.direction === 'above' ? '▲' : '▼'} ${a.pair} ${a.direction === 'above' ? t('prices.above') : t('prices.below')} $${Number(a.threshold).toLocaleString()}</span>
+        <span>${a.direction === 'above' ? icons.chevronUp : icons.chevronDown} ${a.pair} ${a.direction === 'above' ? t('prices.above') : t('prices.below')} $${Number(a.threshold).toLocaleString()}</span>
         <button type="button" class="price-alert-del-btn" data-id="${escapeHtml(a.id)}" title="Delete alert">×</button>
       </div>
     `).join('');
@@ -196,25 +203,38 @@ export function createPriceChartView(state, elements) {
   }
 
   function showAlertToast(alert) {
+    let notifications = document.querySelector('.price-alert-notifications');
+    if (!notifications) {
+      notifications = document.createElement('div');
+      notifications.className = 'price-alert-notifications';
+      notifications.setAttribute('role', 'region');
+      notifications.setAttribute('aria-label', t('prices.alerts'));
+      document.body.appendChild(notifications);
+    }
     const toast = document.createElement('div');
     toast.className = 'price-alert-toast';
+    toast.setAttribute('role', 'alert');
     toast.innerHTML = `
-      <span style="font-size:1.2rem;">⚡</span>
-      <div>
-        <div style="font-weight:600; font-size:var(--text-sm); color:var(--primary);">
-          ${t('prices.alerts')}
-        </div>
-        <div style="font-size:var(--text-xs); color:var(--text-main);">
-          ${t('prices.alertTriggered', { direction: alert.direction, threshold: alert.threshold })}
-        </div>
+      <span class="price-alert-toast-icon" aria-hidden="true">${icons.alertTriangle}</span>
+      <div class="price-alert-toast-content">
+        <div class="price-alert-toast-title"></div>
+        <div class="price-alert-toast-message"></div>
       </div>
+      <button type="button" class="price-alert-toast-close"><span aria-hidden="true">×</span></button>
     `;
-    document.body.appendChild(toast);
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transition = 'opacity 0.5s ease';
-      setTimeout(() => toast.remove(), 500);
-    }, 5000);
+    toast.querySelector('.price-alert-toast-title').textContent = t('prices.alerts');
+    toast.querySelector('.price-alert-toast-message').textContent = t('prices.alertTriggered', {
+      direction: t(alert.direction === 'above' ? 'prices.above' : 'prices.below'),
+      threshold: alert.threshold,
+    });
+    const close = toast.querySelector('.price-alert-toast-close');
+    close.setAttribute('aria-label', t('workspace.close'));
+    close.title = t('workspace.close');
+    close.addEventListener('click', () => {
+      toast.remove();
+      if (!notifications.childElementCount) notifications.remove();
+    });
+    notifications.appendChild(toast);
   }
 
   function createChatChartComponent(historyData, options = {}) {

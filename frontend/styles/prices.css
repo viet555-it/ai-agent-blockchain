@@ -247,6 +247,7 @@
 }
 
 /* In-Chat Interactive Chart Component */
+.price-chart-status { display: grid; place-items: center; height: 100%; padding: 1.5rem; color: var(--text-muted); text-align: center; font-size: .9rem; line-height: 1.6; }
 .chat-price-chart-card {
   margin-top: 0.6rem;
   background: var(--bg-card);
@@ -279,22 +280,47 @@
   height: 150px;
 }
 
-/* In-App Toast Notification */
-.price-alert-toast {
+/* Persistent alerts stack so simultaneous thresholds remain readable. */
+.price-alert-notifications {
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: min(480px, calc(100vw - 2rem));
+  max-height: calc(100dvh - 3rem);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: .85rem;
+  padding: .25rem;
+  z-index: 9999;
+}
+
+.price-alert-toast {
   background: var(--bg-modal);
   border: 1px solid var(--primary);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px var(--primary-glow);
   border-radius: var(--radius-md);
-  padding: 0.85rem 1.25rem;
+  padding: 1.25rem;
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  z-index: 9999;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-shrink: 0;
   animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+.price-alert-toast-icon { color: var(--primary); flex: none; padding-top: .15rem; }
+.price-alert-toast-icon svg { width: 26px; height: 26px; }
+.price-alert-toast-content { flex: 1; min-width: 0; }
+.price-alert-toast-title { font-weight: 700; font-size: 1.05rem; color: var(--primary); margin-bottom: .5rem; }
+.price-alert-toast-message { font-size: 1rem; line-height: 1.65; color: var(--text-main); overflow-wrap: anywhere; }
+.price-alert-toast-close { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--bg-surface); color: var(--text-main); font-size: 1.5rem; cursor: pointer; }
+.price-alert-toast-close:hover { background: var(--bg-surface-hover); }
+.price-alert-toast-close:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+@media (max-width: 600px) {
+  .price-alert-notifications { bottom: 1rem; right: 1rem; }
+  .price-alert-toast { padding: 1rem; gap: .65rem; }
+}
+@media (prefers-reduced-motion: reduce) { .price-alert-toast { animation: none; } }
 
 @keyframes slideInUp {
   from {
