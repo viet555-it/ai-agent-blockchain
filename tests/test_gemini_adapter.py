@@ -209,3 +209,15 @@ async def test_all_local_proposal_schemas_are_gemini_compatible_and_validation_s
     assert repr(tools) == originals
     with pytest.raises(ValidationError):
         TokenInput(to="0x123", amount="1", approval=True)
+
+
+def test_gemini_provider_configures_retry_and_timeout():
+    with patch("google.genai.Client") as mock_client:
+        GeminiProvider("test-key", timeout=45000, retry_attempts=4)
+        mock_client.assert_called_once()
+        http_options = mock_client.call_args.kwargs["http_options"]
+        assert http_options.timeout == 45000
+        assert http_options.retry_options.attempts == 4
+        assert 504 in http_options.retry_options.http_status_codes
+        assert 429 in http_options.retry_options.http_status_codes
+

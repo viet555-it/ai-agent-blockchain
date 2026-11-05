@@ -19,6 +19,8 @@ class GeminiProvider:
         *,
         max_output_tokens: int = 768,
         max_calls: int | None = None,
+        timeout: int = 60000,
+        retry_attempts: int = 3,
     ) -> None:
         from google import genai
         from google.genai import types
@@ -28,7 +30,11 @@ class GeminiProvider:
         self._client = genai.Client(
             api_key=api_key,
             http_options=types.HttpOptions(
-                timeout=30000, retry_options=types.HttpRetryOptions(attempts=1)
+                timeout=timeout,
+                retry_options=types.HttpRetryOptions(
+                    attempts=retry_attempts,
+                    http_status_codes=[408, 429, 500, 502, 503, 504],
+                ),
             ),
         )
         self._model = model or DEFAULT_MODEL
